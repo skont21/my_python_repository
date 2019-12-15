@@ -4,14 +4,17 @@ import os
 import subprocess
 from getpass import getpass
 
-path=os.getcwd()
+path=input("Enter the pvplants path: ")
 
 # print("Current Path:",path)
 username= input("Username:")
 password=getpass("Password:")
 
 url = "https://svn.inaccess.com/implementation/"
+
+print("Connecting to SVN\n")
 data = requests.get(url,auth=(username,password)).content.decode('utf-8')
+print("Done\n")
 
 soup = BeautifulSoup(data,"html.parser")
 tags = soup('a')
@@ -24,20 +27,23 @@ for tag in tags:
     pvplants.append(plant)
     pvplants_urls.append(url+plant+'/trunk/Provisioning/')
 
-directories = list(os.walk('.'))[0][1]
+print("Checking for new directories\n")
+directories = list(os.walk(path))[0][1]
 for plant in pvplants:
     if plant in directories:
         continue
     else:
         print("Making Directory:",plant)
-        mkdir = "mkdir " + plant
+        mkdir = "mkdir " + path + "/" +plant
         _=subprocess.Popen(mkdir.split(),stdout=subprocess.PIPE).communicate()
+print("Done\n")
 
 i=0
+
 for pvplants_url in pvplants_urls:
     ci = "svn co "+"--username "+username+" --password "+password+" "+pvplants_url+" ."
     up = "svn up"
-    os.chdir(pvplants[i]+"/")
+    os.chdir(path+"/"+pvplants[i]+"/")
 
     files = list(os.walk('.'))[0][2]
     if not files:
@@ -47,4 +53,4 @@ for pvplants_url in pvplants_urls:
         print("Updating:",pvplants[i])
         _=subprocess.Popen(up.split(),stdout=subprocess.PIPE).communicate()
     i+=1
-    os.chdir("..")
+    os.chdir(path)
