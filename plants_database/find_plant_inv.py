@@ -2,9 +2,8 @@ import os
 import fnmatch
 import json
 import re
-import odsparser
+import odsparser_3
 from pyexcel_odsr import get_data
-import odsparser
 import ooolib
 
 CBLACK  = '\33[30m'

@@ -1,8 +1,8 @@
-import odsparser
+import odsparser_3
 import ooolib
 import json
 
-file = "/media/spiros/154E4B74185BB8CC/pvplants/VN_Sungrow_Fuji_40MWp_2864/VN_Sungrow_Fuji_40MWp_2864_InstallationData.ods"
+file = "/media/spiros/my_data/pvplants/VN_Sungrow_Fuji_40MWp_2864/VN_Sungrow_Fuji_40MWp_2864_InstallationData.ods"
 
 s=odsparser.Spreadsheet(file)
 data=s.parse()
