@@ -28,6 +28,24 @@ def main(arg1,arg2,arg3):
     def find_country(data):
         try:
             country = data['Plant']['Country'].encode('utf-8')
+            if country == 'Viet Nam':
+                country = 'Vietnam'
+            elif country == 'UK':
+                country = 'United Kingdom'
+            elif country == 'SOUTH AFRICA':
+                country = 'South Africa'
+            elif country == "Hellas":
+                country = "Greece"
+            elif country == "GREECE":
+                country = "Greece"
+            elif country == "United States":
+                country = "USA"
+            elif country == "KE":
+                country = "Kenya"
+            elif country == "INDIA":
+                country = "India"
+            elif country == "NL":
+                country = "Netherlands"
         except AttributeError:
             country='Undefined'
         except IndexError:
@@ -75,24 +93,7 @@ def main(arg1,arg2,arg3):
 
         country = find_country(data)
 
-        if country == 'Viet Nam':
-            country = 'Vietnam'
-        elif country == 'UK':
-            country = 'United Kingdom'
-        elif country == 'SOUTH AFRICA':
-            country = 'South Africa'
-        elif country == "Hellas":
-            country = "Greece"
-        elif country == "GREECE":
-            country = "Greece"
-        elif country == "United States":
-            country = "USA"
-        elif country == "KE":
-            country = "Kenya"
-        elif country == "INDIA":
-            country = "India"
-        elif country == "NL":
-            country = "Netherlands"
+
         entry['country']=country
         print(entry['country'])
 

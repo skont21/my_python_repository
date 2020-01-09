@@ -350,7 +350,7 @@ class Spreadsheet:
 		zf = ZipFile(self.fname)
 		for f in zf.infolist():
 			if f.orig_filename == 'meta.xml':
-				for t in zf.read(f).split('<'):
+				for t in zf.read(f).decode('utf-8').split('<'):
 					if 'meta:user-defined meta:name="Version"' in t:
 						v = t.split('>')[1].split('.')
 						if len(v) == 1:
@@ -504,11 +504,10 @@ if __name__=='__main__':
 	try:
 		s = Spreadsheet(argv[2])
 	except IOError:
-		print("Error: Cannot open file '{}'".format(argv[2]))
-		# print('Error: Cannot open file \'%s\'' % argv[2])
+		print("Error: Cannot open file {}".format(argv[2]))
 		sys.exit(1)
 	except:
-		print("Eroor: File '{}' is not valid".format(argv[2]))
+		print("Error: File '{}' is not valid".format(argv[2]))
 		# print('Error: File \'%s\' is not valid' % argv[2])
 		sys.exit(1)
 	data = s.parse()

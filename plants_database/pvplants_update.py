@@ -42,7 +42,7 @@ i=0
 
 for pvplants_url in pvplants_urls:
     ci = "svn co "+"--username "+username+" --password "+password+" "+pvplants_url+" ."
-    up = "svn up"
+    up = "svn up --accept tf"
     os.chdir(path+"/"+pvplants[i]+"/")
 
     files = list(os.walk('.'))[0][2]
