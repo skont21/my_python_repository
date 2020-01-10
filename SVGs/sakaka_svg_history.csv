@@ -1,0 +1,51 @@
+ 4421  2019-12-30 15:59:16 modbus_cli write 10:1:SHR/U:21290 500
+ 4422  2019-12-30 16:00:02 modbus_cli write 10:1:SHR/U:21290 400
+ 4423  2019-12-30 16:00:39 modbus_cli write 10:1:SHR/U:21290 350
+ 4424  2019-12-30 16:01:22 modbus_cli write 10:1:SHR/U:21290 300
+ 4425  2019-12-30 16:02:27 modbus_cli write 10:1:SHR/U:21290 250
+ 4426  2019-12-30 16:03:02 modbus_cli write 10:1:SHR/U:21290 200
+ 4427  2019-12-30 16:03:41 modbus_cli write 10:1:SHR/U:21290 150
+ 4428  2019-12-30 16:04:17 modbus_cli write 10:1:SHR/U:21290 -- -500
+ 4429  2019-12-30 16:05:05 modbus_cli write 10:1:SHR/U:21290 -- -400
+ 4430  2019-12-30 16:05:56 modbus_cli write 10:1:SHR/U:21290 -- -300
+ 4431  2019-12-30 16:06:36 modbus_cli write 10:1:SHR/U:21290 -- -200
+ 4432  2019-12-30 16:07:17 modbus_cli write 10:1:SHR/U:21290 -- -150
+ 4433  2019-12-30 16:08:02 modbus_cli write 10:1:SHR/U:21290 0
+ 4434  2019-12-30 16:09:29 modbus_cli write 10:1:SHR/U:21291 500
+ 4435  2019-12-30 16:10:41 modbus_cli write 10:1:SHR/U:21291 400
+ 4436  2019-12-30 16:11:36 modbus_cli write 10:1:SHR/U:21291 300
+ 4437  2019-12-30 16:12:57 modbus_cl read 10:1:SHR/U:22579
+ 4438  2019-12-30 16:13:03 modbus_cli read 10:1:SHR/U:22579
+ 4439  2019-12-30 16:13:18 modbus_cli write 10:1:SHR/U:21291 250
+ 4440  2019-12-30 16:14:28 modbus_cli write 10:1:SHR/U:21291 200
+ 4441  2019-12-30 16:15:07 modbus_cli write 10:1:SHR/U:21291 0
+ 4442  2019-12-30 16:16:10 modbus_cli write 10:1:SHR/U:21291 -- -500
+ 4443  2019-12-30 16:16:34 modbus_cli write 10:1:SHR/U:21291 -- -400
+ 4444  2019-12-30 16:17:16 modbus_cli write 10:1:SHR/U:21291 -- -350
+ 4445  2019-12-30 16:18:16 modbus_cli write 10:1:SHR/U:21291 -- -300
+ 4446  2019-12-30 16:19:07 modbus_cli write 10:1:SHR/U:21291 -- -250
+ 4447  2019-12-30 16:19:49 modbus_cli write 10:1:SHR/U:21291 -- -200
+ 4448  2019-12-30 16:20:07 modbus_cli write 10:1:SHR/U:21291 0
+ 4449  2019-12-30 16:21:02 clear
+ 4450  2019-12-30 16:21:19 modbus_cli write 10:1:SHR/U:21290 -- -500
+ 4451  2019-12-30 16:21:28 modbus_cli write 10:1:SHR/U:2129 500
+ 4452  2019-12-30 16:21:31 modbus_cli write 10:1:SHR/U:21291 500
+ 4453  2019-12-30 16:21:48 modbus_cli write 10:1:SHR/U:21291 1000
+ 4454  2019-12-30 16:22:01 modbus_cli write 10:1:SHR/U:21290 -- -1000
+ 4455  2019-12-30 16:22:54 modbus_cli write 10:1:SHR/U:21290 -- -990
+ 4456  2019-12-30 16:23:48 modbus_cli write 10:1:SHR/U:21290 -- -980
+ 4457  2019-12-30 16:24:19 modbus_cli write 10:1:SHR/U:21290 -- -970
+ 4458  2019-12-30 16:24:51 modbus_cli write 10:1:SHR/U:21291 500
+ 4459  2019-12-30 16:25:08 modbus_cli write 10:1:SHR/U:21290 -- -500
+ 4460  2019-12-30 16:25:17 modbus_cli write 10:1:SHR/U:21291 0
+ 4461  2019-12-30 16:25:41 modbus_cli write 10:1:SHR/U:21290 -- -490
+ 4462  2019-12-30 16:25:52 modbus_cli write 10:1:SHR/U:21290 -- -485
+ 4463  2019-12-30 16:26:19 modbus_cli write 10:1:SHR/U:21290 -- -465
+ 4464  2019-12-30 16:26:55 modbus_cli write 10:1:SHR/U:21290 -- -425
+ 4465  2019-12-30 16:27:43 modbus_cli write 10:1:SHR/U:21290 -- -325
+ 4466  2019-12-30 16:28:35 modbus_cli write 10:1:SHR/U:21290 -- -225
+ 4467  2019-12-30 16:28:54 modbus_cli write 10:1:SHR/U:21290 -- -215
+ 4468  2019-12-30 16:29:29 modbus_cli write 10:1:SHR/U:21290 -- -200
+ 4469  2019-12-30 16:30:11 modbus_cli write 10:1:SHR/U:21290 -- -190
+ 4470  2019-12-30 16:31:24 modbus_cli write 10:1:SHR/U:21290 -- -170
+ 4471  2019-12-30 16:31:47 modbus_cli write 10:1:SHR/U:21290 0
