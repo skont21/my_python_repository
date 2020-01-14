@@ -6,11 +6,11 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from matplotlib.ticker import AutoMinorLocator, FormatStrFormatter
 
-Active =['ppc:P[^F]','pccm.*:ACTP_TOT',"epm.*:ACTP_TOT","pccs.*:ACTP_TOT"]
-Reactive =['ppc:Q.*','pccm.*:REACTP_TOT',"epm.*:REACTP_TOT","pccs.*:REACTP_TOT"]
-Voltage =['ppc:V','pccm.*:VABC_AVG',"epm.*:VABC_AVG","pccs.*:VABC_AVG"]
-Frequency=['ppc:F','pccm.*:F',"epm.*:F","pccs.*:F"]
-PowerFactor=['ppc:PF','pccm.*:PF',"epm.*:PF","pccs.*:PF"]
+Active =['ppc:P[^F]','.*pccm.*:ACTP_TOT',".*epm.*:ACTP_TOT",".*pccs.*:ACTP_TOT"]
+Reactive =['ppc:Q.*','.*pccm.*:REACTP_TOT',".*epm.*:REACTP_TOT",".*pccs.*:REACTP_TOT"]
+Voltage =['ppc:V','.*pccm.*:VABC_AVG',".*epm.*:VABC_AVG",".*pccs.*:VABC_AVG"]
+Frequency=['ppc:F','.*pccm.*:F',".*epm.*:F",".*pccs.*:F"]
+PowerFactor=['ppc:PF','.*pccm.*:PF',"epm.*:PF",".*pccs.*:PF"]
 Active_Setpoint = ['apc:PSP']
 Reactive_Setpoint = ['rpc:QSP']
 QV_Setpoint = ['rpc:VSP']
@@ -23,6 +23,11 @@ QV_En = ['rpc:VCEn']
 AVR_En = ['avr:En']
 Frequency_En = ['apc:FCEn']
 PowerFactor_En = ['pfc:En']
+
+measurement1= (0,0,104/256)
+measurement2= (62/256,150/256,81/256)
+setpoint1= (234/256,0,0)
+setpoint2 = (250/256,150/256,0)
 
 font = {'family': 'serif',
     'color':  'black',
@@ -68,7 +73,18 @@ def get_traces(data):
     F = [l for k in Frequency for l in data.columns if re.match(k,l)]
     PF = [l for k in PowerFactor for l in data.columns if re.match(k,l)]
 
-    measurements={"P":data[P[0]],"Q":data[Q[0]],"V":data[V[0]],"F":data[F[0]],"PF":data[PF[0]]}
+    measurements=dict()
+    if P:
+        measurements["P"]=data[P[0]]
+    if Q:
+        measurements["Q"]=data[Q[0]]
+    if V:
+        measurements["V"]=data[V[0]]
+    if F:
+        measurements["F"]=data[F[0]]
+    if PF:
+        measurements["PF"]=data[PF[0]]
+
 
     PSP = [l for k in Active_Setpoint for l in data.columns if re.match(k,l)]
     QSP = [l for k in Reactive_Setpoint for l in data.columns if re.match(k,l)]
@@ -77,7 +93,20 @@ def get_traces(data):
     FSP = [l for k in Frequency_Setpoint for l in data.columns if re.match(k,l)]
     PFSP = [l for k in PowerFactor_Setpoint for l in data.columns if re.match(k,l)]
 
-    setpoints={"P":data[PSP[0]],"Q":data[QSP[0]],"QV":data[QV_VSP[0]],"AVR":data[AVR_VSP[0]],"F":data[FSP[0]],"PF":data[PFSP[0]]}
+    setpoints=dict()
+    if PSP:
+        setpoints["P"]=data[PSP[0]]
+    if QSP:
+        setpoints["Q"]=data[QSP[0]]
+    if QV_VSP:
+        setpoints["QV"]=data[QV_VSP[0]]
+    if AVR_VSP:
+        setpoints["AVR"]=data[AVR_VSP[0]]
+    if FSP:
+        setpoints["F"]=data[FSP[0]]
+    if PFSP:
+        setpoints["PF"]=data[PFSP[0]]
+
 
     PEn = [l for k in Active_En for l in data.columns if re.match(k,l)]
     QEn = [l for k in Reactive_En for l in data.columns if re.match(k,l)]
@@ -86,7 +115,20 @@ def get_traces(data):
     FEn = [l for k in Frequency_En for l in data.columns if re.match(k,l)]
     PFEn = [l for k in PowerFactor_En for l in data.columns if re.match(k,l)]
 
-    enables= {"P":data[PEn[0]],"Q":data[QEn[0]],"QV":data[QVEn[0]],"AVR":data[AVREn[0]],"F":data[FEn[0]],"PF":data[PFEn[0]]}
+    enables=dict()
+    if PEn:
+        enables["P"]=data[PEn[0]]
+    if QEn:
+        enables["Q"]=data[QEn[0]]
+    if QVEn:
+        enables["QV"]=data[QVEn[0]]
+    if AVREn:
+        enables["AVR"]=data[AVREn[0]]
+    if FEn:
+        enables["F"]=data[FEn[0]]
+    if PFEn:
+        enables["PF"]=data[PFEn[0]]
+
     return (time,measurements,setpoints,enables)
 
 def plot_P(TIME,P,PSP,PEN,PDB):
@@ -100,9 +142,9 @@ def plot_P(TIME,P,PSP,PEN,PDB):
     fig, ax = plt.subplots(figsize=(10,5))
 
     #Plot Measurement
-    l1,=ax.plot(TIME,P,label='P(kVAr)',linewidth=1)
+    l1,=ax.plot(TIME,P,label='P(kVAr)',color=measurement1,linewidth=1)
     #Plot Setpoints
-    l2,=ax.plot(TIME,PSP_copy,label='P Setpoint',linewidth=1)
+    l2,=ax.plot(TIME,PSP_copy,label='P Setpoint',color=setpoint1,linewidth=1)
     ax.fill_between(TIME.values,PSP_copy-PDB,PSP_copy+PDB,alpha=0.7,facecolor=l2.get_color())
 
     #Formatting axis
@@ -140,11 +182,11 @@ def plot_Q(TIME,Q,QSP,QEN,QDB):
     l1,=ax.plot(TIME,Q,label='Q(kVAr)',linewidth=1)
     #Plot Setpoints
     l2,=ax.plot(TIME,QSP_copy,label='Q Setpoint',linewidth=1)
-    ax.fill_between(TIME.values,QSP_copy-QDB,QSP_copy+QDB,alpha=0.7,facecolor=l2.get_color())
+    ax.fill_between(TIME.values,QSP_copy-QDB,QSP_copy+QDB,alpha=0.3,facecolor=l2.get_color())
 
     #Formatting axis
 
-    ax.set_ylim(min(Q.min(),QSP.min())*1.1,max(Q.max(),QSP.max())*1.1)
+    ax.set_ylim(min(Q.min(),QSP.min())*2,max(Q.max(),QSP.max())*2)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.set_facecolor('whitesmoke')
