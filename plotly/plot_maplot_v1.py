@@ -142,10 +142,10 @@ def plot_P(TIME,P,PSP,PEN,PDB):
     fig, ax = plt.subplots(figsize=(10,5))
 
     #Plot Measurement
-    l1,=ax.plot(TIME,P,label='P(kVAr)',color=measurement1,linewidth=1)
+    l1=ax.plot(TIME,P,label='P(kVAr)',color=measurement1,linewidth=1)
     #Plot Setpoints
-    l2,=ax.plot(TIME,PSP_copy,label='P Setpoint',color=setpoint1,linewidth=1)
-    ax.fill_between(TIME.values,PSP_copy-PDB,PSP_copy+PDB,alpha=0.7,facecolor=l2.get_color())
+    l2=ax.plot(TIME,PSP_copy,label='P Setpoint',color=setpoint1,linewidth=1)
+    lb=ax.fill_between(TIME.values,PSP_copy-PDB,PSP_copy+PDB,alpha=0.7,facecolor=l2[0].get_color())
 
     #Formatting axis
 
@@ -166,6 +166,33 @@ def plot_P(TIME,P,PSP,PEN,PDB):
     ax.tick_params(labelsize=10)
     ax.set_title('Active Power Control',fontdict=font,x=0.5,y=1.1)
 
+    # we will set up a dict mapping legend line to orig line, and enable
+    # picking on the legend line
+    lines = [l1[0],l2[0]]
+    lined = dict()
+    for legline, origline in zip(leg.get_lines(), lines):
+        legline.set_picker(5)  # 5 pts tolerance
+        lined[legline] = origline
+
+    def onpick(event):
+        # on the pick event, find the orig line corresponding to the
+        # legend proxy line, and toggle the visibility
+        legline = event.artist
+        origline = lined[legline]
+        vis = not origline.get_visible()
+        if origline == l2[0]:
+            vis_b = not lb.get_visible()
+            lb.set_visible(vis_b)
+        origline.set_visible(vis)
+        # Change the alpha on the line in the legend so we can see what lines
+        # have been toggled
+        if vis:
+            legline.set_alpha(1.0)
+        else:
+            legline.set_alpha(0.2)
+        fig.canvas.draw()
+
+    fig.canvas.mpl_connect('pick_event', onpick)
     plt.show()
     return
 
@@ -179,10 +206,10 @@ def plot_Q(TIME,Q,QSP,QEN,QDB):
     fig, ax = plt.subplots(figsize=(10,5))
 
     #Plot Measurement
-    l1,=ax.plot(TIME,Q,label='Q(kVAr)',linewidth=1)
+    l1=ax.plot(TIME,Q,label='Q(kVAr)',linewidth=1)
     #Plot Setpoints
-    l2,=ax.plot(TIME,QSP_copy,label='Q Setpoint',linewidth=1)
-    ax.fill_between(TIME.values,QSP_copy-QDB,QSP_copy+QDB,alpha=0.3,facecolor=l2.get_color())
+    l2=ax.plot(TIME,QSP_copy,label='Q Setpoint',linewidth=1)
+    lb=ax.fill_between(TIME.values,QSP_copy-QDB,QSP_copy+QDB,alpha=0.3,facecolor=l2[0].get_color())
 
     #Formatting axis
 
@@ -202,6 +229,33 @@ def plot_Q(TIME,Q,QSP,QEN,QDB):
                    fancybox=True, shadow=True)
     fig.autofmt_xdate()
 
+    # we will set up a dict mapping legend line to orig line, and enable
+    # picking on the legend line
+    lines = [l1[0],l2[0]]
+    lined = dict()
+    for legline, origline in zip(leg.get_lines(), lines):
+        legline.set_picker(5)  # 5 pts tolerance
+        lined[legline] = origline
+
+    def onpick(event):
+        # on the pick event, find the orig line corresponding to the
+        # legend proxy line, and toggle the visibility
+        legline = event.artist
+        origline = lined[legline]
+        vis = not origline.get_visible()
+        if origline == l2[0]:
+            vis_b = not lb.get_visible()
+            lb.set_visible(vis_b)
+        origline.set_visible(vis)
+        # Change the alpha on the line in the legend so we can see what lines
+        # have been toggled
+        if vis:
+            legline.set_alpha(1.0)
+        else:
+            legline.set_alpha(0.2)
+        fig.canvas.draw()
+
+    fig.canvas.mpl_connect('pick_event', onpick)
     plt.show()
     return
 
@@ -215,10 +269,10 @@ def plot_PF(TIME,PF,PFSP,PFEN,PFDB):
     fig, ax = plt.subplots(figsize=(10,5))
 
     #Plot Measurement
-    l1,=ax.plot(TIME,PF,label='Power Factor',linewidth=1)
+    l1=ax.plot(TIME,PF,label='Power Factor',linewidth=1)
     #Plot Setpoints
-    l2,=ax.plot(TIME,PFSP_copy,label='PF Setpoint',linewidth=1)
-    ax.fill_between(TIME.values,PFSP_copy-PFDB,PFSP_copy+PFDB,alpha=0.7,facecolor=l2.get_color())
+    l2=ax.plot(TIME,PFSP_copy,label='PF Setpoint',linewidth=1)
+    lb=ax.fill_between(TIME.values,PFSP_copy-PFDB,PFSP_copy+PFDB,alpha=0.7,facecolor=l2[0].get_color())
 
     #Formatting axis
 
@@ -237,6 +291,182 @@ def plot_PF(TIME,PF,PFSP,PFEN,PFDB):
     leg = ax.legend(bbox_to_anchor=(0.5, 1.1),loc='upper center',ncol=2,prop=legend_font,
                    fancybox=True, shadow=True)
     fig.autofmt_xdate()
+    lines = [l1[0],l2[0]]
+    lined = dict()
+    for legline, origline in zip(leg.get_lines(), lines):
+        legline.set_picker(5)  # 5 pts tolerance
+        lined[legline] = origline
 
+    def onpick(event):
+        # on the pick event, find the orig line corresponding to the
+        # legend proxy line, and toggle the visibility
+        legline = event.artist
+        origline = lined[legline]
+        vis = not origline.get_visible()
+        if origline == l2[0]:
+            vis_b = not lb.get_visible()
+            lb.set_visible(vis_b)
+        origline.set_visible(vis)
+        # Change the alpha on the line in the legend so we can see what lines
+        # have been toggled
+        if vis:
+            legline.set_alpha(1.0)
+        else:
+            legline.set_alpha(0.2)
+        fig.canvas.draw()
+
+    fig.canvas.mpl_connect('pick_event', onpick)
     plt.show()
+    return
+
+def plot_F_P(TIME,P,PSP,F,FSP,FEN,PDB):
+
+
+#     #Setpoint only when control is enabled
+    PSP_copy = PSP.copy()
+#     PSP_copy[PEN==0]=np.NaN
+
+#     #Creat Figure
+
+    fig, ax = plt.subplots(figsize=(10,5))
+    ax2=ax.twinx()
+    #Plot Measurement
+    l1=ax.plot(TIME,P,label='P(kVAr)',color=measurement1,linewidth=1)
+    l2=ax2.plot(TIME,F,label='F(Hz)',color=measurement2,linewidth=1)
+    #Plot Setpoints
+    l3=ax.plot(TIME,PSP_copy,label='P Setpoint',color=setpoint1,linewidth=0.5)
+    lb=ax.fill_between(TIME.values,PSP_copy-PDB,PSP_copy+PDB,alpha=0.7,facecolor=l3[0].get_color())
+    l4=ax2.plot(TIME,FSP,label='F Setpoint',color=setpoint2,linewidth=2)
+    #Formatting axis
+
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax2.spines["top"].set_visible(False)
+
+    ax.set_facecolor('whitesmoke')
+    ax.grid(which='both',ls='--',lw=1,alpha=0.5)
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
+    ax.xaxis.set_minor_locator(AutoMinorLocator())
+    ax.yaxis.set_minor_locator(AutoMinorLocator())
+    ax2.yaxis.set_minor_locator(AutoMinorLocator())
+
+    ax.set_ylim(-0.1*(max(P.max(),PSP.max())),max(P.max(),PSP.max())*1.1)
+    ax2.set_ylim(48,52)
+
+    lns = l1+l2+l3+l4
+    labs = [l.get_label() for l in lns]
+    leg = ax.legend(lns,labs,bbox_to_anchor=(0.5, 1.1),loc='upper center',ncol=len(lns),prop=legend_font,
+                   fancybox=True, shadow=True)
+    fig.autofmt_xdate()
+
+    ax.set_xlabel('TIME',fontdict=font)
+    ax.set_ylabel('P (kW)',fontdict=font)
+    ax2.set_ylabel('F (Hz)',fontdict=font)
+    ax.tick_params(labelsize=10)
+    ax.set_title('Active Power Control',fontdict=font,x=0.5,y=1.1)
+
+    # we will set up a dict mapping legend line to orig line, and enable
+    # picking on the legend line
+    lines = [l1[0],l2[0],l3[0],l4[0]]
+    lined = dict()
+    for legline, origline in zip(leg.get_lines(), lines):
+        legline.set_picker(5)  # 5 pts tolerance
+        lined[legline] = origline
+
+    def onpick(event):
+        # on the pick event, find the orig line corresponding to the
+        # legend proxy line, and toggle the visibility
+        legline = event.artist
+        origline = lined[legline]
+        vis = not origline.get_visible()
+        if origline == l3[0]:
+            vis_b = not lb.get_visible()
+            lb.set_visible(vis_b)
+        origline.set_visible(vis)
+        # Change the alpha on the line in the legend so we can see what lines
+        # have been toggled
+        if vis:
+            legline.set_alpha(1.0)
+        else:
+            legline.set_alpha(0.2)
+        fig.canvas.draw()
+
+    fig.canvas.mpl_connect('pick_event', onpick)
+    plt.show()
+    return
+
+def plot_AVR(TIME,V,AVRSP,Q,AVREN,AVRDB):
+
+#     #Setpoint only when control is enabled
+    AVRSP_copy = AVRSP.copy()
+    AVRSP_copy[AVREN==0]=np.NaN
+
+#     #Creat Figure
+
+    fig, ax = plt.subplots(figsize=(10,5))
+    ax2=ax.twinx()
+    #Plot Measurement
+    l1=ax.plot(TIME,V,label='V(V)',color=measurement1,linewidth=0.5)
+    l2=ax2.plot(TIME,Q,label='Q(kVAr)',color=measurement2,linewidth=2)
+    #Plot Setpoints
+    l3=ax.plot(TIME,AVRSP_copy,label='AVR Setpoint',color=setpoint1,linewidth=0.5)
+    lb=ax.fill_between(TIME.values,AVRSP_copy-AVRDB,AVRSP_copy+AVRDB,alpha=0.7,facecolor=l3[0].get_color())
+#     l4=ax2.plot(TIME,FSP,label='F Setpoint',color=setpoint2,linewidth=2)
+    #Formatting axis
+
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax2.spines["top"].set_visible(False)
+
+    ax.set_facecolor('whitesmoke')
+    ax.grid(which='both',ls='--',lw=1,alpha=0.5)
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
+    ax.xaxis.set_minor_locator(AutoMinorLocator())
+    ax.yaxis.set_minor_locator(AutoMinorLocator())
+    ax2.yaxis.set_minor_locator(AutoMinorLocator())
+
+    ax.set_ylim((min(V.max(),AVRSP.min()))-1000,max(V.max(),AVRSP.max())+1000)
+    ax2.set_ylim(Q.min()*2,Q.max()*2)
+
+    lns = l1+l2+l3
+    labs = [l.get_label() for l in lns]
+    leg = ax.legend(lns,labs,bbox_to_anchor=(0.5, 1.1),loc='upper center',ncol=len(lns),prop=legend_font,
+                   fancybox=True, shadow=True)
+    fig.autofmt_xdate()
+
+    ax.set_xlabel('TIME',fontdict=font)
+    ax.set_ylabel('Voltage (V)',fontdict=font)
+    ax2.set_ylabel('Q (kVAr)',fontdict=font)
+    ax.tick_params(labelsize=10)
+    ax.set_title('AVR Control',fontdict=font,x=0.5,y=1.1)
+
+    # we will set up a dict mapping legend line to orig line, and enable
+    # picking on the legend line
+    lines = [l1[0],l2[0],l3[0]]
+    lined = dict()
+    for legline, origline in zip(leg.get_lines(), lines):
+        legline.set_picker(5)  # 5 pts tolerance
+        lined[legline] = origline
+
+    def onpick(event):
+        # on the pick event, find the orig line corresponding to the
+        # legend proxy line, and toggle the visibility
+        legline = event.artist
+        origline = lined[legline]
+        vis = not origline.get_visible()
+        if origline == l3[0]:
+            vis_b = not lb.get_visible()
+            lb.set_visible(vis_b)
+        origline.set_visible(vis)
+        # Change the alpha on the line in the legend so we can see what lines
+        # have been toggled
+        if vis:
+            legline.set_alpha(1.0)
+        else:
+            legline.set_alpha(0.2)
+        fig.canvas.draw()
+
+    fig.canvas.mpl_connect('pick_event', onpick)
+    plt.show()
+
     return
