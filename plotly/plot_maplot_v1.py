@@ -24,10 +24,13 @@ AVR_En = ['avr:En']
 Frequency_En = ['apc:FCEn']
 PowerFactor_En = ['pfc:En']
 
-measurement1= (0,0,104/256)
-measurement2= (62/256,150/256,81/256)
-setpoint1= (234/256,0,0)
-setpoint2 = (250/256,150/256,0)
+measurement1= (228/256,26/256,28/256)
+measurement2= (55/256,126/256,184/256)
+measurement3= (77/256,175/256,74/256)
+measurement4= (255/256,127/256,0)
+measurement5= (152/256,78/256,163/256)
+setpoint1= (1/256,102/256,94/256)
+setpoint2 = (166/256,86/256,40/256)
 
 font = {'family': 'serif',
     'color':  'black',
@@ -131,6 +134,17 @@ def get_traces(data):
 
     return (time,measurements,setpoints,enables)
 
+def calc_minmax(inp,inp2=pd.DataFrame()):
+    if inp2.empty:
+        m = inp.min()-(inp.max()-inp.min())/10
+        M = inp.max()+(inp.max()-inp.min())/10
+    else:
+        a = min(inp.min(),inp2.min())
+        b = max(inp.max(),inp2.max())
+        m = a-(b-a)/10
+        M = b+(b-a)/10
+    return(m,M)
+
 def plot_P(TIME,P,PSP,PEN,PDB):
 
     #Setpoint only when control is enabled
@@ -142,7 +156,7 @@ def plot_P(TIME,P,PSP,PEN,PDB):
     fig, ax = plt.subplots(figsize=(10,5))
 
     #Plot Measurement
-    l1=ax.plot(TIME,P,label='P(kVAr)',color=measurement1,linewidth=1)
+    l1=ax.plot(TIME,P,label='P(kVAr)',color=measurement1,linewidth=2)
     #Plot Setpoints
     l2=ax.plot(TIME,PSP_copy,label='P Setpoint',color=setpoint1,linewidth=1)
     lb=ax.fill_between(TIME.values,PSP_copy-PDB,PSP_copy+PDB,alpha=0.7,facecolor=l2[0].get_color())
@@ -157,7 +171,9 @@ def plot_P(TIME,P,PSP,PEN,PDB):
     ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.yaxis.set_minor_locator(AutoMinorLocator())
 
-    ax.set_ylim(-0.1*(max(P.max(),PSP.max())),max(P.max(),PSP.max())*1.1)
+    m,M=calc_minmax(P,PSP)
+
+    ax.set_ylim(m,M)
     leg = ax.legend(bbox_to_anchor=(0.5, 1.1),loc='upper center',ncol=2,prop=legend_font,
                    fancybox=True, shadow=True)
     fig.autofmt_xdate()
@@ -206,14 +222,16 @@ def plot_Q(TIME,Q,QSP,QEN,QDB):
     fig, ax = plt.subplots(figsize=(10,5))
 
     #Plot Measurement
-    l1=ax.plot(TIME,Q,label='Q(kVAr)',linewidth=1)
+    l1=ax.plot(TIME,Q,label='Q(kVAr)',color=measurement1,linewidth=2)
     #Plot Setpoints
-    l2=ax.plot(TIME,QSP_copy,label='Q Setpoint',linewidth=1)
+    l2=ax.plot(TIME,QSP_copy,label='Q Setpoint',color=setpoint1,linewidth=1)
     lb=ax.fill_between(TIME.values,QSP_copy-QDB,QSP_copy+QDB,alpha=0.3,facecolor=l2[0].get_color())
 
     #Formatting axis
 
-    ax.set_ylim(min(Q.min(),QSP.min())*2,max(Q.max(),QSP.max())*2)
+    m,M=calc_minmax(Q,QSP)
+
+    ax.set_ylim(m,M)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.set_facecolor('whitesmoke')
@@ -269,14 +287,15 @@ def plot_PF(TIME,PF,PFSP,PFEN,PFDB):
     fig, ax = plt.subplots(figsize=(10,5))
 
     #Plot Measurement
-    l1=ax.plot(TIME,PF,label='Power Factor',linewidth=1)
+    l1=ax.plot(TIME,PF,label='Power Factor',color=measurement1,linewidth=2)
     #Plot Setpoints
-    l2=ax.plot(TIME,PFSP_copy,label='PF Setpoint',linewidth=1)
+    l2=ax.plot(TIME,PFSP_copy,label='PF Setpoint',color=setpoint1,linewidth=1)
     lb=ax.fill_between(TIME.values,PFSP_copy-PFDB,PFSP_copy+PFDB,alpha=0.7,facecolor=l2[0].get_color())
 
     #Formatting axis
+    m,M=calc_minmax(PF,PFSP)
 
-    ax.set_ylim(min(PF.min(),PFSP.min())*1.1,max(PF.max(),PFSP.max())*1.1)
+    ax.set_ylim(m,M)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.set_facecolor('whitesmoke')
@@ -331,8 +350,8 @@ def plot_F_P(TIME,P,PSP,F,FSP,FEN,PDB):
     fig, ax = plt.subplots(figsize=(10,5))
     ax2=ax.twinx()
     #Plot Measurement
-    l1=ax.plot(TIME,P,label='P(kVAr)',color=measurement1,linewidth=1)
-    l2=ax2.plot(TIME,F,label='F(Hz)',color=measurement2,linewidth=1)
+    l1=ax.plot(TIME,P,label='P(kVAr)',color=measurement1,linewidth=2)
+    l2=ax2.plot(TIME,F,label='F(Hz)',color=measurement2,linewidth=2)
     #Plot Setpoints
     l3=ax.plot(TIME,PSP_copy,label='P Setpoint',color=setpoint1,linewidth=0.5)
     lb=ax.fill_between(TIME.values,PSP_copy-PDB,PSP_copy+PDB,alpha=0.7,facecolor=l3[0].get_color())
@@ -350,8 +369,11 @@ def plot_F_P(TIME,P,PSP,F,FSP,FEN,PDB):
     ax.yaxis.set_minor_locator(AutoMinorLocator())
     ax2.yaxis.set_minor_locator(AutoMinorLocator())
 
-    ax.set_ylim(-0.1*(max(P.max(),PSP.max())),max(P.max(),PSP.max())*1.1)
-    ax2.set_ylim(48,52)
+    m,M=calc_minmax(P,PSP)
+    ax.set_ylim(m,M)
+
+    m,M=calc_minmax(F,FSP)
+    ax2.set_ylim(m,M)
 
     lns = l1+l2+l3+l4
     labs = [l.get_label() for l in lns]
@@ -425,8 +447,12 @@ def plot_AVR(TIME,V,AVRSP,Q,AVREN,AVRDB):
     ax.yaxis.set_minor_locator(AutoMinorLocator())
     ax2.yaxis.set_minor_locator(AutoMinorLocator())
 
-    ax.set_ylim((min(V.max(),AVRSP.min()))-1000,max(V.max(),AVRSP.max())+1000)
-    ax2.set_ylim(Q.min()*2,Q.max()*2)
+    m,M=calc_minmax(V,AVRSP)
+
+    ax.set_ylim(m,M)
+
+    m,M=calc_minmax(Q)
+    ax2.set_ylim(m,M)
 
     lns = l1+l2+l3
     labs = [l.get_label() for l in lns]
@@ -469,4 +495,249 @@ def plot_AVR(TIME,V,AVRSP,Q,AVREN,AVRDB):
     fig.canvas.mpl_connect('pick_event', onpick)
     plt.show()
 
+    return
+
+def plot_QV(TIME,V,QVSP,Q,QSP,QVEN,QDB):
+
+
+#     #Setpoint only when control is enabled
+    QVSP_copy = QVSP.copy()
+    QSP_copy = QSP.copy()
+    QVSP_copy[QVEN==0]=np.NaN
+    QSP_copy[QVEN==0]=np.NaN
+
+#     #Creat Figure
+
+    fig, ax = plt.subplots(figsize=(10,5))
+    ax2=ax.twinx()
+    #Plot Measurement
+    l1=ax.plot(TIME,V,label='V(V)',color=measurement1,linewidth=0.5)
+    l2=ax2.plot(TIME,Q,label='Q(kVAr)',color=measurement2,linewidth=2)
+    #Plot Setpoints
+    l3=ax.plot(TIME,QVSP_copy,label='Q(V) Setpoint',color=setpoint1,linewidth=2)
+    l4=ax2.plot(TIME,QSP_copy,label='Q Setpoint',color=setpoint2,linewidth=1)
+    lb=ax2.fill_between(TIME.values,QSP_copy-QDB,QSP_copy+QDB,alpha=0.5,facecolor=l4[0].get_color())
+#     l4=ax2.plot(TIME,FSP,label='F Setpoint',color=setpoint2,linewidth=2)
+    #Formatting axis
+
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax2.spines["top"].set_visible(False)
+
+    ax.set_facecolor('whitesmoke')
+    ax.grid(which='both',ls='--',lw=1,alpha=0.5)
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
+    ax.xaxis.set_minor_locator(AutoMinorLocator())
+    ax.yaxis.set_minor_locator(AutoMinorLocator())
+    ax2.yaxis.set_minor_locator(AutoMinorLocator())
+
+    m,M=calc_minmax(V,QVSP)
+    ax.set_ylim((min(V.max(),QVSP.min()))-1000,max(V.max(),QVSP.max())+1000)
+
+    m,M=calc_minmax(Q,QSP)
+    ax2.set_ylim(min(Q.min(),QSP.min())*2,max(Q.max(),QSP.max())*2)
+
+    lns = l1+l2+l3+l4
+    labs = [l.get_label() for l in lns]
+    leg = ax.legend(lns,labs,bbox_to_anchor=(0.5, 1.1),loc='upper center',ncol=len(lns),prop=legend_font,
+                   fancybox=True, shadow=True)
+    fig.autofmt_xdate()
+
+    ax.set_xlabel('TIME',fontdict=font)
+    ax.set_ylabel('Voltage (V)',fontdict=font)
+    ax2.set_ylabel('Q (kVAr)',fontdict=font)
+    ax.tick_params(labelsize=10)
+    ax.set_title('Q(V) Control',fontdict=font,x=0.5,y=1.1)
+
+    # we will set up a dict mapping legend line to orig line, and enable
+    # picking on the legend line
+    lines = [l1[0],l2[0],l3[0],l4[0]]
+    lined = dict()
+    for legline, origline in zip(leg.get_lines(), lines):
+        legline.set_picker(5)  # 5 pts tolerance
+        lined[legline] = origline
+
+    def onpick(event):
+
+        # on the pick event, find the orig line corresponding to the
+        # legend proxy line, and toggle the visibility
+        legline = event.artist
+        origline = lined[legline]
+        vis = not origline.get_visible()
+        if origline == l4[0]:
+            vis_b = not lb.get_visible()
+            lb.set_visible(vis_b)
+        origline.set_visible(vis)
+        # Change the alpha on the line in the legend so we can see what lines
+        # have been toggled
+        if vis:
+            legline.set_alpha(1.0)
+        else:
+            legline.set_alpha(0.2)
+        fig.canvas.draw()
+
+    fig.canvas.mpl_connect('pick_event', onpick)
+    plt.show()
+
+    return
+
+def plot_PQ(TIME,P,Q,QSP,QEN,QDB):
+
+#     #Setpoint only when control is enabled
+    QSP_copy = QSP.copy()
+    QSP_copy[QEN==0]=np.NaN
+
+#     #Creat Figure
+
+    fig, ax = plt.subplots(figsize=(10,5))
+    ax2=ax.twinx()
+    #Plot Measurement
+    l1=ax.plot(TIME,P,label='P(kW)',color=measurement1,linewidth=2)
+    l2=ax2.plot(TIME,Q,label='Q(kVAr)',color=measurement2,linewidth=2)
+    #Plot Setpoints
+    l3=ax2.plot(TIME,QSP_copy,label='Q Setpoint',color=setpoint1,linewidth=0.5)
+    lb=ax2.fill_between(TIME.values,QSP_copy-QDB,QSP_copy+QDB,alpha=0.7,facecolor=l3[0].get_color())
+
+    #Formatting axis
+
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax2.spines["top"].set_visible(False)
+
+    ax.set_facecolor('whitesmoke')
+    ax.grid(which='both',ls='--',lw=1,alpha=0.5)
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
+    ax.xaxis.set_minor_locator(AutoMinorLocator())
+    ax.yaxis.set_minor_locator(AutoMinorLocator())
+    ax2.yaxis.set_minor_locator(AutoMinorLocator())
+
+    m,M=calc_minmax(P)
+    ax.set_ylim(m,M)
+    m,M=calc_minmax(Q,QSP)
+    ax2.set_ylim(m,M)
+
+    lns = l1+l2+l3
+    labs = [l.get_label() for l in lns]
+    leg = ax.legend(lns,labs,bbox_to_anchor=(0.5, 1.1),loc='upper center',ncol=len(lns),prop=legend_font,
+                   fancybox=True, shadow=True)
+    fig.autofmt_xdate()
+
+    ax.set_xlabel('TIME',fontdict=font)
+    ax.set_ylabel('P (kW)',fontdict=font)
+    ax2.set_ylabel('Q (kVAr)',fontdict=font)
+    ax.tick_params(labelsize=10)
+    ax.set_title('Q Capability',fontdict=font,x=0.5,y=1.1)
+
+    # we will set up a dict mapping legend line to orig line, and enable
+    # picking on the legend line
+    lines = [l1[0],l2[0],l3[0]]
+    lined = dict()
+    for legline, origline in zip(leg.get_lines(), lines):
+        legline.set_picker(5)  # 5 pts tolerance
+        lined[legline] = origline
+
+    def onpick(event):
+        # on the pick event, find the orig line corresponding to the
+        # legend proxy line, and toggle the visibility
+        legline = event.artist
+        origline = lined[legline]
+        vis = not origline.get_visible()
+        if origline == l3[0]:
+            vis_b = not lb.get_visible()
+            lb.set_visible(vis_b)
+        origline.set_visible(vis)
+        # Change the alpha on the line in the legend so we can see what lines
+        # have been toggled
+        if vis:
+            legline.set_alpha(1.0)
+        else:
+            legline.set_alpha(0.2)
+        fig.canvas.draw()
+
+    fig.canvas.mpl_connect('pick_event', onpick)
+    plt.show()
+    return
+
+def plot_meas(TIME,P,Q,V,PF,F):
+
+    #Creat Figure
+
+    fig, (ax,ax2,ax3,ax4,ax5) = plt.subplots(5,1,sharex=False,figsize=(10,10))
+
+    axes=[ax,ax2,ax3,ax4,ax5]
+
+    #Plot Measurement
+    l1=ax.plot(TIME,P,label='P(kW)',color=measurement1,linewidth=2)
+    l2=ax2.plot(TIME,Q,label='Q(kVAr)',color=measurement2,linewidth=2)
+    l3=ax3.plot(TIME,V,label='V(V)',color=measurement3,linewidth=2)
+    l4=ax4.plot(TIME,PF,label='PF',color=measurement4,linewidth=2)
+    l5=ax5.plot(TIME,F,label='F(Hz)',color=measurement5,linewidth=2)
+
+
+    #Formatting axis
+
+    for y in axes:
+        y.set_facecolor('whitesmoke')
+        y.grid(which='both',ls='--',lw=1,alpha=0.5)
+        y.xaxis.set_minor_locator(AutoMinorLocator())
+        y.yaxis.set_minor_locator(AutoMinorLocator())
+        y.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
+        y.tick_params(labelsize=10,labelbottom=True)
+        y.spines["top"].set_visible(False)
+        y.spines["right"].set_visible(False)
+
+    m,M=calc_minmax(P)
+    ax.set_ylim(m,M)
+    m,M=calc_minmax(Q)
+    ax2.set_ylim(m,M)
+    m,M=calc_minmax(V)
+    ax3.set_ylim(m,M)
+    m,M=calc_minmax(PF)
+    ax4.set_ylim(m,M)
+    m,M=calc_minmax(F)
+    ax5.set_ylim(m,M)
+
+    lns = l1+l2+l3+l4+l5
+    labs = [l.get_label() for l in lns]
+    leg = ax.legend(lns,labs,bbox_to_anchor=(0.5, 1.4),loc='upper center',ncol=len(lns),prop=legend_font,
+                   fancybox=True, shadow=True)
+#     fig.autofmt_xdate()
+
+
+    ax.set_ylabel('P (kW)',fontdict=font)
+    ax2.set_ylabel('Q (kVAr)',fontdict=font)
+    ax3.set_ylabel('Volatge (V)',fontdict=font)
+    ax4.set_ylabel('PF',fontdict=font)
+    ax5.set_ylabel('F (Hz)',fontdict=font)
+
+
+    ax.set_title('Measurements',fontdict=font,x=0.5,y=1.5)
+    ax5.set_xlabel('TIME',fontdict=font)
+
+    # we will set up a dict mapping legend line to orig line, and enable
+    # picking on the legend line
+    lines = [l1[0],l2[0],l3[0],l4[0],l5[0]]
+    lined = dict()
+    for legline, origline in zip(leg.get_lines(), lines):
+        legline.set_picker(5)  # 5 pts tolerance
+        lined[legline] = origline
+
+    def onpick(event):
+        # on the pick event, find the orig line corresponding to the
+        # legend proxy line, and toggle the visibility
+        legline = event.artist
+        origline = lined[legline]
+        vis = not origline.get_visible()
+        origline.set_visible(vis)
+        # Change the alpha on the line in the legend so we can see what lines
+        # have been toggled
+        if vis:
+            legline.set_alpha(1.0)
+        else:
+            legline.set_alpha(0.2)
+        fig.canvas.draw()
+
+    fig.canvas.mpl_connect('pick_event', onpick)
+    plt.tight_layout()
+    plt.show()
     return
