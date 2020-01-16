@@ -447,7 +447,7 @@ def plot_AVR(TIME,V,AVRSP,Q,AVREN,AVRDB):
     ax.yaxis.set_minor_locator(AutoMinorLocator())
     ax2.yaxis.set_minor_locator(AutoMinorLocator())
 
-    m,M=calc_minmax(V,AVRSP)
+    m,M=calc_minmax(V,AVRSP_copy)
 
     ax.set_ylim(m,M)
 
@@ -662,7 +662,7 @@ def plot_meas(TIME,P,Q,V,PF,F):
 
     #Creat Figure
 
-    fig, (ax,ax2,ax3,ax4,ax5) = plt.subplots(5,1,sharex=False,figsize=(10,10))
+    fig, (ax,ax2,ax3,ax4,ax5) = plt.subplots(5,1,sharex=True,figsize=(10,10))
 
     axes=[ax,ax2,ax3,ax4,ax5]
 
