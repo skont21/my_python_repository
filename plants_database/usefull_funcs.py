@@ -30,20 +30,24 @@ def parse_ods(plant,path):
 
     print(CRED + plant + CEND + '\n')
 
-    plant_ods = plant+'_InstallationData.ods$'
+    plant_ods = plant+'_InstallationData.ods'
     path = path+'/'+plant+'/'
     files = os.listdir(path)
     # print(path)
 
-    for f in files:
-        if re.search(plant_ods,f):
-            ods = f
+    # for f in files:
+    #     if re.search(plant_ods,f):
+    #         ods = f
             # print("YES")
     try:
-        s=odsparser_3.Spreadsheet(path+ods)
+        s=odsparser_3.Spreadsheet(path+plant_ods)
     except (UnboundLocalError,IOError,NameError) as e :
-        print(CRED + CBOLD + "ODS FILE NOT FOUND" + CEND + '\n')
-        return("Error")
+        try:
+            s=odsparser_3.Spreadsheet(path+'trunk/Provisioning/'+plant_ods)
+        except (UnboundLocalError,IOError,NameError) as e :
+            print(CRED + CBOLD + "ODS FILE NOT FOUND" + CEND + '\n')
+            return(e)
+
     try:
         data= s._Spreadsheet__parse_spreadsheet()
     except:
@@ -71,17 +75,22 @@ def find_PPC_meter(data):
             meter_man = data['Sub-field']['Multimeter']['Manufacturer'][0]
     elif meter_selection == 'Electrical panel multimeters':
         try:
-            ID = int(data['PPC']['Settings']['Meter ID'])
+            ID = int(data['PPC']['Settings']['Meter ID'])-1
         except (KeyError,TypeError) as e:
             ID = 0
         meter_model = data['Electrical panel']['Multimeter']['Model'][ID]
         meter_man = data['Electrical panel']['Multimeter']['Manufacturer'][ID]
         if (meter_model == 'PPC_METER_GENERIC') | (meter_model == 'PPC_METER_GENERIC_EXT') | (meter_model == 'SUM_OR_METER_GENERIC'):
-            meter_model = data['Electrical panel']['Multimeter']['Model'][0]
-            meter_man = data['Electrical panel']['Multimeter']['Manufacturer'][0]
+            try:
+                ID_new = int(data['Electrical panel']['Multimeter']["Meter sources"][ID].split(",")[0])-1
+                meter_model = data['Electrical panel']['Multimeter']['Model'][ID_new]
+                meter_man = data['Electrical panel']['Multimeter']['Manufacturer'][ID_new]
+            except:
+                meter_model = data['Electrical panel']['Multimeter']['Model'][0]
+                meter_man = data['Electrical panel']['Multimeter']['Manufacturer'][0]
     elif meter_selection == 'PCC protection device':
         try:
-            ID = int(data['PPC']['Settings']['Meter ID'])
+            ID = int(data['PPC']['Settings']['Meter ID'])-1
         except (KeyError,TypeError) as e:
             ID = 0
         meter_model = data['PCC']['Protection device']['Model'][ID]
