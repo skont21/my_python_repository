@@ -6,10 +6,24 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from matplotlib.ticker import AutoMinorLocator, FormatStrFormatter
 
+CBLACK  = '\33[30m'
+CRED    = '\33[31m'
+CGREEN  = '\33[32m'
+CYELLOW = '\33[33m'
+CBLUE   = '\33[34m'
+CBLACKBG  = '\33[40m'
+CREDBG    = '\33[41m'
+CGREENBG  = '\33[42m'
+CYELLOWBG = '\33[43m'
+CBLUEBG   = '\33[44m'
+CBOLD = '\33[1m'
+CURL = '\33[4m'
+CEND = '\33[0m'
+
 Active =['ppc:P[^F]','.*pccm.*:ACTP_TOT',".*epm.*:ACTP_TOT",".*pccs.*:ACTP_TOT"]
 Reactive =['ppc:Q.*','.*pccm.*:REACTP_TOT',".*epm.*:REACTP_TOT",".*pccs.*:REACTP_TOT"]
 Voltage =['ppc:V','.*pccm.*:VABC_AVG',".*epm.*:VABC_AVG",".*pccs.*:VABC_AVG"]
-Frequency=['ppc:F','.*pccm.*:F',".*epm.*:F",".*pccs.*:F"]
+Frequency=['ppc:F','.*pccm.*:FREQ',".*epm.*:FREQ",".*pccs.*:FREQ"]
 PowerFactor=['ppc:PF','.*pccm.*:PF',"epm.*:PF",".*pccs.*:PF"]
 Active_Setpoint = ['apc:PSP']
 Reactive_Setpoint = ['rpc:QSP']
@@ -21,7 +35,7 @@ Active_En = ['apc:En']
 Reactive_En = ['rpc:En']
 QV_En = ['rpc:VCEn']
 AVR_En = ['avr:En']
-Frequency_En = ['apc:FCEn']
+Frequency_En = ['apc:FCEn','apc:FCAct']
 PowerFactor_En = ['pfc:En']
 
 measurement1= (228/256,26/256,28/256)
@@ -98,7 +112,24 @@ def get_traces(data):
 
     setpoints=dict()
     if PSP:
-        setpoints["P"]=data[PSP[0]]
+        if len(PSP)>1:
+            i=1
+            for element in PSP:
+                print(i,")",element)
+                print("\n")
+                i=i+1
+            while True:
+                choise = input(CBOLD+"Choose by Number:"+CEND)
+                try:
+                    choise=int(choise)
+                    if choise in range(1,len(PSP)+1):
+                        break
+                    else:
+                        print("\n"+"Enter a valid nuber"+"\n")
+                except:
+                    print("\n"+"Enter a valid nuber:"+"\n")
+
+        setpoints["P"]=data[PSP[int(choise)-1]]
     if QSP:
         setpoints["Q"]=data[QSP[0]]
     if QV_VSP:
@@ -343,19 +374,24 @@ def plot_F_P(TIME,P,PSP,F,FSP,FEN,PDB):
 
 #     #Setpoint only when control is enabled
     PSP_copy = PSP.copy()
-#     PSP_copy[PEN==0]=np.NaN
+    PSP_copy[FEN==0]=np.NaN
+    P_copy = P.copy()
+    P_copy[FEN==0]=np.NaN
+    FSP_copy = FSP.copy()
+    FSP_copy[FEN==0]=np.NaN
+
 
 #     #Creat Figure
 
     fig, ax = plt.subplots(figsize=(10,5))
     ax2=ax.twinx()
     #Plot Measurement
-    l1=ax.plot(TIME,P,label='P(kVAr)',color=measurement1,linewidth=2)
-    l2=ax2.plot(TIME,F,label='F(Hz)',color=measurement2,linewidth=2)
+    l1=ax.plot(TIME,P_copy,label='P(kVAr)',color=measurement1,linewidth=2)
+    # l2=ax2.plot(TIME,F,label='F(Hz)',color=measurement2,linewidth=2)
     #Plot Setpoints
     l3=ax.plot(TIME,PSP_copy,label='P Setpoint',color=setpoint1,linewidth=0.5)
     lb=ax.fill_between(TIME.values,PSP_copy-PDB,PSP_copy+PDB,alpha=0.7,facecolor=l3[0].get_color())
-    l4=ax2.plot(TIME,FSP,label='F Setpoint',color=setpoint2,linewidth=2)
+    l4=ax2.plot(TIME,FSP_copy,label='F Setpoint',color=setpoint2,linewidth=2)
     #Formatting axis
 
     ax.spines["top"].set_visible(False)
@@ -369,13 +405,13 @@ def plot_F_P(TIME,P,PSP,F,FSP,FEN,PDB):
     ax.yaxis.set_minor_locator(AutoMinorLocator())
     ax2.yaxis.set_minor_locator(AutoMinorLocator())
 
-    m,M=calc_minmax(P,PSP)
+    m,M=calc_minmax(P_copy,PSP_copy)
     ax.set_ylim(m,M)
 
-    m,M=calc_minmax(F,FSP)
+    m,M=calc_minmax(FSP_copy)
     ax2.set_ylim(m,M)
 
-    lns = l1+l2+l3+l4
+    lns = l1+l3+l4
     labs = [l.get_label() for l in lns]
     leg = ax.legend(lns,labs,bbox_to_anchor=(0.5, 1.1),loc='upper center',ncol=len(lns),prop=legend_font,
                    fancybox=True, shadow=True)
@@ -385,11 +421,11 @@ def plot_F_P(TIME,P,PSP,F,FSP,FEN,PDB):
     ax.set_ylabel('P (kW)',fontdict=font)
     ax2.set_ylabel('F (Hz)',fontdict=font)
     ax.tick_params(labelsize=10)
-    ax.set_title('Active Power Control',fontdict=font,x=0.5,y=1.1)
+    ax.set_title('Frequency Control',fontdict=font,x=0.5,y=1.1)
 
     # we will set up a dict mapping legend line to orig line, and enable
     # picking on the legend line
-    lines = [l1[0],l2[0],l3[0],l4[0]]
+    lines = [l1[0],l3[0],l4[0]]
     lined = dict()
     for legline, origline in zip(leg.get_lines(), lines):
         legline.set_picker(5)  # 5 pts tolerance
@@ -428,11 +464,11 @@ def plot_AVR(TIME,V,AVRSP,Q,AVREN,AVRDB):
     fig, ax = plt.subplots(figsize=(10,5))
     ax2=ax.twinx()
     #Plot Measurement
-    l1=ax.plot(TIME,V,label='V(V)',color=measurement1,linewidth=0.5)
+    l1=ax.plot(TIME,V,label='V(V)',color=measurement1,linewidth=2)
     l2=ax2.plot(TIME,Q,label='Q(kVAr)',color=measurement2,linewidth=2)
     #Plot Setpoints
-    l3=ax.plot(TIME,AVRSP_copy,label='AVR Setpoint',color=setpoint1,linewidth=0.5)
-    lb=ax.fill_between(TIME.values,AVRSP_copy-AVRDB,AVRSP_copy+AVRDB,alpha=0.7,facecolor=l3[0].get_color())
+    # l3=ax.plot(TIME,AVRSP_copy,label='AVR Setpoint',color=setpoint1,linewidth=0.5)
+    # lb=ax.fill_between(TIME.values,AVRSP_copy-AVRDB,AVRSP_copy+AVRDB,alpha=0.7,facecolor=l3[0].get_color())
 #     l4=ax2.plot(TIME,FSP,label='F Setpoint',color=setpoint2,linewidth=2)
     #Formatting axis
 
@@ -447,14 +483,14 @@ def plot_AVR(TIME,V,AVRSP,Q,AVREN,AVRDB):
     ax.yaxis.set_minor_locator(AutoMinorLocator())
     ax2.yaxis.set_minor_locator(AutoMinorLocator())
 
-    m,M=calc_minmax(V,AVRSP_copy)
+    m,M=calc_minmax(V)
 
     ax.set_ylim(m,M)
 
     m,M=calc_minmax(Q)
     ax2.set_ylim(m,M)
 
-    lns = l1+l2+l3
+    lns = l1+l2
     labs = [l.get_label() for l in lns]
     leg = ax.legend(lns,labs,bbox_to_anchor=(0.5, 1.1),loc='upper center',ncol=len(lns),prop=legend_font,
                    fancybox=True, shadow=True)
@@ -464,11 +500,11 @@ def plot_AVR(TIME,V,AVRSP,Q,AVREN,AVRDB):
     ax.set_ylabel('Voltage (V)',fontdict=font)
     ax2.set_ylabel('Q (kVAr)',fontdict=font)
     ax.tick_params(labelsize=10)
-    ax.set_title('AVR Control',fontdict=font,x=0.5,y=1.1)
+    ax.set_title('Voltage Simulation',fontdict=font,x=0.5,y=1.1)
 
     # we will set up a dict mapping legend line to orig line, and enable
     # picking on the legend line
-    lines = [l1[0],l2[0],l3[0]]
+    lines = [l1[0],l2[0]]
     lined = dict()
     for legline, origline in zip(leg.get_lines(), lines):
         legline.set_picker(5)  # 5 pts tolerance
