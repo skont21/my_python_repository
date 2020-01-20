@@ -191,7 +191,7 @@ def plot_P(TIME,P,PSP,PEN,PDB):
     fig, ax = plt.subplots(figsize=(10,5))
 
     #Plot Measurement
-    l1=ax.plot(TIME,P,label='P(kVAr)',color=measurement1,linewidth=2)
+    l1=ax.plot(TIME,P,label='P(kW)',color=measurement1,linewidth=2)
     #Plot Setpoints
     l2=ax.plot(TIME,PSP_copy,label='P Setpoint',color=setpoint1,linewidth=1)
     lb=ax.fill_between(TIME.values,PSP_copy-PDB,PSP_copy+PDB,alpha=0.7,facecolor=l2[0].get_color())
