@@ -5,6 +5,9 @@ import datetime
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from matplotlib.ticker import AutoMinorLocator, FormatStrFormatter
+import tkinter as tk
+import matplotlib as mpl
+mpl.use('TkAgg')
 
 CBLACK  = '\33[30m'
 CRED    = '\33[31m'
@@ -44,7 +47,7 @@ measurement3= (77/256,175/256,74/256)
 measurement4= (255/256,127/256,0)
 measurement5= (152/256,78/256,163/256)
 setpoint1= (1/256,102/256,94/256)
-setpoint2 = (166/256,86/256,40/256)
+setpoint2 = (254/256,59/256,211/256)
 
 font = {'family': 'serif',
     'color':  'black',
@@ -112,6 +115,7 @@ def get_traces(data):
 
     setpoints=dict()
     if PSP:
+        choise=1
         if len(PSP)>1:
             i=1
             for element in PSP:
@@ -211,7 +215,8 @@ def plot_P(TIME,P,PSP,PEN,PDB):
     ax.set_ylabel('P (kW)',fontdict=font)
     ax.set_xlabel('TIME',fontdict=font)
     ax.tick_params(labelsize=10)
-    ax.set_title('Active Power Control',fontdict=font,x=0.5,y=1.1)
+    title = ax.set_title('Active Power Control',fontdict=font,x=0.5,y=1.1)
+    title.set_picker(5)
 
     # we will set up a dict mapping legend line to orig line, and enable
     # picking on the legend line
@@ -222,21 +227,41 @@ def plot_P(TIME,P,PSP,PEN,PDB):
         lined[legline] = origline
 
     def onpick(event):
-        # on the pick event, find the orig line corresponding to the
-        # legend proxy line, and toggle the visibility
-        legline = event.artist
-        origline = lined[legline]
-        vis = not origline.get_visible()
-        if origline == l2[0]:
-            vis_b = not lb.get_visible()
-            lb.set_visible(vis_b)
-        origline.set_visible(vis)
-        # Change the alpha on the line in the legend so we can see what lines
-        # have been toggled
-        if vis:
-            legline.set_alpha(1.0)
+        def change_title():
+            if e1.get()!='':
+                ax.set_title(e1.get(),fontdict=font,x=0.5,y=1.1)
+                fig.canvas.draw()
+                master.destroy()
+
+        pick = event.artist
+        if pick==title:
+            master = tk.Tk(className=' TITLE')
+            master.resizable(width=False, height=False)
+            tk.Label(master, text="Insert Title").grid(row=0)
+            e1 = tk.Entry(master,bd=5,width=40)
+            e1.insert(0,title.get_text())
+            e1.grid(row=0, column=1)
+            tk.Button(master, text='Quit',
+              command=master.destroy).grid(row=3, column=0, sticky=tk.W, pady=4)
+            tk.Button(master,text='Apply title', command=change_title).grid(row=3,column=1,sticky=tk.W, pady=4)
+
+            master.mainloop()
         else:
-            legline.set_alpha(0.2)
+        # on the pick event, find the orig line corresponding to the
+            # legend proxy line, and toggle the visibility
+            legline = event.artist
+            origline = lined[legline]
+            vis = not origline.get_visible()
+            if origline == l2[0]:
+                vis_b = not lb.get_visible()
+                lb.set_visible(vis_b)
+            origline.set_visible(vis)
+            # Change the alpha on the line in the legend so we can see what lines
+            # have been toggled
+            if vis:
+                legline.set_alpha(1.0)
+            else:
+                legline.set_alpha(0.2)
         fig.canvas.draw()
 
     fig.canvas.mpl_connect('pick_event', onpick)
@@ -631,7 +656,7 @@ def plot_PQ(TIME,P,Q,QSP,QEN,QDB):
     l1=ax.plot(TIME,P,label='P(kW)',color=measurement1,linewidth=2)
     l2=ax2.plot(TIME,Q,label='Q(kVAr)',color=measurement2,linewidth=2)
     #Plot Setpoints
-    l3=ax2.plot(TIME,QSP_copy,label='Q Setpoint',color=setpoint1,linewidth=0.5)
+    l3=ax2.plot(TIME,QSP_copy,label='Q Setpoint',color=setpoint2,linewidth=0.5)
     lb=ax2.fill_between(TIME.values,QSP_copy-QDB,QSP_copy+QDB,alpha=0.7,facecolor=l3[0].get_color())
 
     #Formatting axis
@@ -647,7 +672,7 @@ def plot_PQ(TIME,P,Q,QSP,QEN,QDB):
     ax.yaxis.set_minor_locator(AutoMinorLocator())
     ax2.yaxis.set_minor_locator(AutoMinorLocator())
 
-    m,M=calc_minmax(P)
+    m,M=calc_minmax(Q,QSP)
     ax.set_ylim(m,M)
     m,M=calc_minmax(Q,QSP)
     ax2.set_ylim(m,M)
