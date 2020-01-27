@@ -5,7 +5,7 @@ import datetime
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from matplotlib.ticker import AutoMinorLocator, FormatStrFormatter
-import tkinter as tk
+
 import matplotlib as mpl
 mpl.use('TkAgg')
 
@@ -129,9 +129,9 @@ def get_traces(data):
                     if choise in range(1,len(PSP)+1):
                         break
                     else:
-                        print("\n"+"Enter a valid nuber"+"\n")
+                        print("\n"+"Enter a valid number"+"\n")
                 except:
-                    print("\n"+"Enter a valid nuber:"+"\n")
+                    print("\n"+"Enter a valid number:"+"\n")
 
         setpoints["P"]=data[PSP[int(choise)-1]]
     if QSP:
@@ -194,7 +194,7 @@ def plot_P(TIME,P,PSP,PEN,PDB):
     l1=ax.plot(TIME,P,label='P(kW)',color=measurement1,linewidth=2)
     #Plot Setpoints
     l2=ax.plot(TIME,PSP_copy,label='P Setpoint',color=setpoint1,linewidth=1)
-    lb=ax.fill_between(TIME.values,PSP_copy-PDB,PSP_copy+PDB,alpha=0.7,facecolor=l2[0].get_color())
+    lb=ax.fill_between(TIME.values,PSP_copy-PDB,PSP_copy+PDB,alpha=0.5,facecolor=l2[0].get_color())
 
     #Formatting axis
 
@@ -218,7 +218,7 @@ def plot_P(TIME,P,PSP,PEN,PDB):
     title = ax.set_title('Active Power Control',fontdict=font,x=0.5,y=1.1)
     title.set_picker(5)
 
-    lines = [l1[0],l2[0]]
+    lines = [l1[0],l2[0],lb]
 
     return (fig,fig.axes,lines,leg)
 
@@ -257,7 +257,7 @@ def plot_Q(TIME,Q,QSP,QEN,QDB):
                    fancybox=True, shadow=True)
     fig.autofmt_xdate()
 
-    lines = [l1[0],l2[0]]
+    lines = [l1[0],l2[0],lb]
 
     return (fig,fig.axes,lines,leg)
 
@@ -274,7 +274,7 @@ def plot_PF(TIME,PF,PFSP,PFEN,PFDB):
     l1=ax.plot(TIME,PF,label='Power Factor',color=measurement1,linewidth=2)
     #Plot Setpoints
     l2=ax.plot(TIME,PFSP_copy,label='PF Setpoint',color=setpoint1,linewidth=1)
-    lb=ax.fill_between(TIME.values,PFSP_copy-PFDB,PFSP_copy+PFDB,alpha=0.7,facecolor=l2[0].get_color())
+    lb=ax.fill_between(TIME.values,PFSP_copy-PFDB,PFSP_copy+PFDB,alpha=0.5,facecolor=l2[0].get_color())
 
     #Formatting axis
     m,M=calc_minmax(PF,PFSP)
@@ -294,7 +294,7 @@ def plot_PF(TIME,PF,PFSP,PFEN,PFDB):
     leg = ax.legend(bbox_to_anchor=(0.5, 1.1),loc='upper center',ncol=2,prop=legend_font,
                    fancybox=True, shadow=True)
     fig.autofmt_xdate()
-    lines = [l1[0],l2[0]]
+    lines = [l1[0],l2[0],lb]
 
     return (fig,fig.axes,lines,leg)
 
@@ -319,7 +319,7 @@ def plot_F_P(TIME,P,PSP,F,FSP,FEN,PDB):
     # l2=ax2.plot(TIME,F,label='F(Hz)',color=measurement2,linewidth=2)
     #Plot Setpoints
     l3=ax.plot(TIME,PSP_copy,label='P Setpoint',color=setpoint1,linewidth=0.5)
-    lb=ax.fill_between(TIME.values,PSP_copy-PDB,PSP_copy+PDB,alpha=0.7,facecolor=l3[0].get_color())
+    lb=ax.fill_between(TIME.values,PSP_copy-PDB,PSP_copy+PDB,alpha=0.5,facecolor=l3[0].get_color())
     l4=ax2.plot(TIME,FSP_copy,label='F Setpoint',color=setpoint2,linewidth=2)
     #Formatting axis
 
@@ -335,7 +335,7 @@ def plot_F_P(TIME,P,PSP,F,FSP,FEN,PDB):
     ax2.yaxis.set_minor_locator(AutoMinorLocator())
 
     m,M=calc_minmax(P_copy,PSP_copy)
-    ax.set_ylim(m,M)
+    # ax.set_ylim(m,M)
 
     m,M=calc_minmax(FSP_copy)
     ax2.set_ylim(m,M)
@@ -352,7 +352,7 @@ def plot_F_P(TIME,P,PSP,F,FSP,FEN,PDB):
     ax.tick_params(labelsize=10)
     ax.set_title('Frequency Control',fontdict=font,x=0.5,y=1.1)
 
-    lines = [l1[0],l3[0],l4[0]]
+    lines = [l1[0],l3[0],l4[0],lb]
 
     return (fig,fig.axes,lines,leg)
 
@@ -369,10 +369,9 @@ def plot_AVR(TIME,V,AVRSP,Q,AVREN,AVRDB):
     #Plot Measurement
     l1=ax.plot(TIME,V,label='V(V)',color=measurement1,linewidth=2)
     l2=ax2.plot(TIME,Q,label='Q(kVAr)',color=measurement2,linewidth=2)
-    #Plot Setpoints
-    # l3=ax.plot(TIME,AVRSP_copy,label='AVR Setpoint',color=setpoint1,linewidth=0.5)
-    # lb=ax.fill_between(TIME.values,AVRSP_copy-AVRDB,AVRSP_copy+AVRDB,alpha=0.7,facecolor=l3[0].get_color())
-#     l4=ax2.plot(TIME,FSP,label='F Setpoint',color=setpoint2,linewidth=2)
+    # Plot Setpoints
+    l3=ax.plot(TIME,AVRSP_copy,label='AVR Setpoint',color=setpoint1,linewidth=0.5)
+    lb=ax.fill_between(TIME.values,AVRSP_copy-AVRDB,AVRSP_copy+AVRDB,alpha=0.5,facecolor=l3[0].get_color())
     #Formatting axis
 
     ax.spines["top"].set_visible(False)
@@ -393,7 +392,7 @@ def plot_AVR(TIME,V,AVRSP,Q,AVREN,AVRDB):
     m,M=calc_minmax(Q)
     ax2.set_ylim(m,M)
 
-    lns = l1+l2
+    lns = l1+l2 +l3
     labs = [l.get_label() for l in lns]
     leg = ax.legend(lns,labs,bbox_to_anchor=(0.5, 1.1),loc='upper center',ncol=len(lns),prop=legend_font,
                    fancybox=True, shadow=True)
@@ -406,7 +405,7 @@ def plot_AVR(TIME,V,AVRSP,Q,AVREN,AVRDB):
     ax.set_title('Voltage Simulation',fontdict=font,x=0.5,y=1.1)
 
 
-    lines = [l1[0],l2[0]]
+    lines = [l1[0],l2[0],l3[0],lb]
 
     return (fig,fig.axes,lines,leg)
 
@@ -461,7 +460,7 @@ def plot_QV(TIME,V,QVSP,Q,QSP,QVEN,QDB):
     ax.tick_params(labelsize=10)
     ax.set_title('Q(V) Control',fontdict=font,x=0.5,y=1.1)
 
-    lines = [l1[0],l2[0],l3[0],l4[0]]
+    lines = [l1[0],l2[0],l3[0],l4[0],lb]
 
     return (fig,fig.axes,lines,leg)
 
@@ -480,7 +479,7 @@ def plot_PQ(TIME,P,Q,QSP,QEN,QDB):
     l2=ax2.plot(TIME,Q,label='Q(kVAr)',color=measurement2,linewidth=2)
     #Plot Setpoints
     l3=ax2.plot(TIME,QSP_copy,label='Q Setpoint',color=setpoint2,linewidth=0.5)
-    lb=ax2.fill_between(TIME.values,QSP_copy-QDB,QSP_copy+QDB,alpha=0.7,facecolor=l3[0].get_color())
+    lb=ax2.fill_between(TIME.values,QSP_copy-QDB,QSP_copy+QDB,alpha=0.5,facecolor=l3[0].get_color())
 
     #Formatting axis
 
@@ -512,7 +511,7 @@ def plot_PQ(TIME,P,Q,QSP,QEN,QDB):
     ax.tick_params(labelsize=10)
     ax.set_title('Q Capability',fontdict=font,x=0.5,y=1.1)
 
-    lines = [l1[0],l2[0],l3[0]]
+    lines = [l1[0],l2[0],l3[0],lb]
 
     return (fig,fig.axes,lines,leg)
 
