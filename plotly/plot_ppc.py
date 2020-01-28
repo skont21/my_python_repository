@@ -27,7 +27,7 @@ csv=''
 while not csv:
     input_csv = tk.Tk()
     input_csv.withdraw()
-    csv = filedialog.askopenfilename(initialdir = "/home/spiros/Data",title = "Select csv file",filetypes = (("csv files","*.csv"),))
+    csv = filedialog.askopenfilename(initialdir = "/home",title = "Select csv file",filetypes = (("csv files","*.csv"),))
     if not csv:
         MsgBox = tk.messagebox.askquestion ('Exit Application','Are you sure you want to exit the application',icon = 'warning')
         if MsgBox == 'yes':
@@ -64,7 +64,12 @@ if ('P' in en.keys())&('Q' in en.keys()):
     i=i+1
 plots[str(i)]="All Measurements"
 
+def destroyer():
+    choose_plot.quit()
+    choose_plot.destroy()
+
 choose_plot = tk.Tk()
+choose_plot.protocol("WM_DELETE_WINDOW",destroyer)
 choose_plot.title("Available Plots")
 choose_plot.geometry("")
 
@@ -79,31 +84,43 @@ def plot_choise(button):
             deadband=0
         return deadband
     def ask_trace(title,meas,sets,ens):
+        global choose_plot
+        def destroyer():
+            input_trace.quit()
+            input_trace.destroy()
+            return
+
         input_trace=tk.Toplevel()
         input_trace.title(title)
         i=0
         for m in meas.columns:
             tk.Radiobutton(input_trace,text=m).grid(row=i,column=0)
             i+=1
-        i=0
+        j=0
         for s in sets.columns:
-            tk.Radiobutton(input_trace,text=s).grid(row=i,column=1)
-            i+=1
-        i=0
+            tk.Radiobutton(input_trace,text=s).grid(row=j,column=1)
+            j+=1
+        k=0
         for en in ens.columns:
-            tk.Radiobutton(input_trace,text=en).grid(row=i,column=2)
-            i+=1
+            tk.Radiobutton(input_trace,text=en).grid(row=k,column=2)
+            k+=1
+
+        quit_trace = tk.Button(input_trace,text='Apply',command=destroyer)
+        quit_trace.grid(row=max(i,j,k)+1,columnspan=3)
+        choose_plot.wait_window(choose_plot.input_trace)
+
+
     button_text = button.cget("text")
     # print(button_text)
     if button_text=="P":
-        if len(s['P'].columns)>1:
-            trace = ask_trace('P trace')
+        # if len(s['P'].columns)>1:
         pdb= ask_deadband('P Deadband in kW')
         ask_trace('P Traces',m['P'],s['P'],en['P'])
-        fig,axes,lines,leg= plot_P(time,m['P']['ppc:P0'],s['P'].iloc[:,0],en['P'].iloc[:,0],pdb)
+
+        fig,axes,lines,leg= plot_P(time,m['P'].iloc[:,0],s['P'].iloc[:,0],en['P'].iloc[:,0],pdb)
     elif  button_text=="Q":
         qdb=ask_deadband('Q Deadband in kVAr')
-        fig,axes,lines,leg= plot_Q(time,m['Q'],s['Q'],en['Q'],qdb)
+        fig,axes,lines,leg= plot_Q(time,m['Q'].iloc[:,0],s['Q'].iloc[:,0],en['Q'].iloc[:,0],qdb)
     elif  button_text=="AVR":
         avrdb=ask_deadband('Voltage Deadband in V')
         fig,axes,lines,leg= plot_AVR(time,m['V'],s['AVR'],m['Q'],en['AVR'],avrdb)
