@@ -95,15 +95,15 @@ def get_traces(data):
 
     measurements=dict()
     if P:
-        measurements["P"]=data[P[0]]
+        measurements["P"]=data[P]
     if Q:
-        measurements["Q"]=data[Q[0]]
+        measurements["Q"]=data[Q]
     if V:
-        measurements["V"]=data[V[0]]
+        measurements["V"]=data[V]
     if F:
-        measurements["F"]=data[F[0]]
+        measurements["F"]=data[F]
     if PF:
-        measurements["PF"]=data[PF[0]]
+        measurements["PF"]=data[PF]
 
 
     PSP = [l for k in Active_Setpoint for l in data.columns if re.match(k,l)]
@@ -115,35 +115,35 @@ def get_traces(data):
 
     setpoints=dict()
     if PSP:
-        choise=1
-        if len(PSP)>1:
-            i=1
-            for element in PSP:
-                print(i,")",element)
-                print("\n")
-                i=i+1
-            while True:
-                choise = input(CBOLD+"Choose by Number:"+CEND)
-                try:
-                    choise=int(choise)
-                    if choise in range(1,len(PSP)+1):
-                        break
-                    else:
-                        print("\n"+"Enter a valid number"+"\n")
-                except:
-                    print("\n"+"Enter a valid number:"+"\n")
+        # choise=1
+        # if len(PSP)>1:
+        #     i=1
+        #     for element in PSP:
+        #         print(i,")",element)
+        #         print("\n")
+        #         i=i+1
+        #     while True:
+        #         choise = input(CBOLD+"Choose by Number:"+CEND)
+        #         try:
+        #             choise=int(choise)
+        #             if choise in range(1,len(PSP)+1):
+        #                 break
+        #             else:
+        #                 print("\n"+"Enter a valid number"+"\n")
+        #         except:
+        #             print("\n"+"Enter a valid number:"+"\n")
 
-        setpoints["P"]=data[PSP[int(choise)-1]]
+        setpoints["P"]=data[PSP]
     if QSP:
-        setpoints["Q"]=data[QSP[0]]
+        setpoints["Q"]=data[QSP]
     if QV_VSP:
-        setpoints["QV"]=data[QV_VSP[0]]
+        setpoints["QV"]=data[QV_VSP]
     if AVR_VSP:
-        setpoints["AVR"]=data[AVR_VSP[0]]
+        setpoints["AVR"]=data[AVR_VSP]
     if FSP:
-        setpoints["F"]=data[FSP[0]]
+        setpoints["F"]=data[FSP]
     if PFSP:
-        setpoints["PF"]=data[PFSP[0]]
+        setpoints["PF"]=data[PFSP]
 
 
     PEn = [l for k in Active_En for l in data.columns if re.match(k,l)]
@@ -155,17 +155,17 @@ def get_traces(data):
 
     enables=dict()
     if PEn:
-        enables["P"]=data[PEn[0]]
+        enables["P"]=data[PEn]
     if QEn:
-        enables["Q"]=data[QEn[0]]
+        enables["Q"]=data[QEn]
     if QVEn:
-        enables["QV"]=data[QVEn[0]]
+        enables["QV"]=data[QVEn]
     if AVREn:
-        enables["AVR"]=data[AVREn[0]]
+        enables["AVR"]=data[AVREn]
     if FEn:
-        enables["F"]=data[FEn[0]]
+        enables["F"]=data[FEn]
     if PFEn:
-        enables["PF"]=data[PFEn[0]]
+        enables["PF"]=data[PFEn]
 
     return (time,measurements,setpoints,enables)
 
