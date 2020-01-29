@@ -84,40 +84,73 @@ def plot_choise(button):
             deadband=0
         return deadband
     def ask_trace(title,meas,sets,ens):
-        global choose_plot
-        def destroyer():
-            input_trace.quit()
-            input_trace.destroy()
-            return
+        global mtrace
+        global strace
+        global entrace
 
-        input_trace=tk.Toplevel()
+        def destroyer():
+            global mtrace
+            global strace
+            global entrace
+            
+            mtrace=vm.get()
+            strace=vs.get()
+            entrace=ven.get()
+            input_trace.destroy()
+
+        input_trace=tk.Toplevel(choose_plot)
+        input_trace.withdraw()
+        input_trace.protocol("WM_DELETE_WINDOW")
         input_trace.title(title)
+
         i=0
+        vm=tk.IntVar()
+        vm.set(1)
         for m in meas.columns:
-            tk.Radiobutton(input_trace,text=m).grid(row=i,column=0)
+            mb=tk.Radiobutton(input_trace,text=m,variable=vm,value=i+1)
+            mb.grid(row=i,column=0)
+            # mb.config(command= lambda btn=mb: get_mtrace(btn))
+            # mb.deselect()
             i+=1
         j=0
+        vs=tk.IntVar()
+        vs.set(1)
         for s in sets.columns:
-            tk.Radiobutton(input_trace,text=s).grid(row=j,column=1)
-            j+=1
+            sb=tk.Radiobutton(input_trace,text=s,variable=vs,value=j+1)
+            sb.grid(row=j,column=1,columnspan=1)
+            # sb.config(command= lambda btn=sb: get_strace(btn))
+            # sb.deselect()
+            j=j+1
         k=0
+        ven=tk.IntVar()
+        ven.set(1)
         for en in ens.columns:
-            tk.Radiobutton(input_trace,text=en).grid(row=k,column=2)
+            enb=tk.Radiobutton(input_trace,text=en,variable=ven,value=k+1)
+            enb.grid(row=k,column=2,columnspan=1)
+            # enb.config(command= lambda btn=enb: get_entrace(btn))
+            # enb.deselect()
             k+=1
 
+        label=tk.Label(input_trace)
+        label.grid(row=3)
         quit_trace = tk.Button(input_trace,text='Apply',command=destroyer)
         quit_trace.grid(row=max(i,j,k)+1,columnspan=3)
-        choose_plot.wait_window(choose_plot.input_trace)
+        input_trace.deiconify()
+        input_trace.grab_set()
+        input_trace.wait_window(input_trace)
 
 
+    mtrace=0
+    strace=0
+    entrace=0
     button_text = button.cget("text")
     # print(button_text)
     if button_text=="P":
         # if len(s['P'].columns)>1:
         pdb= ask_deadband('P Deadband in kW')
         ask_trace('P Traces',m['P'],s['P'],en['P'])
-
-        fig,axes,lines,leg= plot_P(time,m['P'].iloc[:,0],s['P'].iloc[:,0],en['P'].iloc[:,0],pdb)
+        print(mtrace,strace,entrace)
+        fig,axes,lines,leg= plot_P(time,m['P'].iloc[:,mtrace-1],s['P'].iloc[:,strace-1],en['P'].iloc[:,entrace-1],pdb)
     elif  button_text=="Q":
         qdb=ask_deadband('Q Deadband in kVAr')
         fig,axes,lines,leg= plot_Q(time,m['Q'].iloc[:,0],s['Q'].iloc[:,0],en['Q'].iloc[:,0],qdb)
