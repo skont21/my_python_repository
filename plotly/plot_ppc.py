@@ -1,10 +1,11 @@
 # %matplotlib notebook
 from plot_maplot_v1 import *
 import tkinter as tk
-from tkinter import colorchooser,filedialog,simpledialog
+from tkinter import colorchooser,filedialog,simpledialog,messagebox
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg,NavigationToolbar2Tk
 import matplotlib as mpl
 import sys
+import re
 mpl.use('TkAgg')
 
 CBLACK  = '\33[30m'
@@ -39,23 +40,10 @@ while not csv:
 data = get_data_from_csv(csv)
 
 (time,m,s,en)=get_traces(data)
-print(CBOLD+"Traces Found:"+CEND+"\n")
-print(CBOLD+"Measurements"+CEND)
-print("------------")
-for k in m.keys():
-    print(k,"------>",list(m[k].columns))
 
-print(CBOLD+"Setpoints"+CEND)
-print("------------")
-for k in s.keys():
-    print(k,"------>",list(s[k].columns))
-
-print(CBOLD+"Enable/Disable"+CEND)
-print("-------------")
 plots=dict()
 i=1
 for k in en.keys():
-    print(k,"------>",list(en[k].columns))
     if int(en[k].sum())!=0:
         plots[str(i)]=k
         i=i+1
@@ -72,105 +60,129 @@ choose_plot = tk.Tk()
 choose_plot.protocol("WM_DELETE_WINDOW",destroyer)
 choose_plot.title("Available Plots")
 choose_plot.geometry("")
+# x=choose_plot.winfo_x()
+# y=choose_plot.winfo_y()
 
-# print("\n"+"What plot would you like to generate?"+"\n\n"+CBOLD+"Available Choises"+CEND+"\n")
+
 def plot_choise(button):
-
+    global strace
     def ask_deadband(title):
-        input_db=tk.Tk()
-        input_db.withdraw()
-        deadband = tk.simpledialog.askfloat(title, 'Enter deadband')
-        if deadband==None:
-            deadband=0
-        return deadband
-    def ask_trace(title,meas,sets,ens):
-        global mtrace
-        global strace
-        global entrace
+        global deadband
 
+        def apply_db():
+            global deadband
+            try:
+                deadband=float(e_db.get())
+            except:
+                messagebox.showwarning("Warning","Invalid Input")
+            input_db.destroy()
+
+        input_db=tk.Toplevel(choose_plot)
+        input_db.geometry("+{}+{}".format(choose_plot.winfo_x(),choose_plot.winfo_y()))
+        input_db.withdraw()
+        input_db.protocol("WM_DELETE_WINDOW")
+        input_db.title(title)
+        tk.Label(input_db,text='Enter Deadband').grid(row=0)
+        e_db=tk.Entry(input_db)
+        e_db.grid(row=0,column=1)
+        apply_db=tk.Button(input_db,text="Apply",command=apply_db).grid(row=2,column=0,columnspan=2,pady=4)
+        input_db.deiconify()
+        input_db.grab_set()
+        input_db.wait_window(input_db)
+
+
+    def ask_trace(title,sets):
+        global strace
         def destroyer():
-            global mtrace
-            global strace
-            global entrace
-            
-            mtrace=vm.get()
-            strace=vs.get()
-            entrace=ven.get()
             input_trace.destroy()
 
+        def get_strace():
+            global strace
+            strace=vs.get()
         input_trace=tk.Toplevel(choose_plot)
+        input_trace.geometry("+{}+{}".format(choose_plot.winfo_x(),choose_plot.winfo_y()))
+        input_trace.resizable(width=False, height=False)
         input_trace.withdraw()
         input_trace.protocol("WM_DELETE_WINDOW")
         input_trace.title(title)
 
-        i=0
-        vm=tk.IntVar()
-        vm.set(1)
-        for m in meas.columns:
-            mb=tk.Radiobutton(input_trace,text=m,variable=vm,value=i+1)
-            mb.grid(row=i,column=0)
-            # mb.config(command= lambda btn=mb: get_mtrace(btn))
-            # mb.deselect()
-            i+=1
         j=0
         vs=tk.IntVar()
-        vs.set(1)
         for s in sets.columns:
             sb=tk.Radiobutton(input_trace,text=s,variable=vs,value=j+1)
-            sb.grid(row=j,column=1,columnspan=1)
-            # sb.config(command= lambda btn=sb: get_strace(btn))
-            # sb.deselect()
+            sb.grid(row=j+1,column=0,columnspan=2)
+            sb.config(command= get_strace)
             j=j+1
-        k=0
-        ven=tk.IntVar()
-        ven.set(1)
-        for en in ens.columns:
-            enb=tk.Radiobutton(input_trace,text=en,variable=ven,value=k+1)
-            enb.grid(row=k,column=2,columnspan=1)
-            # enb.config(command= lambda btn=enb: get_entrace(btn))
-            # enb.deselect()
-            k+=1
+        # strace=vs.get()
 
-        label=tk.Label(input_trace)
-        label.grid(row=3)
+        tk.Label(input_trace,text="Please select trace for "+title).grid(row=0,column=0,columnspan=2)
         quit_trace = tk.Button(input_trace,text='Apply',command=destroyer)
-        quit_trace.grid(row=max(i,j,k)+1,columnspan=3)
+        quit_trace.grid(row=j+1,columnspan=2)
         input_trace.deiconify()
         input_trace.grab_set()
         input_trace.wait_window(input_trace)
 
-
-    mtrace=0
-    strace=0
-    entrace=0
     button_text = button.cget("text")
-    # print(button_text)
+
     if button_text=="P":
-        # if len(s['P'].columns)>1:
-        pdb= ask_deadband('P Deadband in kW')
-        ask_trace('P Traces',m['P'],s['P'],en['P'])
-        print(mtrace,strace,entrace)
-        fig,axes,lines,leg= plot_P(time,m['P'].iloc[:,mtrace-1],s['P'].iloc[:,strace-1],en['P'].iloc[:,entrace-1],pdb)
+        ask_deadband('P Deadband in kW')
+        pdb=deadband
+        if len(s['P'].columns)>1:
+            ask_trace('P Setpoint',s['P'])
+        else:
+            strace=1
+        fig,axes,lines,leg= plot_P(time,m['P'].iloc[:,0],s['P'].iloc[:,strace-1],en['P'].iloc[:,0],pdb)
+
     elif  button_text=="Q":
-        qdb=ask_deadband('Q Deadband in kVAr')
-        fig,axes,lines,leg= plot_Q(time,m['Q'].iloc[:,0],s['Q'].iloc[:,0],en['Q'].iloc[:,0],qdb)
+        ask_deadband('Q Deadband in kVAr')
+        qdb=deadband
+        if len(s['Q'].columns)>1:
+            ask_trace('Q Setpoint',s['Q'])
+        else:
+            strace=1
+        fig,axes,lines,leg= plot_Q(time,m['Q'].iloc[:,0],s['Q'].iloc[:,strace-1],en['Q'].iloc[:,0],qdb)
+
     elif  button_text=="AVR":
-        avrdb=ask_deadband('Voltage Deadband in V')
-        fig,axes,lines,leg= plot_AVR(time,m['V'],s['AVR'],m['Q'],en['AVR'],avrdb)
+        ask_deadband('Voltage Deadband in V')
+        avrdb=deadband
+        fig,axes,lines,leg= plot_AVR(time,m['V'].iloc[:,0],s['AVR'].iloc[:,0],m['Q'].iloc[:,0],en['AVR'].iloc[:,0],avrdb)
+
     elif  button_text=="QV":
-        qdb=ask_deadband('Q Deadband in kVAr')
-        fig,axes,lines,leg= plot_QV(time,m['V'],s['QV'],m['Q'],s['Q'],en['QV'],qdb)
+        ask_deadband('Q Deadband in kVAr')
+        qdb=deadband
+        if len(s['Q'].columns)>1:
+            ask_trace('Q Setpoint',s['Q'])
+        else:
+            strace=1
+        fig,axes,lines,leg= plot_QV(time,m['V'].iloc[:,0],s['QV'].iloc[:,0],m['Q'].iloc[:,0],s['Q'][:,strace-1],en['QV'].iloc[:,0],qdb)
+
     elif  button_text=="F":
-        pdb=ask_deadband('P Deadband in kW')
-        fig,axes,lines,leg= plot_F_P(time,m['P'],s['P'],m['F'],s['F'],en['F'],pdb)
+        ask_deadband('P Deadband in kW')
+        pdb=deadband
+        if len(s['P'].columns)>1:
+            ask_trace('P Setpoint',s['P'])
+        else:
+            strace=1
+        print(strace)
+        fig,axes,lines,leg= plot_F_P(time,m['P'].iloc[:,0],s['P'].iloc[:,strace-1],m['F'].iloc[:,0],s['F'].iloc[:,0],en['F'].iloc[:,0],pdb)
+
     elif  button_text=="PF":
-        pfdb=fask_deadband('PF Deadband')
-        fig,axes,lines,leg= plot_PF(time,m['PF'],s['PF'],en['PF'],pfdb)
+        ask_deadband('PF Deadband')
+        pfdb=deadband
+        fig,axes,lines,leg= plot_PF(time,m['PF'].iloc[:,0],s['PF'].iloc[:,0],en['PF'].iloc[:,0],pfdb)
+
     elif  button_text=="All Measurements":
-        fig,axes,lines,leg= plot_meas(time,m['P'],m['Q'],m['V'],m['PF'],m['F'])
+        fig,axes,lines,leg= plot_meas(time,m['P'].iloc[:,0],m['Q'].iloc[:,0],m['V'].iloc[:,0],m['PF'].iloc[:,0],m['F'].iloc[:,0])
+
     elif  button_text=="Q Capability":
-        qdb=ask_deadband('Q Deadband in kVAr')
-        fig,axes,lines,leg= plot_PQ(time,m['P'],m['Q'],s['Q'],en['Q'],qdb)
+        ask_deadband('Q Deadband in kVAr')
+        qdb=deadband
+        if len(s['Q'].columns)>1:
+            ask_trace('Q Setpoint',s['Q'])
+        else:
+            strace=1
+        fig,axes,lines,leg= plot_PQ(time,m['P'].iloc[:,0],m['Q'].iloc[:,0],s['Q'][:,strace-1],en['Q'].iloc[:,0],qdb)
+
     lined = dict()
     for legline, origline in zip(leg.get_lines(), lines):
         legline.set_picker(5)  # 5 pts tolerance
