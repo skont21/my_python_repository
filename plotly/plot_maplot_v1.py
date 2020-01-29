@@ -4,7 +4,7 @@ import re
 import datetime
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-from matplotlib.ticker import AutoMinorLocator, FormatStrFormatter
+from matplotlib.ticker import AutoMinorLocator, FormatStrFormatter,LinearLocator,MaxNLocator
 
 import matplotlib as mpl
 mpl.use('TkAgg')
@@ -318,8 +318,8 @@ def plot_F_P(TIME,P,PSP,F,FSP,FEN,PDB):
     l1=ax.plot(TIME,P_copy,label='P(kVAr)',color=measurement1,linewidth=2)
     # l2=ax2.plot(TIME,F,label='F(Hz)',color=measurement2,linewidth=2)
     #Plot Setpoints
-    l3=ax.plot(TIME,PSP_copy,label='P Setpoint',color=setpoint1,linewidth=0.5)
-    lb=ax.fill_between(TIME.values,PSP_copy-PDB,PSP_copy+PDB,alpha=0.5,facecolor=l3[0].get_color())
+    # l3=ax.plot(TIME,PSP_copy,label='P Setpoint',color=setpoint1,linewidth=0.5)
+    # lb=ax.fill_between(TIME.values,PSP_copy-PDB,PSP_copy+PDB,alpha=0.5,facecolor=l3[0].get_color())
     l4=ax2.plot(TIME,FSP_copy,label='F Setpoint',color=setpoint2,linewidth=2)
     #Formatting axis
 
@@ -329,6 +329,7 @@ def plot_F_P(TIME,P,PSP,F,FSP,FEN,PDB):
 
     ax.set_facecolor('whitesmoke')
     ax.grid(which='both',ls='--',lw=1,alpha=0.5)
+    # ax.xaxis.set_major_locator(MaxNLocator(min_n_ticks=10,nbins=30))
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
     ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.yaxis.set_minor_locator(AutoMinorLocator())
@@ -340,7 +341,7 @@ def plot_F_P(TIME,P,PSP,F,FSP,FEN,PDB):
     m,M=calc_minmax(FSP_copy)
     ax2.set_ylim(m,M)
 
-    lns = l1+l3+l4
+    lns = l1+l4
     labs = [l.get_label() for l in lns]
     leg = ax.legend(lns,labs,bbox_to_anchor=(0.5, 1.1),loc='upper center',ncol=len(lns),prop=legend_font,
                    fancybox=True, shadow=True)
@@ -352,7 +353,7 @@ def plot_F_P(TIME,P,PSP,F,FSP,FEN,PDB):
     ax.tick_params(labelsize=10)
     ax.set_title('Frequency Control',fontdict=font,x=0.5,y=1.1)
 
-    lines = [l1[0],l3[0],l4[0],lb]
+    lines = [l1[0],l4[0]]
 
     return (fig,fig.axes,lines,leg)
 
