@@ -115,24 +115,6 @@ def get_traces(data):
 
     setpoints=dict()
     if PSP:
-        # choise=1
-        # if len(PSP)>1:
-        #     i=1
-        #     for element in PSP:
-        #         print(i,")",element)
-        #         print("\n")
-        #         i=i+1
-        #     while True:
-        #         choise = input(CBOLD+"Choose by Number:"+CEND)
-        #         try:
-        #             choise=int(choise)
-        #             if choise in range(1,len(PSP)+1):
-        #                 break
-        #             else:
-        #                 print("\n"+"Enter a valid number"+"\n")
-        #         except:
-        #             print("\n"+"Enter a valid number:"+"\n")
-
         setpoints["P"]=data[PSP]
     if QSP:
         setpoints["Q"]=data[QSP]
@@ -495,7 +477,7 @@ def plot_PQ(TIME,P,Q,QSP,QEN,QDB):
     ax.yaxis.set_minor_locator(AutoMinorLocator())
     ax2.yaxis.set_minor_locator(AutoMinorLocator())
 
-    m,M=calc_minmax(Q,QSP)
+    m,M=calc_minmax(P)
     ax.set_ylim(m,M)
     m,M=calc_minmax(Q,QSP)
     ax2.set_ylim(m,M)
