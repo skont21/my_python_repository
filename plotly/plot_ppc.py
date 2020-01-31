@@ -1,7 +1,7 @@
 # %matplotlib notebook
 from plot_maplot_v1 import *
 import tkinter as tk
-from tkinter import colorchooser,filedialog,simpledialog,messagebox
+from tkinter import colorchooser,filedialog,simpledialog,messagebox,font
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg,NavigationToolbar2Tk
 import matplotlib as mpl
 import sys
@@ -335,37 +335,37 @@ def plot_choise(button):
                 quit_y=tk.Button(change_ylim, text='Quit',command=change_ylim.destroy).grid(row=2*len(axes)+3, column=0, sticky=tk.W, pady=4)
                 apply_y = tk.Button(change_ylim,text='Apply', command=ylimits).grid(row=2*len(axes)+3,column=1,sticky=tk.W, pady=4)
 
-        def interact_x_limits():
-            def xlimits():
-
-                axes[0].set_lim(float(l_x_min.get()),float(l_x_min.get()))
-                    # ax.yaxis.set_minor_locator(AutoMinorLocator())
-                fig.canvas.draw()
-                change_xlim.destroy()
-
-            try:
-                if 'normal' == change_ylim.state():
-                    change_xlim.lift()
-            except:
-                change_xlim = tk.Toplevel()
-                change_xlim.resizable(width=False,height=False)
-                change_xlim.title("X-limits")
-
-
-                limit_x_min = tk.Label(change_xlim, text="Insert "+axes[0].get_xlabel()+"-min").grid(row=2*ind)
-                l_x_min = tk.Entry(change_xlim,bd=5,width=40)
-                l_x_min.insert(0,axes[0].get_xlim()[0])
-                l_x_min.grid(row=0,column=1)
-                # xmin_lims.append(l_y_min)
-
-                limit_y_max = tk.Label(change_xlim,text="Insert "+axes[0].get_xlabel()+"-max").grid(row=2*ind+1)
-                l_x_max = tk.Entry(change_ylim,bd=5,width=40)
-                l_x_max.insert(0,round(axes[0].get_xlim()[1],3))
-                l_x_max.grid(row=1,column=1)
-                # ymax_lims.append(l_y_max)
-
-                quit_y=tk.Button(change_xlim, text='Quit',command=change_xlim.destroy).grid(row=2*len(axes)+3, column=0, sticky=tk.W, pady=4)
-                apply_y = tk.Button(change_xlim,text='Apply', command=xlimits).grid(row=2*len(axes)+3,column=1,sticky=tk.W, pady=4)
+        # def interact_x_limits():
+        #     def xlimits():
+        #
+        #         axes[0].set_lim(float(l_x_min.get()),float(l_x_min.get()))
+        #             # ax.yaxis.set_minor_locator(AutoMinorLocator())
+        #         fig.canvas.draw()
+        #         change_xlim.destroy()
+        #
+        #     try:
+        #         if 'normal' == change_xlim.state():
+        #             change_xlim.lift()
+        #     except:
+        #         change_xlim = tk.Toplevel()
+        #         change_xlim.resizable(width=False,height=False)
+        #         change_xlim.title("X-limits")
+        #
+        #
+        #         limit_x_min = tk.Label(change_xlim, text="Insert "+axes[0].get_xlabel()+"-min").grid(row=2*ind)
+        #         l_x_min = tk.Entry(change_xlim,bd=5,width=40)
+        #         l_x_min.insert(0,axes[0].get_xlim()[0])
+        #         l_x_min.grid(row=0,column=1)
+        #         # xmin_lims.append(l_y_min)
+        #
+        #         limit_y_max = tk.Label(change_xlim,text="Insert "+axes[0].get_xlabel()+"-max").grid(row=2*ind+1)
+        #         l_x_max = tk.Entry(change_ylim,bd=5,width=40)
+        #         l_x_max.insert(0,round(axes[0].get_xlim()[1],3))
+        #         l_x_max.grid(row=1,column=1)
+        #         # ymax_lims.append(l_y_max)
+        #
+        #         quit_y=tk.Button(change_xlim, text='Quit',command=change_xlim.destroy).grid(row=2*len(axes)+3, column=0, sticky=tk.W, pady=4)
+        #         apply_y = tk.Button(change_xlim,text='Apply', command=xlimits).grid(row=2*len(axes)+3,column=1,sticky=tk.W, pady=4)
 
         def interact_colors():
             def OnClick(btn):
@@ -411,7 +411,7 @@ def plot_choise(button):
 
         limits=tk.Menu(menubar,tearoff=0)
         limits.add_command(label="Change Y limits",command = interact_y_limits)
-        limits.add_command(label="Change X limits",command = interact_x_limits)
+        # limits.add_command(label="Change X limits",command = interact_x_limits)
 
         menubar.add_cascade(label="Limits",menu=limits)
 
@@ -459,5 +459,24 @@ for k,v, in plots.items():
     b.config(command= lambda btn=b: plot_choise(btn))
     b.grid(row=0,column=i)
     i=i+1
-
+header_frame = tk.Frame(choose_plot,borderwidth = 1)
+header_frame.grid(row=1,columnspan=i)
+header=tk.Label(header_frame,text="Traces Found")
+f = font.Font(header, header.cget("font"))
+f.configure(underline=True)
+header.configure(font=f)
+header.pack()
+headings=['Measurements','Setpoints','Enabled/Disabled']
+headings_frame = tk.Frame(choose_plot,borderwidth = 1)
+headings_frame.grid(row=2,columnspan=i)
+for col,entry in enumerate(headings):
+    tk.Label(headings_frame,text=entry,justify='center').grid(row=0,column=col)
+traces_frame=tk.Frame(choose_plot,borderwidth = 1)
+traces_frame.grid(row=3,columnspan=i)
+for r,key in enumerate(m.keys()):
+    tk.Label(traces_frame,text=m[key].columns[0],justify='left').grid(row=r, column=0)
+for r,key in enumerate(s.keys()):
+    tk.Label(traces_frame,text=s[key].columns[0],justify='center').grid(row=r, column=1)
+for r,key in enumerate(en.keys()):
+    tk.Label(traces_frame,text=en[key].columns[0],justify='right').grid(row=r, column=2)
 choose_plot.mainloop()
