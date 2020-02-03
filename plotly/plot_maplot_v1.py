@@ -178,9 +178,9 @@ def plot_P(TIME,P,PSP,PEN,PDB):
     l2=ax.plot(TIME,PSP_copy,label='P Setpoint',color=setpoint1,linewidth=1)
     lb=ax.fill_between(TIME.values,PSP_copy-PDB,PSP_copy+PDB,alpha=0.5,facecolor=l2[0].get_color())
 
-    # lns = l1+l2
-    # for l in lns:
-    #     l.set_picker(5)
+    lns = l1+l2
+    for l in lns:
+        l.set_picker(5)
     #Formatting axis
 
     ax.spines["top"].set_visible(False)
@@ -196,7 +196,6 @@ def plot_P(TIME,P,PSP,PEN,PDB):
     m,M=calc_minmax(P,PSP)
 
     ax.set_ylim(m,M)
-    ax.xaxis.set_picker(10)
     leg = ax.legend(bbox_to_anchor=(0.5, 1.1),loc='upper center',ncol=2,prop=legend_font,
                    fancybox=True, shadow=True)
     fig.autofmt_xdate()
@@ -204,7 +203,6 @@ def plot_P(TIME,P,PSP,PEN,PDB):
     ax.set_xlabel('TIME',fontdict=font)
     ax.tick_params(labelsize=10)
     title = ax.set_title('Active Power Control',fontdict=font,x=0.5,y=1.1)
-    title.set_picker(5)
 
     lines = [l1[0],l2[0],lb]
 

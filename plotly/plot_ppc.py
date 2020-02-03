@@ -3,6 +3,8 @@ from plot_maplot_v1 import *
 import tkinter as tk
 from tkinter import colorchooser,filedialog,simpledialog,messagebox,font
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg,NavigationToolbar2Tk
+from matplotlib.lines import Line2D
+from matplotlib.text import Text
 import matplotlib as mpl
 import sys
 import re
@@ -60,7 +62,10 @@ def destroyer():
 choose_plot = tk.Tk()
 choose_plot.protocol("WM_DELETE_WINDOW",destroyer)
 choose_plot.title("Available Plots")
+choose_plot.resizable(width=False, height=False)
 choose_plot.geometry("")
+choose_plot.grid_columnconfigure(0, weight=1)
+choose_plot.grid_rowconfigure(0, weight=1)
 
 
 def plot_choise(button):
@@ -235,9 +240,10 @@ def plot_choise(button):
         def clear():
             try:
                 VLs[-1].remove()
+                VL_texts[-1].remove()
                 fig.canvas.draw()
                 VLs.pop()
-                print(VLs)
+                VL_texts.pop()
             except:
                 print("error")
                 pass
@@ -256,8 +262,8 @@ def plot_choise(button):
         buttons_frame.grid(row=3)
         quitbutton = tk.Button(buttons_frame, text="Quit", command=destroyer)
         quitbutton.grid(row=0,column=0)
-        vline=tk.Button(buttons_frame, text="Clear",command=clear)
-        vline.grid(row=0,column=1)
+        clearbutton=tk.Button(buttons_frame, text="Clear",command=clear)
+        clearbutton.grid(row=0,column=1)
 
         def interact_title():
             def title():
@@ -417,11 +423,18 @@ def plot_choise(button):
         # we will set up a dict mapping legend line to orig line, and enable
         # picking on the legend line
         VLs=[]
+        VL_texts=[]
+        global oldx
+        oldx=None
+        props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+
         def onpick(event):
+            global oldx
             # on the pick event, find the orig line corresponding to the
             # legend proxy line, and toggle the visibility
             if event.artist in lined.keys():
                 legline = event.artist
+                print(type(legline))
                 origline = lined[legline]
                 vis = not origline.get_visible()
                 origline.set_visible(vis)
@@ -438,70 +451,90 @@ def plot_choise(button):
                     legline.set_alpha(0.2)
                 fig.canvas.draw()
 
-            elif event.artist == axes[0].xaxis:
+            elif isinstance(event.artist, Line2D):
                 x = event.mouseevent.xdata
                 y = event.mouseevent.ydata
-                VL =  axes[0].axvline(x=x)
-                print(x,y)
-                # if len(VL)>1:
-                #     VL.pop()
-                VLs.append(VL)
-                # print(VLs)
-                fig.canvas.draw()
+                if x != oldx:
+                    vline = tk.messagebox.askquestion ('Vertical Line Text','Would you like to add text?',parent = master)
+                    if vline == 'no':
+                        y_text=(axes[0].get_ylim()[1]-axes[0].get_ylim()[0])/2
+                        VL =  axes[0].axvline(x=x,linewidth=2, ls='--',c='k')
+                        VLs.append(VL)
+                        VL_text = axes[0].text(x,y_text,"",rotation=90,fontdict={'size':12,'weight':'bold'})
+                        VL_texts.append(VL_text)
+                        oldx=x
+                        fig.canvas.draw()
+                    else:
+                        y_text=(axes[0].get_ylim()[1]-axes[0].get_ylim()[0])/2
+                        ask_text = simpledialog.askstring("Text for line","Insert text",parent=master)
+                        VL =  axes[0].axvline(x=x,linewidth=2, ls='--',c='k')
+                        VLs.append(VL)
+                        VL_text = axes[0].text(x,y_text,ask_text,rotation=90,fontdict={'size':12,'weight':'bold'},bbox=props,picker=5)
+                        VL_texts.append(VL_text)
+                        oldx=x
+                        fig.canvas.draw()
+            elif isinstance(event.artist, Text):
+                text= event.artist
+                print('onpick text:', text.get_text())
 
         canvas.mpl_connect('pick_event', onpick)
 
         master.config(menu=menubar)
     except:pass
 
-    # choose_plot.destroy()
-
 i=0
 buttons=[]
+buttons_frame=tk.Frame(choose_plot,borderwidth=2,relief="groove")
+buttons_frame.grid(row=0,column=0,sticky=tk.NSEW)
+buttons_frame.grid_columnconfigure(0,weight=1)
+
 for k,v, in plots.items():
-    # print(k,")",v)
-    b=tk.Button(choose_plot,text=v)
-    # buttons.append(b)
+    buttons_frame.grid_rowconfigure(i,weight=1)
+    b=tk.Button(buttons_frame,text=v,bg='red')
     b.config(command= lambda btn=b: plot_choise(btn))
-    b.grid(row=0,column=i)
+    b.grid(row=i,column=0,sticky=tk.NSEW)
     i=i+1
-w= choose_plot.winfo_reqwidth()
 
-header_frame = tk.Frame(choose_plot)
-header_frame.grid(row=1,columnspan=i,pady=5)
-header=tk.Label(header_frame,text="Traces",justify='center')
-f = tk.font.Font(header, header.cget("font"))
-f.configure(underline=True)
-header.configure(font=f)
-header.pack()
+# header_frame = tk.Frame(choose_plot)
+# header_frame.grid(row=1,pady=5)
+# header=tk.Label(header_frame,text="Traces",justify='center')
+# f = tk.font.Font(header, header.cget("font"))
+# f.configure(underline=True)
+# header.configure(font=f)
+# header.pack()
 
-headings=['Measurements','Setpoints','Enabled/Disabled']
-headings_frame = tk.Frame(choose_plot)
-headings_frame.grid(row=2,columnspan=i)
-for col,entry in enumerate(headings):
-    heading = tk.Label(headings_frame,text=entry)
-    heading.grid(row=0,column=col,padx=w/10)
-    f = tk.font.Font(heading, heading.cget("font"))
-    f.configure(underline=True)
-    heading.configure(font=f)
-
-traces_frame=tk.Frame(choose_plot)
-traces_frame.grid(row=3,columnspan=i)
-
-r=0
+r=1
+meas_frame=tk.Frame(choose_plot)
+meas_frame.grid(row=1,column=0,sticky=tk.NSEW)
+meas_frame.grid_rowconfigure(0,weight=1)
+# ,columnspan=len(m)+1)
+tk.Label(meas_frame,text='Measurements:',borderwidth=2,relief="groove").grid(row=0,column=0,padx=5)
 for key in m.keys():
     for c in m[key].columns:
-        tk.Label(traces_frame,text=c).grid(row=r,column=0)
+        meas_frame.grid_columnconfigure(r,weight=1)
+        tk.Label(meas_frame,text=c).grid(row=0,column=r,padx=5)
         r+=1
-r=0
+r=1
+sets_frame=tk.Frame(choose_plot)
+sets_frame.grid(row=2,column=0,sticky=tk.NSEW)
+sets_frame.grid_rowconfigure(0,weight=1)
+
+tk.Label(sets_frame,text='Setpoints:',borderwidth=2,relief="groove").grid(row=0,column=0,padx=5)
 for key in s.keys():
     for c in s[key].columns:
-        tk.Label(traces_frame,text=c).grid(row=r,column=1,padx=w/3.1)
+        sets_frame.grid_columnconfigure(r,weight=1)
+        tk.Label(sets_frame,text=c).grid(row=0,column=r,padx=5)
         r+=1
-r=0
+r=1
+en_frame=tk.Frame(choose_plot)
+en_frame.grid(row=3,column=0,sticky=tk.NSEW)
+en_frame.grid_rowconfigure(0,weight=1)
+
+tk.Label(en_frame,text='Enabled/Disabled:',borderwidth=2,relief="groove").grid(row=0,column=0,padx=5)
 for key in en.keys():
     for c in en[key].columns:
-        tk.Label(traces_frame,text=c).grid(row=r,column=2)
+        en_frame.grid_columnconfigure(r,weight=1)
+        tk.Label(en_frame,text=c).grid(row=0,column=r,padx=5)
         r+=1
 
 quit_button=tk.Button(choose_plot,text='Quit',command=destroyer)
