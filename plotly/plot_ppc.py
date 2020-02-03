@@ -6,6 +6,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg,NavigationToolba
 import matplotlib as mpl
 import sys
 import re
+import numpy as np
 mpl.use('TkAgg')
 
 CBLACK  = '\33[30m'
@@ -68,7 +69,16 @@ def plot_choise(button):
     def ask_deadband(title):
         global deadband
 
-        def apply_db():
+        def apply_db(event=None):
+            global deadband
+            try:
+                deadband=float(e_db.get())
+            except:
+                deadband=""
+                messagebox.showwarning("Warning","Invalid Input",parent=input_db)
+            input_db.destroy()
+
+        def func(event):
             global deadband
             try:
                 deadband=float(e_db.get())
@@ -86,7 +96,9 @@ def plot_choise(button):
         e_db=tk.Entry(input_db)
         e_db.focus()
         e_db.grid(row=0,column=1)
-        apply_db=tk.Button(input_db,text="Apply",command=apply_db).grid(row=2,column=0,columnspan=2,pady=4)
+        apply_db=tk.Button(input_db,text="Apply",command=apply_db)
+        apply_db.grid(row=2,column=0,columnspan=2,pady=4)
+        input_db.bind('<Return>',func)
         input_db.deiconify()
         input_db.grab_set()
         input_db.wait_window(input_db)
@@ -116,7 +128,6 @@ def plot_choise(button):
             sb.grid(row=j+1,column=0,columnspan=2)
             sb.config(command= get_strace)
             j=j+1
-        # strace=vs.get()
 
         tk.Label(input_trace,text="Please select trace for "+title).grid(row=0,column=0,columnspan=2)
         quit_trace = tk.Button(input_trace,text='Apply',command=destroyer)
@@ -138,6 +149,7 @@ def plot_choise(button):
                 strace=1
             try:
                 fig,axes,lines,leg= plot_P(time,m['P'].iloc[:,0],s['P'].iloc[:,strace-1],en['P'].iloc[:,0],pdb)
+                old_fig=fig
             except TypeError:
                 messagebox.showwarning("Warning","Select a trace",parent=choose_plot)
 
@@ -220,7 +232,15 @@ def plot_choise(button):
         def destroyer():
             # master.quit()
             master.destroy()
-
+        def clear():
+            try:
+                VLs[-1].remove()
+                fig.canvas.draw()
+                VLs.pop()
+                print(VLs)
+            except:
+                print("error")
+                pass
         master.protocol("WM_DELETE_WINDOW")
 
         frame = tk.Frame(master)
@@ -232,8 +252,12 @@ def plot_choise(button):
         canvas.get_tk_widget().grid(row=1)
         frame.grid(row=2,sticky=tk.W)
 
-        quitbutton = tk.Button(master, text="Quit", command=destroyer)
-        quitbutton.grid(row=2)
+        buttons_frame=tk.Frame(master)
+        buttons_frame.grid(row=3)
+        quitbutton = tk.Button(buttons_frame, text="Quit", command=destroyer)
+        quitbutton.grid(row=0,column=0)
+        vline=tk.Button(buttons_frame, text="Clear",command=clear)
+        vline.grid(row=0,column=1)
 
         def interact_title():
             def title():
@@ -247,7 +271,7 @@ def plot_choise(button):
                 if 'normal' == change_title.state():
                     change_title.lift()
             except:
-                change_title = tk.Toplevel()
+                change_title = tk.Toplevel(master)
                 change_title.resizable(width=False, height=False)
                 change_title.title("Title")
                 label_title = tk.Label(change_title, text="Insert Title").grid(row=0)
@@ -268,7 +292,7 @@ def plot_choise(button):
                 if 'normal' == change_y.state():
                     change_y.lift()
             except:
-                change_y = tk.Toplevel()
+                change_y = tk.Toplevel(master)
                 change_y.resizable(width=False, height=False)
                 change_y.title("Y-labels")
                 y_entries=[]
@@ -291,7 +315,7 @@ def plot_choise(button):
                 if 'normal' == change_x.state():
                     change_x.lift()
             except:
-                change_x = tk.Toplevel()
+                change_x = tk.Toplevel(master)
                 change_x.resizable(width=False, height=False)
                 change_x.title("X-label")
                 label_x = tk.Label(change_x, text="Insert X-label").grid(row=0)
@@ -313,7 +337,7 @@ def plot_choise(button):
                 if 'normal' == change_ylim.state():
                     change_ylim.lift()
             except:
-                change_ylim = tk.Toplevel()
+                change_ylim = tk.Toplevel(master)
                 change_ylim.resizable(width=False,height=False)
                 change_ylim.title("Y-limits")
                 ymax_lims=[]
@@ -334,38 +358,6 @@ def plot_choise(button):
 
                 quit_y=tk.Button(change_ylim, text='Quit',command=change_ylim.destroy).grid(row=2*len(axes)+3, column=0, sticky=tk.W, pady=4)
                 apply_y = tk.Button(change_ylim,text='Apply', command=ylimits).grid(row=2*len(axes)+3,column=1,sticky=tk.W, pady=4)
-
-        # def interact_x_limits():
-        #     def xlimits():
-        #
-        #         axes[0].set_lim(float(l_x_min.get()),float(l_x_min.get()))
-        #             # ax.yaxis.set_minor_locator(AutoMinorLocator())
-        #         fig.canvas.draw()
-        #         change_xlim.destroy()
-        #
-        #     try:
-        #         if 'normal' == change_xlim.state():
-        #             change_xlim.lift()
-        #     except:
-        #         change_xlim = tk.Toplevel()
-        #         change_xlim.resizable(width=False,height=False)
-        #         change_xlim.title("X-limits")
-        #
-        #
-        #         limit_x_min = tk.Label(change_xlim, text="Insert "+axes[0].get_xlabel()+"-min").grid(row=2*ind)
-        #         l_x_min = tk.Entry(change_xlim,bd=5,width=40)
-        #         l_x_min.insert(0,axes[0].get_xlim()[0])
-        #         l_x_min.grid(row=0,column=1)
-        #         # xmin_lims.append(l_y_min)
-        #
-        #         limit_y_max = tk.Label(change_xlim,text="Insert "+axes[0].get_xlabel()+"-max").grid(row=2*ind+1)
-        #         l_x_max = tk.Entry(change_ylim,bd=5,width=40)
-        #         l_x_max.insert(0,round(axes[0].get_xlim()[1],3))
-        #         l_x_max.grid(row=1,column=1)
-        #         # ymax_lims.append(l_y_max)
-        #
-        #         quit_y=tk.Button(change_xlim, text='Quit',command=change_xlim.destroy).grid(row=2*len(axes)+3, column=0, sticky=tk.W, pady=4)
-        #         apply_y = tk.Button(change_xlim,text='Apply', command=xlimits).grid(row=2*len(axes)+3,column=1,sticky=tk.W, pady=4)
 
         def interact_colors():
             def OnClick(btn):
@@ -396,9 +388,11 @@ def plot_choise(button):
                     if not (line.get_label() == "_collection0"):
                         line_button=tk.Button(change_color,text=line.get_label())
                         line_button.config(command=lambda btn=line_button: OnClick(btn))
-                        line_button.grid(row=ind,column=1,columnspan=2)
+                        line_button.grid(row=0,column=ind+1)
 
-            quit_y=tk.Button(change_color, text='Quit',command=change_color.destroy).grid(row=2*len(axes)+3, column=0, sticky=tk.W, pady=4)
+            quit_y=tk.Button(change_color, text='Quit',command=change_color.destroy)
+            quit_y.grid(row=1, column=0, sticky=tk.W, pady=5)
+
 
         menubar=tk.Menu(master)
 
@@ -411,7 +405,6 @@ def plot_choise(button):
 
         limits=tk.Menu(menubar,tearoff=0)
         limits.add_command(label="Change Y limits",command = interact_y_limits)
-        # limits.add_command(label="Change X limits",command = interact_x_limits)
 
         menubar.add_cascade(label="Limits",menu=limits)
 
@@ -420,28 +413,41 @@ def plot_choise(button):
 
         menubar.add_cascade(label="LineColors",menu=colors)
 
+
         # we will set up a dict mapping legend line to orig line, and enable
         # picking on the legend line
-
+        VLs=[]
         def onpick(event):
             # on the pick event, find the orig line corresponding to the
             # legend proxy line, and toggle the visibility
-            legline = event.artist
-            origline = lined[legline]
-            vis = not origline.get_visible()
-            origline.set_visible(vis)
-            try:
-                if tuple(lines[-1].get_facecolor()[0][0:3]) == origline.get_color():
-                    lines[-1].set_visible(vis)
-            except:
-                pass
-            # Change the alpha on the line in the legend so we can see what lines
-            # have been toggled
-            if vis:
-                legline.set_alpha(1.0)
-            else:
-                legline.set_alpha(0.2)
-            fig.canvas.draw()
+            if event.artist in lined.keys():
+                legline = event.artist
+                origline = lined[legline]
+                vis = not origline.get_visible()
+                origline.set_visible(vis)
+                try:
+                    if tuple(lines[-1].get_facecolor()[0][0:3]) == origline.get_color():
+                        lines[-1].set_visible(vis)
+                except:
+                    pass
+                # Change the alpha on the line in the legend so we can see what lines
+                # have been toggled
+                if vis:
+                    legline.set_alpha(1.0)
+                else:
+                    legline.set_alpha(0.2)
+                fig.canvas.draw()
+
+            elif event.artist == axes[0].xaxis:
+                x = event.mouseevent.xdata
+                y = event.mouseevent.ydata
+                VL =  axes[0].axvline(x=x)
+                print(x,y)
+                # if len(VL)>1:
+                #     VL.pop()
+                VLs.append(VL)
+                # print(VLs)
+                fig.canvas.draw()
 
         canvas.mpl_connect('pick_event', onpick)
 
@@ -459,24 +465,45 @@ for k,v, in plots.items():
     b.config(command= lambda btn=b: plot_choise(btn))
     b.grid(row=0,column=i)
     i=i+1
-header_frame = tk.Frame(choose_plot,borderwidth = 1)
-header_frame.grid(row=1,columnspan=i)
-header=tk.Label(header_frame,text="Traces Found")
-f = font.Font(header, header.cget("font"))
+w= choose_plot.winfo_reqwidth()
+
+header_frame = tk.Frame(choose_plot)
+header_frame.grid(row=1,columnspan=i,pady=5)
+header=tk.Label(header_frame,text="Traces",justify='center')
+f = tk.font.Font(header, header.cget("font"))
 f.configure(underline=True)
 header.configure(font=f)
 header.pack()
+
 headings=['Measurements','Setpoints','Enabled/Disabled']
-headings_frame = tk.Frame(choose_plot,borderwidth = 1)
+headings_frame = tk.Frame(choose_plot)
 headings_frame.grid(row=2,columnspan=i)
 for col,entry in enumerate(headings):
-    tk.Label(headings_frame,text=entry,justify='center').grid(row=0,column=col)
-traces_frame=tk.Frame(choose_plot,borderwidth = 1)
+    heading = tk.Label(headings_frame,text=entry)
+    heading.grid(row=0,column=col,padx=w/10)
+    f = tk.font.Font(heading, heading.cget("font"))
+    f.configure(underline=True)
+    heading.configure(font=f)
+
+traces_frame=tk.Frame(choose_plot)
 traces_frame.grid(row=3,columnspan=i)
-for r,key in enumerate(m.keys()):
-    tk.Label(traces_frame,text=m[key].columns[0],justify='left').grid(row=r, column=0)
-for r,key in enumerate(s.keys()):
-    tk.Label(traces_frame,text=s[key].columns[0],justify='center').grid(row=r, column=1)
-for r,key in enumerate(en.keys()):
-    tk.Label(traces_frame,text=en[key].columns[0],justify='right').grid(row=r, column=2)
+
+r=0
+for key in m.keys():
+    for c in m[key].columns:
+        tk.Label(traces_frame,text=c).grid(row=r,column=0)
+        r+=1
+r=0
+for key in s.keys():
+    for c in s[key].columns:
+        tk.Label(traces_frame,text=c).grid(row=r,column=1,padx=w/3.1)
+        r+=1
+r=0
+for key in en.keys():
+    for c in en[key].columns:
+        tk.Label(traces_frame,text=c).grid(row=r,column=2)
+        r+=1
+
+quit_button=tk.Button(choose_plot,text='Quit',command=destroyer)
+quit_button.grid(columnspan=i,pady=10)
 choose_plot.mainloop()

@@ -178,6 +178,9 @@ def plot_P(TIME,P,PSP,PEN,PDB):
     l2=ax.plot(TIME,PSP_copy,label='P Setpoint',color=setpoint1,linewidth=1)
     lb=ax.fill_between(TIME.values,PSP_copy-PDB,PSP_copy+PDB,alpha=0.5,facecolor=l2[0].get_color())
 
+    # lns = l1+l2
+    # for l in lns:
+    #     l.set_picker(5)
     #Formatting axis
 
     ax.spines["top"].set_visible(False)
@@ -185,12 +188,15 @@ def plot_P(TIME,P,PSP,PEN,PDB):
     ax.set_facecolor('whitesmoke')
     ax.grid(which='both',ls='--',lw=1,alpha=0.5)
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
+    ax.xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
     ax.xaxis.set_minor_locator(AutoMinorLocator())
+    ax.yaxis.set_major_locator(MaxNLocator(nbins=20,integer=True))
     ax.yaxis.set_minor_locator(AutoMinorLocator())
 
     m,M=calc_minmax(P,PSP)
 
     ax.set_ylim(m,M)
+    ax.xaxis.set_picker(10)
     leg = ax.legend(bbox_to_anchor=(0.5, 1.1),loc='upper center',ncol=2,prop=legend_font,
                    fancybox=True, shadow=True)
     fig.autofmt_xdate()
@@ -218,7 +224,9 @@ def plot_Q(TIME,Q,QSP,QEN,QDB):
     #Plot Setpoints
     l2=ax.plot(TIME,QSP_copy,label='Q Setpoint',color=setpoint1,linewidth=1)
     lb=ax.fill_between(TIME.values,QSP_copy-QDB,QSP_copy+QDB,alpha=0.3,facecolor=l2[0].get_color())
-
+    lns = l1+l2
+    for l in lns:
+        l.set_picker(5)
     #Formatting axis
 
     m,M=calc_minmax(Q,QSP)
@@ -229,7 +237,9 @@ def plot_Q(TIME,Q,QSP,QEN,QDB):
     ax.set_facecolor('whitesmoke')
     ax.grid(which='both',ls='--',lw=1,alpha=0.5)
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
+    ax.xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
     ax.xaxis.set_minor_locator(AutoMinorLocator())
+    ax.yaxis.set_major_locator(MaxNLocator(nbins=20,integer=True))
     ax.yaxis.set_minor_locator(AutoMinorLocator())
     ax.tick_params(labelsize=10)
     ax.set_ylabel('Q (kVAr)',fontdict=font)
@@ -258,6 +268,9 @@ def plot_PF(TIME,PF,PFSP,PFEN,PFDB):
     l2=ax.plot(TIME,PFSP_copy,label='PF Setpoint',color=setpoint1,linewidth=1)
     lb=ax.fill_between(TIME.values,PFSP_copy-PFDB,PFSP_copy+PFDB,alpha=0.5,facecolor=l2[0].get_color())
 
+    lns = l1+l2
+    for l in lns:
+        l.set_picker(5)
     #Formatting axis
     m,M=calc_minmax(PF,PFSP)
 
@@ -267,9 +280,10 @@ def plot_PF(TIME,PF,PFSP,PFEN,PFDB):
     ax.set_facecolor('whitesmoke')
     ax.grid(which='both',ls='--',lw=1,alpha=0.5)
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
+    ax.xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
     ax.xaxis.set_minor_locator(AutoMinorLocator())
+    ax.yaxis.set_major_locator(MaxNLocator(nbins=20,integer=True))
     ax.yaxis.set_minor_locator(AutoMinorLocator())
-    ax.tick_params(labelsize=10)
     ax.set_ylabel('PF',fontdict=font)
     ax.set_xlabel('TIME',fontdict=font)
     ax.set_title('Power Factor Control',fontdict=font,x=0.5,y=1.1)
@@ -313,8 +327,11 @@ def plot_F_P(TIME,P,PSP,F,FSP,FEN,PDB):
     ax.grid(which='both',ls='--',lw=1,alpha=0.5)
     # ax.xaxis.set_major_locator(MaxNLocator(min_n_ticks=10,nbins=30))
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
+    ax.xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
     ax.xaxis.set_minor_locator(AutoMinorLocator())
+    ax.yaxis.set_major_locator(MaxNLocator(nbins=20,integer=True))
     ax.yaxis.set_minor_locator(AutoMinorLocator())
+    ax2.yaxis.set_major_locator(MaxNLocator(nbins=20,integer=True))
     ax2.yaxis.set_minor_locator(AutoMinorLocator())
 
     m,M=calc_minmax(P_copy,PSP_copy)
@@ -324,6 +341,8 @@ def plot_F_P(TIME,P,PSP,F,FSP,FEN,PDB):
     ax2.set_ylim(m,M)
 
     lns = l1+l4
+    for l in lns:
+        l.set_picker(5)
     labs = [l.get_label() for l in lns]
     leg = ax.legend(lns,labs,bbox_to_anchor=(0.5, 1.1),loc='upper center',ncol=len(lns),prop=legend_font,
                    fancybox=True, shadow=True)
@@ -364,8 +383,11 @@ def plot_AVR(TIME,V,AVRSP,Q,AVREN,AVRDB):
     ax.set_facecolor('whitesmoke')
     ax.grid(which='both',ls='--',lw=1,alpha=0.5)
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
+    ax.xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
     ax.xaxis.set_minor_locator(AutoMinorLocator())
+    ax.yaxis.set_major_locator(MaxNLocator(nbins=20,integer=True))
     ax.yaxis.set_minor_locator(AutoMinorLocator())
+    ax2.yaxis.set_major_locator(MaxNLocator(nbins=20,integer=True))
     ax2.yaxis.set_minor_locator(AutoMinorLocator())
 
     m,M=calc_minmax(V)
@@ -375,7 +397,9 @@ def plot_AVR(TIME,V,AVRSP,Q,AVREN,AVRDB):
     m,M=calc_minmax(Q)
     ax2.set_ylim(m,M)
 
-    lns = l1+l2 +l3
+    lns = l1+l2+l3
+    for l in lns:
+        l.set_picker(5)
     labs = [l.get_label() for l in lns]
     leg = ax.legend(lns,labs,bbox_to_anchor=(0.5, 1.1),loc='upper center',ncol=len(lns),prop=legend_font,
                    fancybox=True, shadow=True)
@@ -413,6 +437,9 @@ def plot_QV(TIME,V,QVSP,Q,QSP,QVEN,QDB):
     l4=ax2.plot(TIME,QSP_copy,label='Q Setpoint',color=setpoint2,linewidth=1)
     lb=ax2.fill_between(TIME.values,QSP_copy-QDB,QSP_copy+QDB,alpha=0.5,facecolor=l4[0].get_color())
 
+    lns = l1+l2+l3+l4
+    for l in lns:
+        l.set_picker(5)
 
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
@@ -421,8 +448,11 @@ def plot_QV(TIME,V,QVSP,Q,QSP,QVEN,QDB):
     ax.set_facecolor('whitesmoke')
     ax.grid(which='both',ls='--',lw=1,alpha=0.5)
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
+    ax.xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
     ax.xaxis.set_minor_locator(AutoMinorLocator())
+    ax.yaxis.set_major_locator(MaxNLocator(nbins=20,integer=True))
     ax.yaxis.set_minor_locator(AutoMinorLocator())
+    ax2.yaxis.set_major_locator(MaxNLocator(nbins=20,integer=True))
     ax2.yaxis.set_minor_locator(AutoMinorLocator())
 
     m,M=calc_minmax(V,QVSP)
@@ -464,6 +494,9 @@ def plot_PQ(TIME,P,Q,QSP,QEN,QDB):
     l3=ax2.plot(TIME,QSP_copy,label='Q Setpoint',color=setpoint2,linewidth=0.5)
     lb=ax2.fill_between(TIME.values,QSP_copy-QDB,QSP_copy+QDB,alpha=0.5,facecolor=l3[0].get_color())
 
+    lns = l1+l2+l3
+    for l in lns:
+        l.set_picker(5)
     #Formatting axis
 
     ax.spines["top"].set_visible(False)
@@ -473,8 +506,11 @@ def plot_PQ(TIME,P,Q,QSP,QEN,QDB):
     ax.set_facecolor('whitesmoke')
     ax.grid(which='both',ls='--',lw=1,alpha=0.5)
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
+    ax.xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
     ax.xaxis.set_minor_locator(AutoMinorLocator())
+    ax.yaxis.set_major_locator(MaxNLocator(nbins=20,integer=True))
     ax.yaxis.set_minor_locator(AutoMinorLocator())
+    ax2.yaxis.set_major_locator(MaxNLocator(nbins=20,integer=True))
     ax2.yaxis.set_minor_locator(AutoMinorLocator())
 
     m,M=calc_minmax(P)
