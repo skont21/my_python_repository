@@ -25,7 +25,62 @@ CBOLD = '\33[1m'
 CURL = '\33[4m'
 CEND = '\33[0m'
 
-# csv=input("Please enter the path of you csv file:")
+
+class HoverButton(tk.Button):
+    def __init__(self, master, **kw):
+        tk.Button.__init__(self,master=master,**kw)
+        self.defaultBackground = self["background"]
+        self.bind("<Enter>", self.on_enter)
+        self.bind("<Leave>", self.on_leave)
+
+    def on_enter(self, e):
+        self['background'] = self['activebackground']
+
+    def on_leave(self, e):
+        self['background'] = self.defaultBackground
+
+class move_text:
+    def __init__(self,text,figure):
+        self.text=text
+        self.figure=figure
+        self.pick=None
+    def connect(self):
+        'connect to all the events we need'
+        self.cidpress = self.figure.canvas.mpl_connect('pick_event', self.on_pick)
+        self.cidrelease = self.figure.canvas.mpl_connect('button_release_event', self.on_release)
+        self.cidmotion = self.figure.canvas.mpl_connect('motion_notify_event', self.on_motion)
+
+    def on_pick(self, event):
+        'on button pick we will see if the mouse is over us and store some data'
+        if isinstance(event.artist, Text)==False:
+            return
+        x0, y0 = self.text.get_position()
+        self.pick = x0, y0, event.mouseevent.xdata,event.mouseevent.ydata
+
+    def on_motion(self, event):
+        'on motion we will move the rect if the mouse is over us'
+        if self.pick is None:
+            return
+        # if isinstance(event.artist, Text)==False:
+        #     return
+
+        self.text.set_position((event.xdata,event.ydata))
+        # self.text.set_y(event.ydata)
+
+        self.figure.canvas.draw()
+
+    def on_release(self, event):
+        'on release we reset the press data'
+        self.pick = None
+        self.figure.canvas.draw()
+
+
+    def disconnect(self):
+        'disconnect all the stored connection ids'
+        self.figure.canvas.mpl_disconnect(self.cidpress)
+        self.figure.canvas.mpl_disconnect(self.cidrelease)
+        self.figure.canvas.mpl_disconnect(self.cidmotion)
+
 
 csv=''
 while not csv:
@@ -427,9 +482,11 @@ def plot_choise(button):
         global oldx
         oldx=None
         props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+        drs=[]
 
         def onpick(event):
             global oldx
+            global deadband
             # on the pick event, find the orig line corresponding to the
             # legend proxy line, and toggle the visibility
             if event.artist in lined.keys():
@@ -454,31 +511,46 @@ def plot_choise(button):
             elif isinstance(event.artist, Line2D):
                 x = event.mouseevent.xdata
                 y = event.mouseevent.ydata
+                print(deadband)
+                ytext=y+(axes[0].get_ylim()[1]-y)/2
+                xtext=x-2/86400
                 if x != oldx:
                     vline = tk.messagebox.askquestion ('Vertical Line Text','Would you like to add text?',parent = master)
                     if vline == 'no':
-                        y_text=(axes[0].get_ylim()[1]-axes[0].get_ylim()[0])/2
                         VL =  axes[0].axvline(x=x,linewidth=2, ls='--',c='k')
                         VLs.append(VL)
-                        VL_text = axes[0].text(x,y_text,"",rotation=90,fontdict={'size':12,'weight':'bold'})
+                        VL_text = axes[0].text(x+0.001,y+20*deadband,"",rotation=90,fontdict={'size':12,'weight':'bold'})
                         VL_texts.append(VL_text)
                         oldx=x
                         fig.canvas.draw()
                     else:
-                        y_text=(axes[0].get_ylim()[1]-axes[0].get_ylim()[0])/2
                         ask_text = simpledialog.askstring("Text for line","Insert text",parent=master)
                         VL =  axes[0].axvline(x=x,linewidth=2, ls='--',c='k')
                         VLs.append(VL)
-                        VL_text = axes[0].text(x,y_text,ask_text,rotation=90,fontdict={'size':12,'weight':'bold'},bbox=props,picker=5)
+                        VL_text = axes[0].text(xtext,ytext,ask_text,rotation=90,fontdict={'size':12,'weight':'bold'},bbox=props,picker=5)
                         VL_texts.append(VL_text)
+                        dr = move_text(VL_text,fig)
+                        dr.connect()
+                        drs.append(dr)
                         oldx=x
                         fig.canvas.draw()
-            elif isinstance(event.artist, Text):
-                text= event.artist
-                print('onpick text:', text.get_text())
+            # elif isinstance(event.artist, Text):
+            #     global text
+            #     text= event.artist
+            #     # pick_pos = (event.mouseevent.xdata, event.mouseevent.ydata)
+            # x = event.mouseevent.xdata
+            # y = event.mouseevent.ydata
+            # pick_pos=(x,y)
+            # x_cur,y_cur = text.get_position()
+            # print(x_cur,y_cur)
+            # ask_move=simpledialog.askfloat("Shift TextBox","Shift TextBox by sec(negative for left)",parent=master)
+            # x_next=x_cur+ask_move/86400
+            # print(x_next)
+            # text.set_position((x_next,y_cur))
+            # fig.canvas.draw()
+            # print('onpick text:', text.get_text())
 
         canvas.mpl_connect('pick_event', onpick)
-
         master.config(menu=menubar)
     except:pass
 
@@ -490,7 +562,7 @@ buttons_frame.grid_columnconfigure(0,weight=1)
 
 for k,v, in plots.items():
     buttons_frame.grid_rowconfigure(i,weight=1)
-    b=tk.Button(buttons_frame,text=v,bg='red')
+    b=HoverButton(buttons_frame,text=v,activebackground='green')
     b.config(command= lambda btn=b: plot_choise(btn))
     b.grid(row=i,column=0,sticky=tk.NSEW)
     i=i+1
