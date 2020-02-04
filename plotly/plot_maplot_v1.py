@@ -435,9 +435,6 @@ def plot_QV(TIME,V,QVSP,Q,QSP,QVEN,QDB):
     l4=ax2.plot(TIME,QSP_copy,label='Q Setpoint',color=setpoint2,linewidth=1)
     lb=ax2.fill_between(TIME.values,QSP_copy-QDB,QSP_copy+QDB,alpha=0.5,facecolor=l4[0].get_color())
 
-    lns = l1+l2+l3+l4
-    for l in lns:
-        l.set_picker(5)
 
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
@@ -460,6 +457,8 @@ def plot_QV(TIME,V,QVSP,Q,QSP,QVEN,QDB):
     ax2.set_ylim(min(Q.min(),QSP.min())*2,max(Q.max(),QSP.max())*2)
 
     lns = l1+l2+l3+l4
+    for l in lns:
+        l.set_picker(5)
     labs = [l.get_label() for l in lns]
     leg = ax.legend(lns,labs,bbox_to_anchor=(0.5, 1.1),loc='upper center',ncol=len(lns),prop=legend_font,
                    fancybox=True, shadow=True)
@@ -492,9 +491,6 @@ def plot_PQ(TIME,P,Q,QSP,QEN,QDB):
     l3=ax2.plot(TIME,QSP_copy,label='Q Setpoint',color=setpoint2,linewidth=0.5)
     lb=ax2.fill_between(TIME.values,QSP_copy-QDB,QSP_copy+QDB,alpha=0.5,facecolor=l3[0].get_color())
 
-    lns = l1+l2+l3
-    for l in lns:
-        l.set_picker(5)
     #Formatting axis
 
     ax.spines["top"].set_visible(False)
@@ -517,6 +513,9 @@ def plot_PQ(TIME,P,Q,QSP,QEN,QDB):
     ax2.set_ylim(m,M)
 
     lns = l1+l2+l3
+    
+    for l in lns:
+        l.set_picker(5)
     labs = [l.get_label() for l in lns]
     leg = ax.legend(lns,labs,bbox_to_anchor=(0.5, 1.1),loc='upper center',ncol=len(lns),prop=legend_font,
                    fancybox=True, shadow=True)

@@ -44,6 +44,8 @@ class move_text:
         self.text=text
         self.figure=figure
         self.pick=None
+        # self.xlim=xlim
+        # self.ylim=ylim
     def connect(self):
         'connect to all the events we need'
         self.cidpress = self.figure.canvas.mpl_connect('pick_event', self.on_pick)
@@ -51,22 +53,31 @@ class move_text:
         self.cidmotion = self.figure.canvas.mpl_connect('motion_notify_event', self.on_motion)
 
     def on_pick(self, event):
+        # xlen_def=(self.xlim[1]-self.xlim[0])/29.808
+        # ylen_def=(self.ylim[1]-self.ylim[0])/7.556
+
+        xlim_cur=self.figure.axes[0].get_xlim()[1]-self.figure.axes[0].get_xlim()[0]
+        ylim_cur=self.figure.axes[0].get_ylim()[1]-self.figure.axes[0].get_ylim()[0]
+
+        xlen=xlim_cur/29.808
+        ylen=ylim_cur/7.556
+
+        print(event.mouseevent.xdata,event.mouseevent.ydata)
         'on button pick we will see if the mouse is over us and store some data'
         if isinstance(event.artist, Text)==False:
             return
         x0, y0 = self.text.get_position()
+
+        if (abs(x0-event.mouseevent.xdata)>xlen)|((abs(y0-event.mouseevent.ydata)>ylen)):
+            return
         self.pick = x0, y0, event.mouseevent.xdata,event.mouseevent.ydata
 
     def on_motion(self, event):
         'on motion we will move the rect if the mouse is over us'
         if self.pick is None:
             return
-        # if isinstance(event.artist, Text)==False:
-        #     return
 
         self.text.set_position((event.xdata,event.ydata))
-        # self.text.set_y(event.ydata)
-
         self.figure.canvas.draw()
 
     def on_release(self, event):
@@ -209,7 +220,6 @@ def plot_choise(button):
                 strace=1
             try:
                 fig,axes,lines,leg= plot_P(time,m['P'].iloc[:,0],s['P'].iloc[:,strace-1],en['P'].iloc[:,0],pdb)
-                old_fig=fig
             except TypeError:
                 messagebox.showwarning("Warning","Select a trace",parent=choose_plot)
 
@@ -280,6 +290,9 @@ def plot_choise(button):
             except TypeError:
                 messagebox.showwarning("Warning","Select a trace",parent=choose_plot)
 
+    ylim_0=fig.axes[0].get_ylim()
+    xlim_0=fig.axes[0].get_ylim()
+
     try:
         lined = dict()
         for legline, origline in zip(leg.get_lines(), lines):
@@ -292,15 +305,14 @@ def plot_choise(button):
         def destroyer():
             # master.quit()
             master.destroy()
-        def clear():
+        def undo():
             try:
                 VLs[-1].remove()
-                VL_texts[-1].remove()
+                # VL_texts[-1].remove()
                 fig.canvas.draw()
                 VLs.pop()
-                VL_texts.pop()
+                # VL_texts.pop()
             except:
-                print("error")
                 pass
         master.protocol("WM_DELETE_WINDOW")
 
@@ -317,8 +329,8 @@ def plot_choise(button):
         buttons_frame.grid(row=3)
         quitbutton = tk.Button(buttons_frame, text="Quit", command=destroyer)
         quitbutton.grid(row=0,column=0)
-        clearbutton=tk.Button(buttons_frame, text="Clear",command=clear)
-        clearbutton.grid(row=0,column=1)
+        undobutton=tk.Button(buttons_frame, text="Undo",command=undo)
+        undobutton.grid(row=0,column=1)
 
         def interact_title():
             def title():
@@ -423,12 +435,10 @@ def plot_choise(button):
         def interact_colors():
             def OnClick(btn):
                 text = btn.cget("text")
-                # print(text)
                 pick_color=colorchooser.askcolor(title="Pick Color("+text+")")
 
                 if  pick_color != (None,None):
                     for ind,l in enumerate(lines):
-                        # print(l.get_label())
                         if l.get_label()==text:
                             l.set_c(pick_color[1])
                             leg.get_lines()[ind].set_c(pick_color[1])
@@ -454,6 +464,15 @@ def plot_choise(button):
             quit_y=tk.Button(change_color, text='Quit',command=change_color.destroy)
             quit_y.grid(row=1, column=0, sticky=tk.W, pady=5)
 
+        def add_text():
+            x=fig.axes[0].get_ylim()[1]
+            y=fig.axes[0].get_xlim()[0]
+            print(x,y)
+            ask_text = simpledialog.askstring("Add TextBox","Insert text",parent=master)
+            text = fig.axes[0].text(x,y,ask_text,rotation=90,fontdict={'size':12,'weight':'bold'})
+            fig.canvas.draw()
+            dr = move_text(text,fig,)
+            dr.connect()
 
         menubar=tk.Menu(master)
 
@@ -474,6 +493,11 @@ def plot_choise(button):
 
         menubar.add_cascade(label="LineColors",menu=colors)
 
+        texts=tk.Menu(menubar,tearoff=0)
+        texts.add_command(label="Add TextBox",command=add_text)
+
+        menubar.add_cascade(label="Text",menu=texts)
+
 
         # we will set up a dict mapping legend line to orig line, and enable
         # picking on the legend line
@@ -487,11 +511,11 @@ def plot_choise(button):
         def onpick(event):
             global oldx
             global deadband
+            print(event.artist)
             # on the pick event, find the orig line corresponding to the
             # legend proxy line, and toggle the visibility
             if event.artist in lined.keys():
                 legline = event.artist
-                print(type(legline))
                 origline = lined[legline]
                 vis = not origline.get_visible()
                 origline.set_visible(vis)
@@ -508,47 +532,32 @@ def plot_choise(button):
                     legline.set_alpha(0.2)
                 fig.canvas.draw()
 
-            elif isinstance(event.artist, Line2D):
+            elif event.artist in lines:
                 x = event.mouseevent.xdata
                 y = event.mouseevent.ydata
-                print(deadband)
-                ytext=y+(axes[0].get_ylim()[1]-y)/2
-                xtext=x-2/86400
+                event_ax=event.artist.axes
+                # ytext=y+(event_ax.get_ylim()[1]-y)/2
+                # xtext=x-2/86400
                 if x != oldx:
-                    vline = tk.messagebox.askquestion ('Vertical Line Text','Would you like to add text?',parent = master)
-                    if vline == 'no':
-                        VL =  axes[0].axvline(x=x,linewidth=2, ls='--',c='k')
-                        VLs.append(VL)
-                        VL_text = axes[0].text(x+0.001,y+20*deadband,"",rotation=90,fontdict={'size':12,'weight':'bold'})
-                        VL_texts.append(VL_text)
-                        oldx=x
-                        fig.canvas.draw()
-                    else:
-                        ask_text = simpledialog.askstring("Text for line","Insert text",parent=master)
-                        VL =  axes[0].axvline(x=x,linewidth=2, ls='--',c='k')
-                        VLs.append(VL)
-                        VL_text = axes[0].text(xtext,ytext,ask_text,rotation=90,fontdict={'size':12,'weight':'bold'},bbox=props,picker=5)
-                        VL_texts.append(VL_text)
-                        dr = move_text(VL_text,fig)
-                        dr.connect()
-                        drs.append(dr)
-                        oldx=x
-                        fig.canvas.draw()
-            # elif isinstance(event.artist, Text):
-            #     global text
-            #     text= event.artist
-            #     # pick_pos = (event.mouseevent.xdata, event.mouseevent.ydata)
-            # x = event.mouseevent.xdata
-            # y = event.mouseevent.ydata
-            # pick_pos=(x,y)
-            # x_cur,y_cur = text.get_position()
-            # print(x_cur,y_cur)
-            # ask_move=simpledialog.askfloat("Shift TextBox","Shift TextBox by sec(negative for left)",parent=master)
-            # x_next=x_cur+ask_move/86400
-            # print(x_next)
-            # text.set_position((x_next,y_cur))
-            # fig.canvas.draw()
-            # print('onpick text:', text.get_text())
+                    # vline = tk.messagebox.askquestion ('Vertical Line Text','Would you like to add text?',parent = master)
+                    # if vline == 'no':
+                    #     VL =  event_ax.axvline(x=x,linewidth=2, ls='--',c='k')
+                    #     VLs.append(VL)
+                    #     VL_text = event_ax.text(x+0.001,y+20*deadband,"",rotation=90,fontdict={'size':12,'weight':'bold'})
+                    #     VL_texts.append(VL_text)
+                    #     oldx=x
+                    #     fig.canvas.draw()
+                    # else:
+                    # ask_text = simpledialog.askstring("Text for line","Insert text",parent=master)
+                    VL=event_ax.axvline(x=x,linewidth=2, ls='--',c='k')
+                    VLs.append(VL)
+                    # VL_text = event_ax.text(xtext,ytext,ask_text,rotation=90,fontdict={'size':12,'weight':'bold'},bbox=props,picker=5)
+                    # VL_texts.append(VL_text)
+                    # dr = move_text(VL_text,fig,xlim_0,ylim_0)
+                    # dr.connect()
+                    # drs.append(dr)
+                    oldx=x
+                fig.canvas.draw()
 
         canvas.mpl_connect('pick_event', onpick)
         master.config(menu=menubar)
@@ -566,14 +575,6 @@ for k,v, in plots.items():
     b.config(command= lambda btn=b: plot_choise(btn))
     b.grid(row=i,column=0,sticky=tk.NSEW)
     i=i+1
-
-# header_frame = tk.Frame(choose_plot)
-# header_frame.grid(row=1,pady=5)
-# header=tk.Label(header_frame,text="Traces",justify='center')
-# f = tk.font.Font(header, header.cget("font"))
-# f.configure(underline=True)
-# header.configure(font=f)
-# header.pack()
 
 r=1
 meas_frame=tk.Frame(choose_plot)
