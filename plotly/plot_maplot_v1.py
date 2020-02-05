@@ -181,6 +181,7 @@ def plot_P(TIME,P,PSP,PEN,PDB):
     lns = l1+l2
     for l in lns:
         l.set_picker(5)
+        #l.set_zorder(0.1)
     #Formatting axis
 
     ax.spines["top"].set_visible(False)
@@ -225,6 +226,7 @@ def plot_Q(TIME,Q,QSP,QEN,QDB):
     lns = l1+l2
     for l in lns:
         l.set_picker(5)
+        #l.set_zorder(0.1)
     #Formatting axis
 
     m,M=calc_minmax(Q,QSP)
@@ -269,6 +271,7 @@ def plot_PF(TIME,PF,PFSP,PFEN,PFDB):
     lns = l1+l2
     for l in lns:
         l.set_picker(5)
+        #l.set_zorder(0.1)
     #Formatting axis
     m,M=calc_minmax(PF,PFSP)
 
@@ -339,6 +342,7 @@ def plot_F_P(TIME,P,PSP,F,FSP,FEN,PDB):
     ax2.set_ylim(m,M)
 
     lns = l1+l4
+    #l.set_zorder(0.1)
     for l in lns:
         l.set_picker(5)
     labs = [l.get_label() for l in lns]
@@ -398,6 +402,7 @@ def plot_AVR(TIME,V,AVRSP,Q,AVREN,AVRDB):
     lns = l1+l2+l3
     for l in lns:
         l.set_picker(5)
+        #l.set_zorder(0.1)
     labs = [l.get_label() for l in lns]
     leg = ax.legend(lns,labs,bbox_to_anchor=(0.5, 1.1),loc='upper center',ncol=len(lns),prop=legend_font,
                    fancybox=True, shadow=True)
@@ -459,6 +464,7 @@ def plot_QV(TIME,V,QVSP,Q,QSP,QVEN,QDB):
     lns = l1+l2+l3+l4
     for l in lns:
         l.set_picker(5)
+        #l.set_zorder(0.1)
     labs = [l.get_label() for l in lns]
     leg = ax.legend(lns,labs,bbox_to_anchor=(0.5, 1.1),loc='upper center',ncol=len(lns),prop=legend_font,
                    fancybox=True, shadow=True)
@@ -513,9 +519,10 @@ def plot_PQ(TIME,P,Q,QSP,QEN,QDB):
     ax2.set_ylim(m,M)
 
     lns = l1+l2+l3
-    
+
     for l in lns:
         l.set_picker(5)
+        #l.set_zorder(0.1)
     labs = [l.get_label() for l in lns]
     leg = ax.legend(lns,labs,bbox_to_anchor=(0.5, 1.1),loc='upper center',ncol=len(lns),prop=legend_font,
                    fancybox=True, shadow=True)
