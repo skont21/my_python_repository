@@ -9,6 +9,7 @@ import matplotlib as mpl
 import sys
 import re
 import numpy as np
+import matplotlib.dates as mdates
 mpl.use('TkAgg')
 
 class HoverButton(tk.Button):
@@ -25,19 +26,21 @@ class HoverButton(tk.Button):
         self['background'] = self.defaultBackground
 
 class move_obj:
-    def __init__(self,obj,figure):
+    def __init__(self,obj,figure,align):
         self.obj=obj
         self.figure=figure
         self.pick=None
+        self.align=align
 
     def connect_obj(self):
         'connect to all the events we need'
         self.cidpress = self.figure.canvas.mpl_connect('pick_event', self.on_pick_obj)
         self.cidrelease = self.figure.canvas.mpl_connect('button_release_event', self.on_release_obj)
         self.cidmotion = self.figure.canvas.mpl_connect('motion_notify_event', self.on_motion_obj)
+        self.ciddouble = self.figure.canvas.mpl_connect('button_press_event', self.onclik)
 
     def on_pick_obj(self, event):
-        # print(event.artist)
+        print(self.figure.axes[0].texts)
         'on button pick we will see if the mouse is over us and store some data'
         if isinstance(event.artist, Text):
             if isinstance(self.obj,Text):
@@ -47,26 +50,39 @@ class move_obj:
                 ylen=ylim_cur/7.556
                 x0, y0 = self.obj.get_position()
                 print(x0,y0)
-                if (abs(x0-event.mouseevent.xdata)>xlen)|(abs(y0-event.mouseevent.ydata)>ylen):
-                    return
                 self.pick = True
         elif isinstance(event.artist, Line2D):
-            if isinstance(self.obj,Line2D):
-                print(event.artist)
-                # x0 = self.line.get_xdata()[0]
-                # print(x0)
+            if isinstance(self.obj,Line2D)&(self.align=="Vertical"):
+                xlim_cur=self.figure.axes[0].get_xlim()[1]-self.figure.axes[0].get_xlim()[0]
+                ylim_cur=self.figure.axes[0].get_ylim()[1]-self.figure.axes[0].get_ylim()[0]
+                self.xl = self.obj.get_xdata()
+                self.yl = self.obj.get_ydata()
+                if abs(self.xl[0]-event.mouseevent.xdata)>(xlim_cur)*(500/86400):
+                    return
+                self.pick=True
+            elif isinstance(self.obj,Line2D)&(self.align=="Horizontal"):
+                xlim_cur=self.figure.axes[0].get_xlim()[1]-self.figure.axes[0].get_xlim()[0]
+                ylim_cur=self.figure.axes[0].get_ylim()[1]-self.figure.axes[0].get_ylim()[0]
+                self.xl = self.obj.get_xdata()
+                self.yl = self.obj.get_ydata()
+                print(xlim_cur)
+                if abs(self.yl[0]-event.mouseevent.ydata)>(ylim_cur/100):
+                    return
                 self.pick=True
 
     def on_motion_obj(self, event):
         'on motion we will move the rect if the mouse is over us'
         if self.pick is None:
             return
-        if event.inaxes != self.obj.axes:
-            if isinstance(self.obj,Text):
-                self.obj.set_position((event.xdata,event.ydata))
+        if isinstance(self.obj,Text):
+            self.obj.set_position((event.xdata,event.ydata))
+            self.figure.canvas.draw()
+        elif isinstance(self.obj,Line2D):
+            if self.align=="Vertical":
+                self.obj.set_xdata((event.xdata,event.xdata))
                 self.figure.canvas.draw()
-            elif isinstance(self.obj,Line2D):
-                self.line.set_xdata(event.xdata)
+            if self.align=="Horizontal":
+                self.obj.set_ydata((event.ydata,event.ydata))
                 self.figure.canvas.draw()
 
     def on_release_obj(self, event):
@@ -74,54 +90,28 @@ class move_obj:
         self.pick = None
         self.figure.canvas.draw()
 
+    def onclik(self,event):
+        if self.pick is None:
+            return
+        if event.dblclick:
+            if event.button == 1:
+                if self.obj in self.figure.axes[0].texts:
+                    delete= tk.messagebox.askquestion('Delete TextBox','Are you sure you want to delete the texbox?',icon = 'warning')
+                    if delete =="yes":
+                        self.obj.remove()
+                        self.figure.canvas.draw()
+                elif self.obj in self.figure.axes[0].lines:
+                    delete= tk.messagebox.askquestion('Delete Line','Are you sure you want to delete the line?',icon = 'warning')
+                    if delete =="yes":
+                        self.obj.remove()
+                        self.figure.canvas.draw()
+                    
 
     def disconnect_obj(self):
         'disconnect all the stored connection ids'
         self.figure.canvas.mpl_disconnect(self.cidpress)
         self.figure.canvas.mpl_disconnect(self.cidrelease)
         self.figure.canvas.mpl_disconnect(self.cidmotion)
-
-# class move_vertical:
-#     def __init__(self,line,figure):
-#         self.line=line
-#         self.figure=figure
-#         self.pick=None
-#     def connect_vertical(self):
-#         'connect to all the events we need'
-#         self.cidpress = self.figure.canvas.mpl_connect('pick_event', self.on_pick_vertical)
-#         self.cidrelease = self.figure.canvas.mpl_connect('button_release_event', self.on_release_vertical)
-#         self.cidmotion = self.figure.canvas.mpl_connect('motion_notify_event', self.on_motion_vertical)
-#         # print(self.cidpress)
-#     def on_pick_vertical(self, event):
-#         # print(event.artist)
-#         print(self.line)
-#         'on button pick we will see if the mouse is over us and store some data'
-#         if event.artist!=self.line:
-#             return
-#         x0 = self.line.get_xdata()[0]
-#         print(x0)
-#         self.pick = True
-#
-#     def on_motion_vertical(self, event):
-#         'on motion we will move the rect if the mouse is over us'
-#         if self.pick is None:
-#             return
-#
-#         self.line.set_xdata(event.xdata)
-#         self.figure.canvas.draw()
-#
-#     def on_release_vertical(self, event):
-#         'on release we reset the press data'
-#         self.pick = None
-#         self.figure.canvas.draw()
-#
-#
-#     def disconnect_vertical(self):
-#         'disconnect all the stored connection ids'
-#         self.figure.canvas.mpl_disconnect(self.cidpress)
-#         self.figure.canvas.mpl_disconnect(self.cidrelease)
-#         self.figure.canvas.mpl_disconnect(self.cidmotion)
-
 
 csv=''
 while not csv:
@@ -492,29 +482,47 @@ def plot_choise(button):
 
             quit_y=tk.Button(change_color, text='Quit',command=change_color.destroy)
             quit_y.grid(row=1, column=0, sticky=tk.W, pady=5)
+
+        global texts
+        global vlines
+        global hlines
+
         drs=[]
+        texts=[]
         def add_text():
             props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
             y=fig.axes[0].get_ylim()[0]+(fig.axes[0].get_ylim()[1]-fig.axes[0].get_ylim()[0])/10
             x=fig.axes[0].get_xlim()[0]+(fig.axes[0].get_xlim()[1]-fig.axes[0].get_xlim()[0])/10
-            # print(x,y)
             ask_text = simpledialog.askstring("Add TextBox","Insert text",parent=master)
-            text = fig.axes[0].text(x,y,ask_text,rotation=90,fontdict={'size':12,'weight':'bold'},bbox=props,picker=5)
+            text_rot = simpledialog.askfloat("Text Rotation","Insert text rotation(deg)",parent=master)
+            text = fig.axes[0].text(x,y,ask_text,rotation=text_rot,fontdict={'size':12,'weight':'bold'},bbox=props,picker=5)
+            texts.append(text)
             fig.canvas.draw()
-            dr = move_obj(text,fig)
+            dr = move_obj(text,fig,None)
             dr.connect_obj()
             drs.append(dr)
 
-        dls=[]
+        dvs=[]
+        vlines=[]
         def add_vertical():
             x=fig.axes[0].get_xlim()[0]+(fig.axes[0].get_xlim()[1]-fig.axes[0].get_xlim()[0])/2
-            v_line=fig.axes[0].axvline(x=x,linewidth=2,c='k',picker=5)
-            # print(type(v_line))
+            v_line=fig.axes[0].axvline(x=x,linewidth=2,ls="--",c='k',picker=5)
+            vlines.append(v_line)
             fig.canvas.draw()
-            dl = move_obj(v_line,fig)
-            dl.connect_obj()
-            dls.append(dl)
+            dv = move_obj(v_line,fig,"Vertical")
+            dv.connect_obj()
+            dvs.append(dv)
 
+        dhs=[]
+        hlines=[]
+        def add_horizontal():
+            y=fig.axes[0].get_ylim()[0]+(fig.axes[0].get_ylim()[1]-fig.axes[0].get_ylim()[0])/10
+            h_line=fig.axes[0].axhline(y=y,linewidth=2,ls="--",c='k',picker=5)
+            hlines.append(h_line)
+            fig.canvas.draw()
+            dh = move_obj(h_line,fig,"Horizontal")
+            dh.connect_obj()
+            dhs.append(dh)
 
         menubar=tk.Menu(master)
 
@@ -538,7 +546,7 @@ def plot_choise(button):
         annotates=tk.Menu(menubar,tearoff=0)
         annotates.add_command(label="Text",command=add_text)
         annotates.add_command(label="Vertical Line",command=add_vertical)
-        annotates.add_command(label="Horizontal Line")
+        annotates.add_command(label="Horizontal Line",command=add_horizontal)
 
         menubar.add_cascade(label="Annotate",menu=annotates)
 
@@ -546,15 +554,11 @@ def plot_choise(button):
 
         # we will set up a dict mapping legend line to orig line, and enable
         # picking on the legend line
-        VLs=[]
-        VL_texts=[]
-        global oldx
-        oldx=None
 
         def onpick(event):
             global oldx
             global deadband
-            # print(event.artist)
+
             # on the pick event, find the orig line corresponding to the
             # legend proxy line, and toggle the visibility
             if event.artist in lined.keys():
@@ -574,17 +578,6 @@ def plot_choise(button):
                 else:
                     legline.set_alpha(0.2)
                 fig.canvas.draw()
-            # elif isinstance(event.artist,Text):
-            #     return
-            # elif event.artist in lines:
-            #     x = event.mouseevent.xdata
-            #     y = event.mouseevent.ydata
-            #     event_ax=event.artist.axes
-            #     if x != oldx:
-            #         VL=event_ax.axvline(x=x,linewidth=2, ls='--',c='k')
-            #         VLs.append(VL)
-            #         oldx=x
-            #     fig.canvas.draw()
 
         canvas.mpl_connect('pick_event', onpick)
         master.config(menu=menubar)
