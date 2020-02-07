@@ -9,20 +9,6 @@ from matplotlib.ticker import AutoMinorLocator, FormatStrFormatter,LinearLocator
 import matplotlib as mpl
 mpl.use('TkAgg')
 
-CBLACK  = '\33[30m'
-CRED    = '\33[31m'
-CGREEN  = '\33[32m'
-CYELLOW = '\33[33m'
-CBLUE   = '\33[34m'
-CBLACKBG  = '\33[40m'
-CREDBG    = '\33[41m'
-CGREENBG  = '\33[42m'
-CYELLOWBG = '\33[43m'
-CBLUEBG   = '\33[44m'
-CBOLD = '\33[1m'
-CURL = '\33[4m'
-CEND = '\33[0m'
-
 Active =['ppc:P[^F]','.*pccm.*:ACTP_TOT',".*epm.*:ACTP_TOT",".*pccs.*:ACTP_TOT"]
 Reactive =['ppc:Q.*','.*pccm.*:REACTP_TOT',".*epm.*:REACTP_TOT",".*pccs.*:REACTP_TOT"]
 Voltage =['ppc:V','.*pccm.*:VABC_AVG',".*epm.*:VABC_AVG",".*pccs.*:VABC_AVG"]
@@ -48,6 +34,7 @@ measurement2= (55/256,126/256,184/256)
 measurement3= (77/256,175/256,74/256)
 measurement4= (255/256,127/256,0)
 measurement5= (152/256,78/256,163/256)
+measurements=[measurement1,measurement2,measurement3,measurement4,measurement5]
 setpoint1= (1/256,102/256,94/256)
 setpoint2 = (254/256,59/256,211/256)
 
@@ -62,6 +49,8 @@ legend_font = {'weight': 'bold',
 
 ticks_font = {'fontsize':8,
              'fontweight':'bold'}
+
+ylabels_dict={'P':'P (kW)','Q':'Q (kVAr)','V':'Volatge (V)','PF':'PF','F':'F (Hz)'}
 
 def get_data_from_csv(data_csv):
     try:
@@ -594,24 +583,22 @@ def plot_PQ(TIME,P,Q,QSP,QEN,QDB):
 
     return (fig,fig.axes,lines,leg)
 
-def plot_meas(TIME,P,Q,V,PF,F):
+def plot_meas(TIME,meas):
 
     #Creat Figure
+    fig, axes = plt.subplots(len(meas),1,sharex=True,figsize=(10,8))
 
-    fig, (ax,ax2,ax3,ax4,ax5) = plt.subplots(5,1,sharex=True,figsize=(10,8))
-
-    axes=[ax,ax2,ax3,ax4,ax5]
 
     #Plot Measurement
-    l1=ax.plot(TIME,P,label='P(kW)',color=measurement1,linewidth=2)
-    l2=ax2.plot(TIME,Q,label='Q(kVAr)',color=measurement2,linewidth=2)
-    l3=ax3.plot(TIME,V,label='V(V)',color=measurement3,linewidth=2)
-    l4=ax4.plot(TIME,PF,label='PF',color=measurement4,linewidth=2)
-    l5=ax5.plot(TIME,F,label='F(Hz)',color=measurement5,linewidth=2)
-
+    i=0
+    lines=[]
+    for k in meas.keys():
+        l,=axes[i].plot(TIME,meas[k],label=ylabels_dict[list(meas.keys())[i]],color=measurements[i],linewidth=2)
+        lines.append(l)
+        i+=1
 
     #Formatting axis
-
+    i=0
     for y in axes:
         y.set_facecolor('whitesmoke')
         y.grid(which='both',ls='--',lw=1,alpha=0.5)
@@ -621,36 +608,17 @@ def plot_meas(TIME,P,Q,V,PF,F):
         y.tick_params(labelsize=10,labelbottom=True)
         y.spines["top"].set_visible(False)
         y.spines["right"].set_visible(False)
+        Min,Max=calc_minmax(meas[list(meas.keys())[i]].iloc[:,0])
+        y.set_ylim(Min,Max)
+        y.set_ylabel(ylabels_dict[list(meas.keys())[i]],fontdict=font)
+        i+=1
 
-    m,M=calc_minmax(P)
-    ax.set_ylim(m,M)
-    m,M=calc_minmax(Q)
-    ax2.set_ylim(m,M)
-    m,M=calc_minmax(V)
-    ax3.set_ylim(m,M)
-    m,M=calc_minmax(PF)
-    ax4.set_ylim(m,M)
-    m,M=calc_minmax(F)
-    ax5.set_ylim(m,M)
+        axes[0].set_title('Measurements',fontdict=font,x=0.5,y=1.5)
+        axes[-1].set_xlabel('TIME',fontdict=font)
 
-    lns = l1+l2+l3+l4+l5
-    labs = [l.get_label() for l in lns]
-    leg = ax.legend(lns,labs,bbox_to_anchor=(0.5, 1.4),loc='upper center',ncol=len(lns),prop=legend_font,
-                   fancybox=True, shadow=True)
-#     fig.autofmt_xdate()
-
-
-    ax.set_ylabel('P (kW)',fontdict=font)
-    ax2.set_ylabel('Q (kVAr)',fontdict=font)
-    ax3.set_ylabel('Volatge (V)',fontdict=font)
-    ax4.set_ylabel('PF',fontdict=font)
-    ax5.set_ylabel('F (Hz)',fontdict=font)
-
-
-    ax.set_title('Measurements',fontdict=font,x=0.5,y=1.5)
-    ax5.set_xlabel('TIME',fontdict=font)
-
-    lines = [l1[0],l2[0],l3[0],l4[0],l5[0]]
+        labs = [l.get_label() for l in lines]
+        leg = axes[0].legend(lines,labs,bbox_to_anchor=(0.5, 1.4),loc='upper center',ncol=len(lines),prop=legend_font,
+               fancybox=True, shadow=True)
 
 
     return (fig,fig.axes,lines,leg)

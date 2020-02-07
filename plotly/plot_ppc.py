@@ -26,11 +26,12 @@ class HoverButton(tk.Button):
         self['background'] = self.defaultBackground
 
 class move_obj:
-    def __init__(self,obj,figure,align):
+    def __init__(self,obj,figure,align,parent):
         self.obj=obj
         self.figure=figure
         self.pick=None
         self.align=align
+        self.parent=parent
         self.ending=False
 
     def connect_obj(self):
@@ -49,17 +50,34 @@ class move_obj:
                 transf = self.figure.axes[0].transData.inverted()
                 bb = self.obj.get_window_extent(renderer = self.figure.canvas.renderer)
                 bb_datacoords = bb.transformed(transf)
+
                 x0 = event.mouseevent.xdata
                 y0 = event.mouseevent.ydata
                 # print(mdates.num2date(bb_datacoords.xmax))
                 # print(mdates.num2date(self.obj.xy[0]))
                 if self.align=="Arrow":
-                    # ending=False
-                    if (x0>bb_datacoords.xmin+(bb_datacoords.xmax-bb_datacoords.xmin)/2)|(x0<bb_datacoords.xmin)|(y0>bb_datacoords.ymax)|(y0<bb_datacoords.ymin):
-                        if (x0>bb_datacoords.xmax)|(x0<bb_datacoords.xmin)|(y0>bb_datacoords.ymax)|(y0<bb_datacoords.ymin):
-                            return
-                        self.ending = True
-                    self.pick = True
+                    print(mdates.num2date(bb_datacoords.xmin))
+                    print(mdates.num2date(bb_datacoords.xmax))
+                    if self.obj.xy[0]>self.obj.xyann[0]:
+                        if (x0>bb_datacoords.xmin+(bb_datacoords.xmax-bb_datacoords.xmin)/2):
+                            if (x0>bb_datacoords.xmax)|(y0>bb_datacoords.ymax)|(y0<bb_datacoords.ymin):
+                                return
+                            self.ending = True
+                            self.pick = True
+                        else:
+                            if (x0<bb_datacoords.xmin)|(y0>bb_datacoords.ymax)|(y0<bb_datacoords.ymin):
+                                return
+                            self.pick = True
+                    else:
+                        if (x0<bb_datacoords.xmin+(bb_datacoords.xmax-bb_datacoords.xmin)/2):
+                            if (x0<bb_datacoords.xmin)|(y0>bb_datacoords.ymax)|(y0<bb_datacoords.ymin):
+                                return
+                            self.ending = True
+                            self.pick = True
+                        else:
+                            if (x0<bb_datacoords.xmin)|(y0>bb_datacoords.ymax)|(y0<bb_datacoords.ymin):
+                                return
+                            self.pick = True
                 elif self.align==None:
                     if (x0>bb_datacoords.xmax)|(x0<bb_datacoords.xmin)|(y0>bb_datacoords.ymax)|(y0<bb_datacoords.ymin):
                         return
@@ -87,17 +105,25 @@ class move_obj:
         'on motion we will move the rect if the mouse is over us'
         if self.pick is None:
             return
+        if event.inaxes != self.figure.axes[0]:
+            return
         if isinstance(self.obj,Text):
             if self.align==None:
                 self.obj.set_position((event.xdata,event.ydata))
-                self.figure.canvas.draw()
+                try:
+                    self.figure.canvas.draw()
+                except:pass
             elif self.align=="Arrow":
                 if not self.ending:
                     self.obj.set_position((event.xdata,event.ydata))
-                    self.figure.canvas.draw()
+                    try:
+                        self.figure.canvas.draw()
+                    except:pass
                 else:
                     self.obj.xy = (event.xdata,event.ydata)
-                    self.figure.canvas.draw()
+                    try:
+                        self.figure.canvas.draw()
+                    except:pass
         elif isinstance(self.obj,Line2D):
             if self.align=="Vertical":
                 self.obj.set_xdata((event.xdata,event.xdata))
@@ -110,7 +136,9 @@ class move_obj:
         'on release we reset the press data'
         self.pick = None
         self.ending=False
-        self.figure.canvas.draw()
+        try:
+            self.figure.canvas.draw()
+        except:pass
 
     def onclik(self,event):
         if self.pick is None:
@@ -118,12 +146,12 @@ class move_obj:
         if event.dblclick:
             if event.button == 1:
                 if self.obj in self.figure.axes[0].texts:
-                    delete= tk.messagebox.askquestion('Delete TextBox','Are you sure you want to delete the texbox?',icon = 'warning')
+                    delete= tk.messagebox.askquestion('Delete TextBox','Are you sure you want to delete the texbox?',icon = 'warning',parent=self.parent)
                     if delete =="yes":
                         self.obj.remove()
                         self.figure.canvas.draw()
                 elif self.obj in self.figure.axes[0].lines:
-                    delete= tk.messagebox.askquestion('Delete Line','Are you sure you want to delete the line?',icon = 'warning')
+                    delete= tk.messagebox.askquestion('Delete Line','Are you sure you want to delete the line?',icon = 'warning',parent=self.parent)
                     if delete =="yes":
                         self.obj.remove()
                         self.figure.canvas.draw()
@@ -141,12 +169,7 @@ while not csv:
     input_csv.withdraw()
     csv = filedialog.askopenfilename(initialdir = "/home",title = "Select csv file",filetypes = (("csv files","*.csv"),))
     if not csv:
-        MsgBox = tk.messagebox.askquestion ('Exit Application','Are you sure you want to exit the application',icon = 'warning')
-        if MsgBox == 'yes':
-           sys.exit()
-        else:
-            tk.messagebox.showinfo('Return','You will now return to the application screen')
-
+        sys.exit()
 
 data = get_data_from_csv(csv)
 
@@ -331,7 +354,7 @@ def plot_choise(button):
             fig,axes,lines,leg= plot_PF(time,m['PF'].iloc[:,0],s['PF'].iloc[:,0],en['PF'].iloc[:,0],pfdb)
 
     elif  button_text=="All Measurements":
-        fig,axes,lines,leg= plot_meas(time,m['P'].iloc[:,0],m['Q'].iloc[:,0],m['V'].iloc[:,0],m['PF'].iloc[:,0],m['F'].iloc[:,0])
+        fig,axes,lines,leg= plot_meas(time,m)
 
     elif  button_text=="Q Capability":
         ask_deadband('Q Deadband in kVAr')
@@ -534,7 +557,7 @@ def plot_choise(button):
             text = fig.axes[0].text(x,y,ask_text,rotation=text_rot,fontdict={'size':12,'weight':'bold'},bbox=props,picker=5)
             texts.append(text)
             fig.canvas.draw()
-            dr = move_obj(text,fig,None)
+            dr = move_obj(text,fig,None,master)
             dr.connect_obj()
             drs.append(dr)
 
@@ -545,7 +568,7 @@ def plot_choise(button):
             v_line=fig.axes[0].axvline(x=x,linewidth=2,ls="--",c='k',picker=5)
             vlines.append(v_line)
             fig.canvas.draw()
-            dv = move_obj(v_line,fig,"Vertical")
+            dv = move_obj(v_line,fig,"Vertical",master)
             dv.connect_obj()
             dvs.append(dv)
 
@@ -556,7 +579,7 @@ def plot_choise(button):
             h_line=fig.axes[0].axhline(y=y,linewidth=2,ls="--",c='k',picker=5)
             hlines.append(h_line)
             fig.canvas.draw()
-            dh = move_obj(h_line,fig,"Horizontal")
+            dh = move_obj(h_line,fig,"Horizontal",master)
             dh.connect_obj()
             dhs.append(dh)
 
@@ -568,28 +591,30 @@ def plot_choise(button):
                 y=fig.axes[0].get_ylim()[0]+(fig.axes[0].get_ylim()[1]-fig.axes[0].get_ylim()[0])/10
                 xstart = fig.axes[0].get_xlim()[0]+(fig.axes[0].get_xlim()[1]-fig.axes[0].get_xlim()[0])/10
                 if choise == "No Arrow":
-                    arrow_line = fig.axes[0].annotate(s="",xy=(x,y),xytext=(xstart,y), arrowprops=dict(lw=2,arrowstyle='-'))
-                    arrow_line.draggable(state=True)
+                    arrow_line = fig.axes[0].annotate(s="",xy=(x,y),xytext=(xstart,y), arrowprops=dict(lw=2,arrowstyle='-'),picker=5)
                     fig.canvas.draw()
+                    da = move_obj(arrow_line,fig,"Arrow",master)
+                    da.connect_obj()
+                    das.append(da)
                 elif choise == "Single Arrow":
                     arrow_line = fig.axes[0].annotate(s="",xy=(x,y),xytext=(xstart,y), arrowprops=dict(lw=2,arrowstyle='->'),picker=5)
                     # arrow_line.draggable(state=True)
                     fig.canvas.draw()
-                    print(das)
-                    print(type(arrow_line))
-                    da = move_obj(arrow_line,fig,"Arrow")
+                    da = move_obj(arrow_line,fig,"Arrow",master)
                     da.connect_obj()
                     das.append(da)
 
                 elif choise == "Double Arrow":
-                    arrow_line = fig.axes[0].annotate(s="",xy=(x,y),xytext=(x-1000/86400,y), arrowprops=dict(lw=2,arrowstyle='<->'))
-                    arrow_line.draggable(state=True)
+                    arrow_line = fig.axes[0].annotate(s="",xy=(x,y),xytext=(xstart,y), arrowprops=dict(lw=2,arrowstyle='<->'),picker=5)
                     fig.canvas.draw()
+                    da = move_obj(arrow_line,fig,"Arrow",master)
+                    da.connect_obj()
+                    das.append(da)
                 arrow_choice.destroy()
 
             arrow_choice=tk.Toplevel(master)
-            # arrow_choice.resizable(width=False, height=False)
-            arrow_choice.geometry("")
+            arrow_choice.resizable(width=False, height=False)
+            arrow_choice.geometry("220x100")
             arrow_choice.grid_columnconfigure(0, weight=1)
             arrow_choice.grid_rowconfigure(0, weight=1)
             ch =tk.Frame(arrow_choice)
