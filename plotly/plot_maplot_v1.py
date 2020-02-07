@@ -28,6 +28,7 @@ Reactive =['ppc:Q.*','.*pccm.*:REACTP_TOT',".*epm.*:REACTP_TOT",".*pccs.*:REACTP
 Voltage =['ppc:V','.*pccm.*:VABC_AVG',".*epm.*:VABC_AVG",".*pccs.*:VABC_AVG"]
 Frequency=['ppc:F','.*pccm.*:FREQ',".*epm.*:FREQ",".*pccs.*:FREQ"]
 PowerFactor=['ppc:PF','.*pccm.*:PF',"epm.*:PF",".*pccs.*:PF"]
+Expected=['.*Pexp']
 Active_Setpoint = ['apc:PSP']
 Reactive_Setpoint = ['rpc:QSP']
 QV_Setpoint = ['rpc:VSP']
@@ -40,6 +41,7 @@ QV_En = ['rpc:VCEn']
 AVR_En = ['avr:En']
 Frequency_En = ['apc:FCEn','apc:FCAct']
 PowerFactor_En = ['pfc:En']
+Expected_En=['apc:REn']
 
 measurement1= (228/256,26/256,28/256)
 measurement2= (55/256,126/256,184/256)
@@ -92,6 +94,7 @@ def get_traces(data):
     V = [l for k in Voltage for l in data.columns if re.match(k,l)]
     F = [l for k in Frequency for l in data.columns if re.match(k,l)]
     PF = [l for k in PowerFactor for l in data.columns if re.match(k,l)]
+    Pexp = [l for k in Expected for l in data.columns if re.match(k,l)]
 
     measurements=dict()
     if P:
@@ -104,6 +107,8 @@ def get_traces(data):
         measurements["F"]=data[F]
     if PF:
         measurements["PF"]=data[PF]
+    if Pexp:
+        measurements["Pexp"]=data[Pexp]
 
 
     PSP = [l for k in Active_Setpoint for l in data.columns if re.match(k,l)]
@@ -134,6 +139,7 @@ def get_traces(data):
     AVREn = [l for k in AVR_En for l in data.columns if re.match(k,l)]
     FEn = [l for k in Frequency_En for l in data.columns if re.match(k,l)]
     PFEn = [l for k in PowerFactor_En for l in data.columns if re.match(k,l)]
+    REn = [l for k in Expected_En for l in data.columns if re.match(k,l)]
 
     enables=dict()
     if PEn:
@@ -148,6 +154,8 @@ def get_traces(data):
         enables["F"]=data[FEn]
     if PFEn:
         enables["PF"]=data[PFEn]
+    if REn:
+        enables["Pexp"]=data[REn]
 
     return (time,measurements,setpoints,enables)
 
@@ -206,6 +214,54 @@ def plot_P(TIME,P,PSP,PEN,PDB):
     title = ax.set_title('Active Power Control',fontdict=font,x=0.5,y=1.1)
 
     lines = [l1[0],l2[0],lb]
+
+    return (fig,fig.axes,lines,leg)
+
+def plot_Pexp(TIME,P,PSP,PEN,PEXP,PDB):
+
+    #Setpoint only when control is enabled
+    PSP_copy = PSP.copy()
+    PSP_copy[PEN==0]=np.NaN
+
+    #Creat Figure
+
+    fig, ax = plt.subplots(figsize=(10,5))
+
+    #Plot Measurement
+    l1=ax.plot(TIME,P,label='P(kW)',color=measurement1,linewidth=2)
+    #Plot Setpoints
+    l2=ax.plot(TIME,PSP_copy,label='P Setpoint',color=setpoint1,linewidth=1)
+    lb=ax.fill_between(TIME.values,PSP_copy-PDB,PSP_copy+PDB,alpha=0.5,facecolor=l2[0].get_color())
+    l3=ax.plot(TIME,PEXP,label='Pexp(kW)',color=measurement2,linewidth=2)
+
+    lns = l1+l2+l3
+    for l in lns:
+        l.set_picker(5)
+        #l.set_zorder(0.1)
+    #Formatting axis
+
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.set_facecolor('whitesmoke')
+    ax.grid(which='both',ls='--',lw=1,alpha=0.5)
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
+    ax.xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
+    ax.xaxis.set_minor_locator(AutoMinorLocator())
+    ax.yaxis.set_major_locator(MaxNLocator(nbins=20,integer=True))
+    ax.yaxis.set_minor_locator(AutoMinorLocator())
+
+    m,M=calc_minmax(P,PSP)
+
+    ax.set_ylim(m,M)
+    leg = ax.legend(bbox_to_anchor=(0.5, 1.1),loc='upper center',ncol=3,prop=legend_font,
+                   fancybox=True, shadow=True)
+    fig.autofmt_xdate()
+    ax.set_ylabel('P (kW)',fontdict=font)
+    ax.set_xlabel('TIME',fontdict=font)
+    ax.tick_params(labelsize=10)
+    title = ax.set_title('Expected Power Control',fontdict=font,x=0.5,y=1.1)
+
+    lines = [l1[0],l2[0],l3[0],lb]
 
     return (fig,fig.axes,lines,leg)
 
