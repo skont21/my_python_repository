@@ -31,6 +31,7 @@ class move_obj:
         self.figure=figure
         self.pick=None
         self.align=align
+        self.ending=False
 
     def connect_obj(self):
         'connect to all the events we need'
@@ -40,17 +41,29 @@ class move_obj:
         self.ciddouble = self.figure.canvas.mpl_connect('button_press_event', self.onclik)
 
     def on_pick_obj(self, event):
-        print(self.figure.axes[0].texts)
+        # print(self.figure.axes[0].texts)
         'on button pick we will see if the mouse is over us and store some data'
         if isinstance(event.artist, Text):
             if isinstance(self.obj,Text):
-                xlim_cur=self.figure.axes[0].get_xlim()[1]-self.figure.axes[0].get_xlim()[0]
-                ylim_cur=self.figure.axes[0].get_ylim()[1]-self.figure.axes[0].get_ylim()[0]
-                xlen=xlim_cur/29.808
-                ylen=ylim_cur/7.556
-                x0, y0 = self.obj.get_position()
-                print(x0,y0)
-                self.pick = True
+
+                transf = self.figure.axes[0].transData.inverted()
+                bb = self.obj.get_window_extent(renderer = self.figure.canvas.renderer)
+                bb_datacoords = bb.transformed(transf)
+                x0 = event.mouseevent.xdata
+                y0 = event.mouseevent.ydata
+                # print(mdates.num2date(bb_datacoords.xmax))
+                # print(mdates.num2date(self.obj.xy[0]))
+                if self.align=="Arrow":
+                    # ending=False
+                    if (x0>bb_datacoords.xmin+(bb_datacoords.xmax-bb_datacoords.xmin)/2)|(x0<bb_datacoords.xmin)|(y0>bb_datacoords.ymax)|(y0<bb_datacoords.ymin):
+                        if (x0>bb_datacoords.xmax)|(x0<bb_datacoords.xmin)|(y0>bb_datacoords.ymax)|(y0<bb_datacoords.ymin):
+                            return
+                        self.ending = True
+                    self.pick = True
+                elif self.align==None:
+                    if (x0>bb_datacoords.xmax)|(x0<bb_datacoords.xmin)|(y0>bb_datacoords.ymax)|(y0<bb_datacoords.ymin):
+                        return
+                    self.pick = True
         elif isinstance(event.artist, Line2D):
             if isinstance(self.obj,Line2D)&(self.align=="Vertical"):
                 xlim_cur=self.figure.axes[0].get_xlim()[1]-self.figure.axes[0].get_xlim()[0]
@@ -75,8 +88,16 @@ class move_obj:
         if self.pick is None:
             return
         if isinstance(self.obj,Text):
-            self.obj.set_position((event.xdata,event.ydata))
-            self.figure.canvas.draw()
+            if self.align==None:
+                self.obj.set_position((event.xdata,event.ydata))
+                self.figure.canvas.draw()
+            elif self.align=="Arrow":
+                if not self.ending:
+                    self.obj.set_position((event.xdata,event.ydata))
+                    self.figure.canvas.draw()
+                else:
+                    self.obj.xy = (event.xdata,event.ydata)
+                    self.figure.canvas.draw()
         elif isinstance(self.obj,Line2D):
             if self.align=="Vertical":
                 self.obj.set_xdata((event.xdata,event.xdata))
@@ -88,6 +109,7 @@ class move_obj:
     def on_release_obj(self, event):
         'on release we reset the press data'
         self.pick = None
+        self.ending=False
         self.figure.canvas.draw()
 
     def onclik(self,event):
@@ -105,7 +127,7 @@ class move_obj:
                     if delete =="yes":
                         self.obj.remove()
                         self.figure.canvas.draw()
-                    
+
 
     def disconnect_obj(self):
         'disconnect all the stored connection ids'
@@ -240,6 +262,20 @@ def plot_choise(button):
                 strace=1
             try:
                 fig,axes,lines,leg= plot_P(time,m['P'].iloc[:,0],s['P'].iloc[:,strace-1],en['P'].iloc[:,0],pdb)
+            except TypeError:
+                messagebox.showwarning("Warning","Select a trace",parent=choose_plot)
+
+    elif button_text=="Pexp":
+
+        ask_deadband('P Deadband in kW')
+        pdb=deadband
+        if type(deadband)==float:
+            if len(s['P'].columns)>1:
+                ask_trace('P Setpoint',s['P'])
+            else:
+                strace=1
+            try:
+                fig,axes,lines,leg= plot_Pexp(time,m['P'].iloc[:,0],s['P'].iloc[:,strace-1],en['P'].iloc[:,0],m['Pexp'],pdb)
             except TypeError:
                 messagebox.showwarning("Warning","Select a trace",parent=choose_plot)
 
@@ -524,6 +560,54 @@ def plot_choise(button):
             dh.connect_obj()
             dhs.append(dh)
 
+        das=[]
+        def add_arrow():
+            def apply_arrow():
+                choise = variable.get()
+                x=fig.axes[0].get_xlim()[0]+(fig.axes[0].get_xlim()[1]-fig.axes[0].get_xlim()[0])/2
+                y=fig.axes[0].get_ylim()[0]+(fig.axes[0].get_ylim()[1]-fig.axes[0].get_ylim()[0])/10
+                xstart = fig.axes[0].get_xlim()[0]+(fig.axes[0].get_xlim()[1]-fig.axes[0].get_xlim()[0])/10
+                if choise == "No Arrow":
+                    arrow_line = fig.axes[0].annotate(s="",xy=(x,y),xytext=(xstart,y), arrowprops=dict(lw=2,arrowstyle='-'))
+                    arrow_line.draggable(state=True)
+                    fig.canvas.draw()
+                elif choise == "Single Arrow":
+                    arrow_line = fig.axes[0].annotate(s="",xy=(x,y),xytext=(xstart,y), arrowprops=dict(lw=2,arrowstyle='->'),picker=5)
+                    # arrow_line.draggable(state=True)
+                    fig.canvas.draw()
+                    print(das)
+                    print(type(arrow_line))
+                    da = move_obj(arrow_line,fig,"Arrow")
+                    da.connect_obj()
+                    das.append(da)
+
+                elif choise == "Double Arrow":
+                    arrow_line = fig.axes[0].annotate(s="",xy=(x,y),xytext=(x-1000/86400,y), arrowprops=dict(lw=2,arrowstyle='<->'))
+                    arrow_line.draggable(state=True)
+                    fig.canvas.draw()
+                arrow_choice.destroy()
+
+            arrow_choice=tk.Toplevel(master)
+            # arrow_choice.resizable(width=False, height=False)
+            arrow_choice.geometry("")
+            arrow_choice.grid_columnconfigure(0, weight=1)
+            arrow_choice.grid_rowconfigure(0, weight=1)
+            ch =tk.Frame(arrow_choice)
+            ch.grid(row=0,column=0,sticky=tk.NSEW)
+            ch.grid_columnconfigure(0,weight=1)
+            choices = ['No Arrow', 'Single Arrow', 'Double Arrow']
+            variable = tk.StringVar(ch)
+            variable.set('No Arrow')
+            w = tk.OptionMenu(ch, variable, *choices)
+            w.grid(row=0,columnspan=2,sticky=tk.NSEW)
+            buts =tk.Frame(arrow_choice)
+            buts.grid(row=1,column=0,sticky=tk.NSEW)
+            buts.grid_columnconfigure(0,weight=1)
+            arrow_apply = tk.Button(buts,text="Apply",command=apply_arrow)
+            arrow_apply.grid(row=1,column=1,pady=5,sticky=tk.NSEW)
+            arrow_quit  = tk.Button(buts,text="Quit",command=arrow_choice.destroy)
+            arrow_quit.grid(row=1,column=0,pady=5,sticky=tk.NSEW)
+
         menubar=tk.Menu(master)
 
         labels=tk.Menu(menubar,tearoff=0)
@@ -547,6 +631,7 @@ def plot_choise(button):
         annotates.add_command(label="Text",command=add_text)
         annotates.add_command(label="Vertical Line",command=add_vertical)
         annotates.add_command(label="Horizontal Line",command=add_horizontal)
+        annotates.add_command(label="Arrow Line",command=add_arrow)
 
         menubar.add_cascade(label="Annotate",menu=annotates)
 
