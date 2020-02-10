@@ -646,4 +646,57 @@ def plot_meas(TIME,meas):
 
     return (fig,fig.axes,lines,leg)
 
-# def custom_plot():
+def custom_plot(x,ys):
+    lines=[]
+    axes=[]
+    fig, ax = plt.subplots(figsize=(10,5))
+    axes.append(ax)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.set_facecolor('whitesmoke')
+    ax.grid(which='both',ls='--',lw=1,alpha=0.5)
+    ax.xaxis.set_minor_locator(AutoMinorLocator())
+    ax.yaxis.set_major_locator(MaxNLocator(nbins=20,integer=True))
+    ax.yaxis.set_minor_locator(AutoMinorLocator())
+    ax.set_xlabel('X Label goes here',fontdict=font)
+    ax.set_ylabel('Y1 label goes here',fontdict=font)
+
+    for arg in ys:
+        if arg["ax2"]==True:
+            ax2 = ax.twinx()
+            axes.append(ax2)
+            ax2.spines["top"].set_visible(False)
+            ax2.spines["right"].set_visible(False)
+            ax2.set_facecolor('whitesmoke')
+            ax2.grid(which='both',ls='--',lw=1,alpha=0.5)
+            ax2.xaxis.set_minor_locator(AutoMinorLocator())
+            ax2.yaxis.set_major_locator(MaxNLocator(nbins=20,integer=True))
+            ax2.yaxis.set_minor_locator(AutoMinorLocator())
+            ax2.set_ylabel('Y2 label goes here',fontdict=font)
+            break
+    i=1
+    j=1
+    for arg in ys:
+        if arg["ax2"]==False:
+            l,=ax.plot(x,arg["tr"],label="Y1,"+str(i),color=np.random.rand(3,),linewidth=2)
+            lines.append(l)
+            i+=1
+        else:
+            l,=ax2.plot(x,arg["tr"],label="Y2,"+str(j),color=np.random.rand(3,),linewidth=2)
+            lines.append(l)
+            j+=1
+    labs = [l.get_label() for l in lines]
+    leg = axes[0].legend(lines,labs,bbox_to_anchor=(0.5, 1.1),loc='upper center',ncol=len(lines),prop=legend_font,
+                   fancybox=True, shadow=True)
+    try:
+        m = min([min(calc_minmax(y["tr"])) for y in args if y["ax2"]==True])
+        M = max([max(calc_minmax(y["tr"])) for y in args if y["ax2"]==True])
+        ax2.set_ylim(m,M)
+    except:pass
+
+    try:
+        m = min([min(calc_minmax(y["tr"])) for y in args if y["ax2"]==False])
+        M = max([max(calc_minmax(y["tr"])) for y in args if y["ax2"]==False])
+        ax.set_ylim(m,M)
+    except:pass
+    return (fig,fig.axes,lines,leg)

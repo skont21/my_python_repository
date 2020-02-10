@@ -11,6 +11,8 @@ import re
 import numpy as np
 import matplotlib.dates as mdates
 mpl.use('TkAgg')
+num_tr=0
+sel_traces=[]
 
 class HoverButton(tk.Button):
     def __init__(self, master, **kw):
@@ -274,6 +276,122 @@ def plot_choise(button):
 
     button_text = button.cget("text")
 
+    def ask_xtrace(data,title):
+        global sel_x
+        def apply_trace():
+            global sel_x
+            sel_x = var_x.get()
+            custom_trace.destroy()
+        def disable_event():
+            pass
+        custom_trace=tk.Toplevel(choose_plot)
+        custom_trace.resizable(width=False, height=False)
+        custom_trace.geometry("220x100")
+        custom_trace.grid_columnconfigure(0, weight=1)
+        custom_trace.grid_rowconfigure(0, weight=1)
+        custom_trace.withdraw()
+        custom_trace.protocol("WM_DELETE_WINDOW",disable_event)
+        custom_trace.title(title)
+        # custom_trace.overrideredirect(True)
+
+        choices = list(data.columns)
+
+        x_ch =tk.Frame(custom_trace)
+        x_ch.grid(row=0,column=0,sticky=tk.NSEW)
+        x_ch.grid_columnconfigure(0,weight=1)
+
+        var_x = tk.StringVar(x_ch)
+        var_x.set('TIME')
+        w_x = tk.OptionMenu(x_ch, var_x, *choices)
+        w_x.grid(row=0,columnspan=2,sticky=tk.NSEW)
+
+        buts =tk.Frame(custom_trace)
+        buts.grid(row=1,column=0,sticky=tk.NSEW)
+        buts.grid_columnconfigure(0,weight=1)
+        custom_apply = tk.Button(buts,text="Apply",command=apply_trace)
+        custom_apply.grid(row=1,column=0,columnspan=2,pady=5,sticky=tk.NSEW)
+        # custom_quit  = tk.Button(buts,text="Quit",command=custom_trace.destroy)
+        # custom_quit.grid(row=1,column=0,pady=5,sticky=tk.NSEW)
+
+        custom_trace.deiconify()
+        custom_trace.grab_set()
+        custom_trace.wait_window(custom_trace)
+        return(sel_x)
+
+    def ask_ytrace(data,title):
+        global sel_traces
+        sel_traces=[]
+        y1_traces=[]
+        y1_vars=[]
+        choices = list(data.columns)
+        def disable_event():
+            pass
+
+        def apply_trace():
+            global sel_traces
+            for var in y1_vars:
+                sel_traces.append(var.get())
+            custom_trace.destroy()
+
+        def add_trace():
+            global num_tr
+            num_tr+=1
+            y_ch =tk.Frame(custom_trace)
+            y_ch.grid(row=num_tr,column=0,sticky=tk.NSEW)
+            y_ch.grid_columnconfigure(0,weight=1)
+            var_y = tk.StringVar(y_ch)
+            var_y.set(list(data.columns)[1])
+            y1_vars.append(var_y)
+            w_y = tk.OptionMenu(y_ch, var_y, *choices)
+            w_y.grid(row=num_tr,columnspan=2,sticky=tk.NSEW)
+            buts.grid(row=num_tr+1,column=0,sticky=tk.NSEW)
+            y1_traces.append(y_ch)
+
+        def remove_trace():
+            global num_tr
+            if num_tr>0:
+                num_tr-=1
+                y1_traces[-1].grid_forget()
+                y1_traces[-1].destroy()
+                y1_traces.pop()
+                y1_vars.pop()
+
+        custom_trace=tk.Toplevel(choose_plot)
+        custom_trace.resizable(width=False, height=False)
+        custom_trace.grid_columnconfigure(0, weight=1)
+        custom_trace.grid_rowconfigure(0, weight=1)
+        custom_trace.withdraw()
+        custom_trace.protocol("WM_DELETE_WINDOW",disable_event)
+        custom_trace.title(title)
+
+        y_ch =tk.Frame(custom_trace)
+        y_ch.grid(row=0,column=0,sticky=tk.NSEW)
+        y_ch.grid_columnconfigure(0,weight=1)
+        y1_traces.append(y_ch)
+        var_y = tk.StringVar(y_ch)
+        var_y.set(list(data.columns)[1])
+        y1_vars.append(var_y)
+        w_y = tk.OptionMenu(y_ch, var_y, *choices)
+        w_y.grid(row=0,columnspan=2,sticky=tk.NSEW)
+
+        buts =tk.Frame(custom_trace)
+        buts.grid(row=1,column=0,sticky=tk.NSEW)
+        buts.grid_columnconfigure(0,weight=1)
+        custom_apply = tk.Button(buts,text="Apply",command=apply_trace)
+        custom_apply.grid(row=1,column=0,columnspan=2,sticky=tk.NSEW)
+        # custom_quit  = tk.Button(buts,text="Quit",command=custom_trace.destroy)
+        # custom_quit.grid(row=1,column=0,sticky=tk.NSEW)
+        custom_add = tk.Button(buts,text="+",command=add_trace)
+        custom_add.grid(row=1,column=2,sticky=tk.NSEW)
+        custom_remove = tk.Button(buts,text="-",command=remove_trace)
+        custom_remove.grid(row=1,column=3,sticky=tk.NSEW)
+
+        custom_trace.deiconify()
+        custom_trace.grab_set()
+        custom_trace.wait_window(custom_trace)
+
+        return(list(sel_traces))
+
     if button_text=="P":
 
         ask_deadband('P Deadband in kW')
@@ -368,7 +486,22 @@ def plot_choise(button):
                 fig,axes,lines,leg= plot_PQ(time,m['P'].iloc[:,0],m['Q'].iloc[:,0],s['Q'].iloc[:,strace-1],en['Q'].iloc[:,0],qdb)
             except TypeError:
                 messagebox.showwarning("Warning","Select a trace",parent=choose_plot)
-    # elif button_text=="Custom Plot":
+    elif button_text=="Custom Plot":
+        xtrace = ask_xtrace(data,"Select X-axis trace")
+
+        ytraces=ask_ytrace(data,"Select Y-axis traces")
+        y1_traces=[]
+        for tr in ytraces:
+            y1_traces.append({"tr":data[tr],"ax2":False})
+        y2= messagebox.askquestion('2nd Y-Axis','Would you like adding 2nd Y-axis?',parent=choose_plot)
+        if y2=="yes":
+            ytraces=ask_ytrace(data,"Select Y2-axis traces")
+            y2_traces=[]
+            for tr in ytraces:
+                y2_traces.append({"tr":data[tr],"ax2":True})
+        else:
+            y2_traces=[]
+        fig,axes,lines,leg=custom_plot(data[xtrace],y1_traces+y2_traces)
 
 
     axes[0].set_zorder(0.1)
@@ -461,12 +594,7 @@ def plot_choise(button):
         def interact_leg_label():
             def leglabel():
                 for ind,e_leg in enumerate(leg_entries):
-                    leg.get_lines()[ind].set_label(e_leg.get())
-                    lines[ind].set_label(e_leg.get())
-                axes[0].legend(bbox_to_anchor=(0.5, 1.1),loc='upper center',ncol=2,prop=legend_font,
-                               fancybox=True, shadow=True)
-                # print(lines[0].get_label())
-                # print(leg.get_lines()[0].get_label())
+                    leg.get_texts()[ind].set_text((e_leg.get()))
                 fig.canvas.draw()
                 change_leg.destroy()
 
@@ -481,7 +609,7 @@ def plot_choise(button):
                 for ind,l in enumerate(leg.get_lines()):
                     label_leg = tk.Label(change_leg, text="Insert Legend"+str(ind+1)+"-label").grid(row=ind)
                     e_leg = tk.Entry(change_leg,bd=5,width=40)
-                    e_leg.insert(0,l.get_label())
+                    e_leg.insert(0,leg.get_texts()[ind].get_text())
                     e_leg.grid(row=ind,column=1)
                     leg_entries.append(e_leg)
                 quit_leg=tk.Button(change_leg, text='Quit',command=change_leg.destroy).grid(row=len(leg.get_lines())+3, column=0, sticky=tk.W, pady=4)
