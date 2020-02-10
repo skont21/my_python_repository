@@ -148,15 +148,11 @@ def get_traces(data):
 
     return (time,measurements,setpoints,enables)
 
-def calc_minmax(inp,inp2=pd.DataFrame()):
-    if inp2.empty:
-        m = inp.min()-(inp.max()-inp.min())/10
-        M = inp.max()+(inp.max()-inp.min())/10
-    else:
-        a = min(inp.min(),inp2.min())
-        b = max(inp.max(),inp2.max())
-        m = a-(b-a)/10
-        M = b+(b-a)/10
+def calc_minmax(*args):
+    a = min(c.min() for c in args)
+    b = max(d.max() for d in args)
+    m = a-(b-a)/10
+    M = b+(b-a)/10
     return(m,M)
 
 def plot_P(TIME,P,PSP,PEN,PDB):
@@ -593,32 +589,61 @@ def plot_meas(TIME,meas):
     i=0
     lines=[]
     for k in meas.keys():
-        l,=axes[i].plot(TIME,meas[k],label=ylabels_dict[list(meas.keys())[i]],color=measurements[i],linewidth=2)
+        if len(meas)>1:
+            l,=axes[i].plot(TIME,meas[k],label=ylabels_dict[list(meas.keys())[i]],color=measurements[i],linewidth=2)
+        else:
+            l,=axes.plot(TIME,meas[k],label=ylabels_dict[list(meas.keys())[i]],color=measurements[i],linewidth=2)
         lines.append(l)
         i+=1
 
     #Formatting axis
     i=0
-    for y in axes:
-        y.set_facecolor('whitesmoke')
-        y.grid(which='both',ls='--',lw=1,alpha=0.5)
-        y.xaxis.set_minor_locator(AutoMinorLocator())
-        y.yaxis.set_minor_locator(AutoMinorLocator())
-        y.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
-        y.tick_params(labelsize=10,labelbottom=True)
-        y.spines["top"].set_visible(False)
-        y.spines["right"].set_visible(False)
+    if len(meas)>1:
+        for y in axes:
+            y.set_facecolor('whitesmoke')
+            y.grid(which='both',ls='--',lw=1,alpha=0.5)
+            y.xaxis.set_minor_locator(AutoMinorLocator())
+            y.yaxis.set_minor_locator(AutoMinorLocator())
+            y.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
+            y.tick_params(labelsize=10,labelbottom=True)
+            y.spines["top"].set_visible(False)
+            y.spines["right"].set_visible(False)
+            Min,Max=calc_minmax(meas[list(meas.keys())[i]].iloc[:,0])
+            y.set_ylim(Min,Max)
+            y.set_ylabel(ylabels_dict[list(meas.keys())[i]],fontdict=font)
+            i+=1
+    else:
+        i=0
+        axes.set_facecolor('whitesmoke')
+        axes.grid(which='both',ls='--',lw=1,alpha=0.5)
+        axes.xaxis.set_minor_locator(AutoMinorLocator())
+        axes.yaxis.set_minor_locator(AutoMinorLocator())
+        axes.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
+        axes.tick_params(labelsize=10,labelbottom=True)
+        axes.spines["top"].set_visible(False)
+        axes.spines["right"].set_visible(False)
         Min,Max=calc_minmax(meas[list(meas.keys())[i]].iloc[:,0])
-        y.set_ylim(Min,Max)
-        y.set_ylabel(ylabels_dict[list(meas.keys())[i]],fontdict=font)
-        i+=1
+        axes.set_ylim(Min,Max)
+        axes.set_ylabel(ylabels_dict[list(meas.keys())[i]],fontdict=font)
 
+
+    if len(meas)>1:
         axes[0].set_title('Measurements',fontdict=font,x=0.5,y=1.5)
         axes[-1].set_xlabel('TIME',fontdict=font)
+    else:
+        axes.set_title('Measurements',fontdict=font)
+        axes.set_xlabel('TIME',fontdict=font)
 
-        labs = [l.get_label() for l in lines]
+    labs = [l.get_label() for l in lines]
+
+    if len(meas)>1:
         leg = axes[0].legend(lines,labs,bbox_to_anchor=(0.5, 1.4),loc='upper center',ncol=len(lines),prop=legend_font,
+               fancybox=True, shadow=True)
+    else:
+        leg = axes.legend(lines,labs,bbox_to_anchor=(0.5, 1.4),loc='upper center',ncol=len(lines),prop=legend_font,
                fancybox=True, shadow=True)
 
 
     return (fig,fig.axes,lines,leg)
+
+# def custom_plot():
