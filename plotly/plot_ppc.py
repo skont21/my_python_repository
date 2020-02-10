@@ -185,7 +185,7 @@ if ('P' in en.keys())&('Q' in en.keys()):
     plots[str(i)]='Q Capability'
     i=i+1
 plots[str(i)]="All Measurements"
-
+plots[str(i+1)]="Custom Plot"
 def destroyer():
     choose_plot.quit()
     choose_plot.destroy()
@@ -368,6 +368,8 @@ def plot_choise(button):
                 fig,axes,lines,leg= plot_PQ(time,m['P'].iloc[:,0],m['Q'].iloc[:,0],s['Q'].iloc[:,strace-1],en['Q'].iloc[:,0],qdb)
             except TypeError:
                 messagebox.showwarning("Warning","Select a trace",parent=choose_plot)
+    # elif button_text=="Custom Plot":
+
 
     axes[0].set_zorder(0.1)
     axes[0].patch.set_visible(False)
@@ -455,6 +457,35 @@ def plot_choise(button):
                     y_entries.append(e_y)
                 quit_y=tk.Button(change_y, text='Quit',command=change_y.destroy).grid(row=len(axes)+3, column=0, sticky=tk.W, pady=4)
                 apply_y = tk.Button(change_y,text='Apply', command=ylabel).grid(row=len(axes)+3,column=1,sticky=tk.W, pady=4)
+
+        def interact_leg_label():
+            def leglabel():
+                for ind,e_leg in enumerate(leg_entries):
+                    leg.get_lines()[ind].set_label(e_leg.get())
+                    lines[ind].set_label(e_leg.get())
+                axes[0].legend(bbox_to_anchor=(0.5, 1.1),loc='upper center',ncol=2,prop=legend_font,
+                               fancybox=True, shadow=True)
+                # print(lines[0].get_label())
+                # print(leg.get_lines()[0].get_label())
+                fig.canvas.draw()
+                change_leg.destroy()
+
+            try:
+                if 'normal' == change_leg.state():
+                    change_leg.lift()
+            except:
+                change_leg = tk.Toplevel(master)
+                change_leg.resizable(width=False, height=False)
+                change_leg.title("Legend-labels")
+                leg_entries=[]
+                for ind,l in enumerate(leg.get_lines()):
+                    label_leg = tk.Label(change_leg, text="Insert Legend"+str(ind+1)+"-label").grid(row=ind)
+                    e_leg = tk.Entry(change_leg,bd=5,width=40)
+                    e_leg.insert(0,l.get_label())
+                    e_leg.grid(row=ind,column=1)
+                    leg_entries.append(e_leg)
+                quit_leg=tk.Button(change_leg, text='Quit',command=change_leg.destroy).grid(row=len(leg.get_lines())+3, column=0, sticky=tk.W, pady=4)
+                apply_leg = tk.Button(change_leg,text='Apply', command=leglabel).grid(row=len(leg.get_lines())+3,column=1,sticky=tk.W, pady=4)
 
         def interact_x_label():
             def xlabel():
@@ -639,6 +670,7 @@ def plot_choise(button):
         labels.add_command(label="Change Title",command = interact_title)
         labels.add_command(label="Change Y label",command = interact_y_label)
         labels.add_command(label="Change X label",command = interact_x_label)
+        labels.add_command(label="Change Legend labels",command = interact_leg_label)
 
         menubar.add_cascade(label="Labels",menu=labels)
 
