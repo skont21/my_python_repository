@@ -669,6 +669,55 @@ def plot_choise(button):
                 quit_y=tk.Button(change_ylim, text='Quit',command=change_ylim.destroy).grid(row=2*len(axes)+3, column=0, sticky=tk.W, pady=4)
                 apply_y = tk.Button(change_ylim,text='Apply', command=ylimits).grid(row=2*len(axes)+3,column=1,sticky=tk.W, pady=4)
 
+        def interact_x_ticks():
+
+            def apply_xticks():
+                x_val = var_val.get()
+                x_int = var_xtick.get()
+                if x_int == 'sec':
+                    loc = mdates.SecondLocator(interval = int(x_val))
+                    loc.MAXTICKS=10000
+                    fig.axes[0].xaxis.set_major_locator(loc)
+                elif x_int == 'min':
+                    loc = mdates.MinuteLocator(interval = int(x_val))
+                    loc.MAXTICKS=10000
+                    fig.axes[0].xaxis.set_major_locator(loc)
+                elif x_int == 'h':
+                    fig.axes[0].xaxis.set_major_locator(mdates.HourLocator(interval = int(x_val)))
+                fig.canvas.draw()
+                change_xticks.destroy()
+
+            def reset_xticks():
+                fig.axes[0].xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
+                fig.canvas.draw()
+                change_xticks.destroy()
+
+            try:
+                if 'normal' == change_xticks().state():
+                    change_xticks.lift()
+            except:
+                change_xticks=tk.Toplevel(master)
+                change_xticks.resizable(width=False,height=False)
+                change_xticks.title("X-ticks")
+                xtick_label = tk.Label(change_xticks, text="Put X ticks every: ").grid(row=0,column=0)
+                # xtick_inp1 = tk.Entry(change_xticks,bd=5,width=5)
+                # xtick_inp1.grid(row=0,column=1)
+
+                xtick_val = ['1','5','10','15','30','45']
+                var_val = tk.StringVar(change_xticks)
+                var_val.set(xtick_val[0])
+                wval_xtick = tk.OptionMenu(change_xticks, var_val, *xtick_val)
+                wval_xtick.grid(row=0,column=1)
+
+                xtick_int = ['sec','min','h']
+                var_xtick = tk.StringVar(change_xticks)
+                var_xtick.set(xtick_int[0])
+                w_xtick = tk.OptionMenu(change_xticks, var_xtick, *xtick_int)
+                w_xtick.grid(row=0,column=2)
+
+                apply_xtick = tk.Button(change_xticks, text='Apply',command=apply_xticks).grid(row=1,column=0,pady=5)
+                reset_xtick = tk.Button(change_xticks, text='Reset',command=reset_xticks).grid(row=1,column=1,pady=5)
+
         def interact_colors():
             def OnClick(btn):
                 text = btn.cget("text")
@@ -806,6 +855,11 @@ def plot_choise(button):
         limits.add_command(label="Change Y limits",command = interact_y_limits)
 
         menubar.add_cascade(label="Limits",menu=limits)
+
+        limits=tk.Menu(menubar,tearoff=0)
+        limits.add_command(label="Change X ticks",command = interact_x_ticks)
+
+        menubar.add_cascade(label="X ticks",menu=limits)
 
         colors=tk.Menu(menubar,tearoff=0)
         colors.add_command(label="Change Line Colors",command=interact_colors)
