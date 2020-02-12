@@ -674,14 +674,17 @@ def custom_plot(x,ys):
     ax.set_facecolor('whitesmoke')
     ax.grid(which='both',ls='--',lw=1,alpha=0.5)
     ax.xaxis.set_minor_locator(AutoMinorLocator())
-    ax.xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
-    # hours = mdates.SecondLocator(interval = 1)
-    # ax.xaxis.set_major_locator(hours)
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
+    if isinstance(x[0],pd._libs.tslibs.timestamps.Timestamp):
+        ax.xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
+        ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
+    else:
+        ax.xaxis.set_major_locator(MaxNLocator(nbins=20,integer=True))
+        ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.yaxis.set_major_locator(MaxNLocator(nbins=20,integer=True))
     ax.yaxis.set_minor_locator(AutoMinorLocator())
     ax.set_xlabel('X Label goes here',fontdict=font)
     ax.set_ylabel('Y1 label goes here',fontdict=font)
+    ax.set_title('Title goes here',fontdict=font,x=0.5,y=1.1)
 
     if j > 1:
         ax2.spines["top"].set_visible(False)

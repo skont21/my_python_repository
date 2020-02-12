@@ -1,7 +1,7 @@
 # %matplotlib notebook
 from plot_maplot_v1 import *
 import tkinter as tk
-from tkinter import colorchooser,filedialog,simpledialog,messagebox,font
+from tkinter import colorchooser,filedialog,simpledialog,messagebox
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg,NavigationToolbar2Tk
 from matplotlib.lines import Line2D
 from matplotlib.text import Text
@@ -44,7 +44,6 @@ class move_obj:
         self.ciddouble = self.figure.canvas.mpl_connect('button_press_event', self.onclik)
 
     def on_pick_obj(self, event):
-        # print(self.figure.axes[0].texts)
         'on button pick we will see if the mouse is over us and store some data'
         if isinstance(event.artist, Text):
             if isinstance(self.obj,Text):
@@ -55,11 +54,11 @@ class move_obj:
 
                 x0 = event.mouseevent.xdata
                 y0 = event.mouseevent.ydata
-                # print(mdates.num2date(bb_datacoords.xmax))
-                # print(mdates.num2date(self.obj.xy[0]))
+
                 if self.align=="Arrow":
                     print(mdates.num2date(bb_datacoords.xmin))
                     print(mdates.num2date(bb_datacoords.xmax))
+                    # print(self.figure.axes[0].xaxis.get_ticklabels()[0].get_text())
                     if self.obj.xy[0]>self.obj.xyann[0]:
                         if (x0>bb_datacoords.xmin+(bb_datacoords.xmax-bb_datacoords.xmin)/2):
                             if (x0>bb_datacoords.xmax)|(y0>bb_datacoords.ymax)|(y0<bb_datacoords.ymin):
@@ -224,7 +223,7 @@ def plot_choise(button):
                 deadband=""
                 messagebox.showwarning("Warning","Invalid Input",parent=input_db)
             input_db.destroy()
-        # deadband=""
+
         input_db=tk.Toplevel(choose_plot)
         input_db.geometry("+{}+{}".format(choose_plot.winfo_x(),choose_plot.winfo_y()))
         input_db.withdraw()
@@ -292,7 +291,7 @@ def plot_choise(button):
         custom_trace.withdraw()
         custom_trace.protocol("WM_DELETE_WINDOW",disable_event)
         custom_trace.title(title)
-        # custom_trace.overrideredirect(True)
+
 
         choices = list(data.columns)
 
@@ -310,8 +309,6 @@ def plot_choise(button):
         buts.grid_columnconfigure(0,weight=1)
         custom_apply = tk.Button(buts,text="Apply",command=apply_trace)
         custom_apply.grid(row=1,column=0,columnspan=2,pady=5,sticky=tk.NSEW)
-        # custom_quit  = tk.Button(buts,text="Quit",command=custom_trace.destroy)
-        # custom_quit.grid(row=1,column=0,pady=5,sticky=tk.NSEW)
 
         custom_trace.deiconify()
         custom_trace.grab_set()
@@ -379,8 +376,6 @@ def plot_choise(button):
         buts.grid_columnconfigure(0,weight=1)
         custom_apply = tk.Button(buts,text="Apply",command=apply_trace)
         custom_apply.grid(row=1,column=0,columnspan=2,sticky=tk.NSEW)
-        # custom_quit  = tk.Button(buts,text="Quit",command=custom_trace.destroy)
-        # custom_quit.grid(row=1,column=0,sticky=tk.NSEW)
         custom_add = tk.Button(buts,text="+",command=add_trace)
         custom_add.grid(row=1,column=2,sticky=tk.NSEW)
         custom_remove = tk.Button(buts,text="-",command=remove_trace)
@@ -391,7 +386,7 @@ def plot_choise(button):
         custom_trace.wait_window(custom_trace)
 
         return(list(sel_traces))
-
+    time_xaxis=True
     if button_text=="P":
 
         ask_deadband('P Deadband in kW')
@@ -421,6 +416,7 @@ def plot_choise(button):
                 messagebox.showwarning("Warning","Select a trace",parent=choose_plot)
 
     elif  button_text=="Q":
+
         ask_deadband('Q Deadband in kVAr')
         qdb=deadband
         if type(deadband)==float:
@@ -430,6 +426,7 @@ def plot_choise(button):
                 strace=1
             try:
                 fig,axes,lines,leg= plot_Q(time,m['Q'].iloc[:,0],s['Q'].iloc[:,strace-1],en['Q'].iloc[:,0],qdb)
+                print(fig.axes[0].xaxis.get_ticklabels()[:])
             except TypeError:
                 messagebox.showwarning("Warning","Select a trace",parent=choose_plot)
 
@@ -488,7 +485,6 @@ def plot_choise(button):
                 messagebox.showwarning("Warning","Select a trace",parent=choose_plot)
     elif button_text=="Custom Plot":
         xtrace = ask_xtrace(data,"Select X-axis trace")
-
         ytraces=ask_ytrace(data,"Select Y-axis traces")
         y1_traces=[]
         for tr in ytraces:
@@ -502,6 +498,8 @@ def plot_choise(button):
         else:
             y2_traces=[]
         fig,axes,lines,leg=custom_plot(data[xtrace],y1_traces+y2_traces)
+        if not isinstance(data[xtrace][0],pd._libs.tslibs.timestamps.Timestamp):
+            time_xaxis=False
 
 
     axes[0].set_zorder(0.1)
@@ -517,33 +515,42 @@ def plot_choise(button):
 
         master = tk.Toplevel(choose_plot)
         master.title("PLOT")
+        master.grid_columnconfigure(0, weight=1)
+        master.grid_rowconfigure(0, weight=1)
 
         def destroyer():
             master.destroy()
         def undo():
             try:
                 VLs[-1].remove()
-                fig.canvas.draw()
+                fig.canvas.draw_idle()
                 VLs.pop()
             except:
                 pass
         master.protocol("WM_DELETE_WINDOW")
 
-        frame = tk.Frame(master)
+        canvas_frame=tk.Frame(master)
+        canvas = FigureCanvasTkAgg(fig, canvas_frame)
+        canvas_frame.grid(row=0,sticky=tk.NSEW)
+        canvas_frame.grid_rowconfigure(0,weight=1)
+        canvas_frame.grid_columnconfigure(0,weight=1)
 
-        canvas = FigureCanvasTkAgg(fig, master)
+        frame = tk.Frame(master)
+        frame.grid(row=1,sticky=tk.NSEW)
+        frame.grid_rowconfigure(0,weight=1)
+        frame.grid_columnconfigure(0,weight=1)
+
         toolbar = NavigationToolbar2Tk(canvas, frame)
         toolbar.update()
 
-        canvas.get_tk_widget().grid(row=1)
-        frame.grid(row=2,sticky=tk.W)
+        canvas.get_tk_widget().grid(row=0,sticky=tk.NSEW)
 
         buttons_frame=tk.Frame(master)
-        buttons_frame.grid(row=3)
-        quitbutton = tk.Button(buttons_frame, text="Quit", command=destroyer)
-        quitbutton.grid(row=0,column=0)
-        undobutton=tk.Button(buttons_frame, text="Undo",command=undo)
-        undobutton.grid(row=0,column=1)
+        buttons_frame.grid(row=2,sticky=tk.NSEW)
+        buttons_frame.grid_columnconfigure(0,weight=1)
+
+        quitbutton = tk.Button(buttons_frame, text="Quit",borderwidth=2,relief="groove",command=destroyer)
+        quitbutton.grid(row=0,column=0,pady=10)
 
         def interact_title():
             def title():
@@ -551,7 +558,7 @@ def plot_choise(button):
                     title_x= axes[0].title.get_position()[0]
                     title_y= axes[0].title.get_position()[1]
                     axes[0].set_title(e_title.get(),fontdict=font,x=title_x,y=title_y)
-                    fig.canvas.draw()
+                    fig.canvas.draw_idle()
                     change_title.destroy()
             try:
                 if 'normal' == change_title.state():
@@ -571,7 +578,7 @@ def plot_choise(button):
             def ylabel():
                 for ind,e_y in enumerate(y_entries):
                     axes[ind].set_ylabel(e_y.get())
-                    fig.canvas.draw()
+                    fig.canvas.draw_idle()
                 change_y.destroy()
 
             try:
@@ -595,7 +602,7 @@ def plot_choise(button):
             def leglabel():
                 for ind,e_leg in enumerate(leg_entries):
                     leg.get_texts()[ind].set_text((e_leg.get()))
-                fig.canvas.draw()
+                fig.canvas.draw_idle()
                 change_leg.destroy()
 
             try:
@@ -619,7 +626,7 @@ def plot_choise(button):
             def xlabel():
                 if e_x.get()!='':
                     axes[0].set_xlabel(e_x.get())
-                    fig.canvas.draw()
+                    fig.canvas.draw_idle()
                     change_x.destroy()
             try:
                 if 'normal' == change_x.state():
@@ -640,7 +647,7 @@ def plot_choise(button):
                 for ind,l_y in enumerate(ymin_lims):
                     axes[ind].set_ylim(float(l_y.get()),float(ymax_lims[ind].get()))
                     # ax.yaxis.set_minor_locator(AutoMinorLocator())
-                fig.canvas.draw()
+                fig.canvas.draw_idle()
                 change_ylim.destroy()
 
             try:
@@ -676,20 +683,27 @@ def plot_choise(button):
                 x_int = var_xtick.get()
                 if x_int == 'sec':
                     loc = mdates.SecondLocator(interval = int(x_val))
-                    loc.MAXTICKS=10000
+                    loc.MAXTICKS=20000
                     fig.axes[0].xaxis.set_major_locator(loc)
                 elif x_int == 'min':
                     loc = mdates.MinuteLocator(interval = int(x_val))
-                    loc.MAXTICKS=10000
+                    loc.MAXTICKS=20000
                     fig.axes[0].xaxis.set_major_locator(loc)
                 elif x_int == 'h':
                     fig.axes[0].xaxis.set_major_locator(mdates.HourLocator(interval = int(x_val)))
-                fig.canvas.draw()
-                change_xticks.destroy()
+                try:
+                    fig.canvas.draw_idle()
+                    change_xticks.destroy()
+                except RuntimeError:
+                    messagebox.showwarning("Warning","Too many ticks-Zoom in",parent=change_xticks)
+                    fig.axes[0].xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
+                    fig.canvas.draw_idle()
+                    change_xticks.destroy()
+
 
             def reset_xticks():
                 fig.axes[0].xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
-                fig.canvas.draw()
+                fig.canvas.draw_idle()
                 change_xticks.destroy()
 
             try:
@@ -700,10 +714,8 @@ def plot_choise(button):
                 change_xticks.resizable(width=False,height=False)
                 change_xticks.title("X-ticks")
                 xtick_label = tk.Label(change_xticks, text="Put X ticks every: ").grid(row=0,column=0)
-                # xtick_inp1 = tk.Entry(change_xticks,bd=5,width=5)
-                # xtick_inp1.grid(row=0,column=1)
 
-                xtick_val = ['1','5','10','15','30','45']
+                xtick_val = ['1','2','5','10','15','30','45']
                 var_val = tk.StringVar(change_xticks)
                 var_val.set(xtick_val[0])
                 wval_xtick = tk.OptionMenu(change_xticks, var_val, *xtick_val)
@@ -731,7 +743,7 @@ def plot_choise(button):
                     if "Setpoint" in text:
                         lines[-1].set_color(pick_color[1])
 
-                fig.canvas.draw()
+                fig.canvas.draw_idle()
 
             try:
                 if 'normal' == change_color.state():
@@ -764,7 +776,7 @@ def plot_choise(button):
             text_rot = simpledialog.askfloat("Text Rotation","Insert text rotation(deg)",parent=master)
             text = fig.axes[0].text(x,y,ask_text,rotation=text_rot,fontdict={'size':12,'weight':'bold'},bbox=props,picker=5)
             texts.append(text)
-            fig.canvas.draw()
+            fig.canvas.draw_idle()
             dr = move_obj(text,fig,None,master)
             dr.connect_obj()
             drs.append(dr)
@@ -775,7 +787,7 @@ def plot_choise(button):
             x=fig.axes[0].get_xlim()[0]+(fig.axes[0].get_xlim()[1]-fig.axes[0].get_xlim()[0])/2
             v_line=fig.axes[0].axvline(x=x,linewidth=2,ls="--",c='k',picker=5)
             vlines.append(v_line)
-            fig.canvas.draw()
+            fig.canvas.draw_idle()
             dv = move_obj(v_line,fig,"Vertical",master)
             dv.connect_obj()
             dvs.append(dv)
@@ -786,7 +798,7 @@ def plot_choise(button):
             y=fig.axes[0].get_ylim()[0]+(fig.axes[0].get_ylim()[1]-fig.axes[0].get_ylim()[0])/10
             h_line=fig.axes[0].axhline(y=y,linewidth=2,ls="--",c='k',picker=5)
             hlines.append(h_line)
-            fig.canvas.draw()
+            fig.canvas.draw_idle()
             dh = move_obj(h_line,fig,"Horizontal",master)
             dh.connect_obj()
             dhs.append(dh)
@@ -800,21 +812,21 @@ def plot_choise(button):
                 xstart = fig.axes[0].get_xlim()[0]+(fig.axes[0].get_xlim()[1]-fig.axes[0].get_xlim()[0])/10
                 if choise == "No Arrow":
                     arrow_line = fig.axes[0].annotate(s="",xy=(x,y),xytext=(xstart,y), arrowprops=dict(lw=2,arrowstyle='-'),picker=5)
-                    fig.canvas.draw()
+                    fig.canvas.draw_idle()
                     da = move_obj(arrow_line,fig,"Arrow",master)
                     da.connect_obj()
                     das.append(da)
                 elif choise == "Single Arrow":
                     arrow_line = fig.axes[0].annotate(s="",xy=(x,y),xytext=(xstart,y), arrowprops=dict(lw=2,arrowstyle='->'),picker=5)
                     # arrow_line.draggable(state=True)
-                    fig.canvas.draw()
+                    fig.canvas.draw_idle()
                     da = move_obj(arrow_line,fig,"Arrow",master)
                     da.connect_obj()
                     das.append(da)
 
                 elif choise == "Double Arrow":
                     arrow_line = fig.axes[0].annotate(s="",xy=(x,y),xytext=(xstart,y), arrowprops=dict(lw=2,arrowstyle='<->'),picker=5)
-                    fig.canvas.draw()
+                    fig.canvas.draw_idle()
                     da = move_obj(arrow_line,fig,"Arrow",master)
                     da.connect_obj()
                     das.append(da)
@@ -848,22 +860,19 @@ def plot_choise(button):
         labels.add_command(label="Change Y label",command = interact_y_label)
         labels.add_command(label="Change X label",command = interact_x_label)
         labels.add_command(label="Change Legend labels",command = interact_leg_label)
-
         menubar.add_cascade(label="Labels",menu=labels)
 
         limits=tk.Menu(menubar,tearoff=0)
         limits.add_command(label="Change Y limits",command = interact_y_limits)
-
         menubar.add_cascade(label="Limits",menu=limits)
 
-        limits=tk.Menu(menubar,tearoff=0)
-        limits.add_command(label="Change X ticks",command = interact_x_ticks)
-
-        menubar.add_cascade(label="X ticks",menu=limits)
+        if time_xaxis:
+            ticks_x=tk.Menu(menubar,tearoff=0)
+            ticks_x.add_command(label="Change X ticks",command = interact_x_ticks)
+            menubar.add_cascade(label="X ticks",menu=ticks_x)
 
         colors=tk.Menu(menubar,tearoff=0)
         colors.add_command(label="Change Line Colors",command=interact_colors)
-
         menubar.add_cascade(label="LineColors",menu=colors)
 
         annotates=tk.Menu(menubar,tearoff=0)
@@ -871,7 +880,6 @@ def plot_choise(button):
         annotates.add_command(label="Vertical Line",command=add_vertical)
         annotates.add_command(label="Horizontal Line",command=add_horizontal)
         annotates.add_command(label="Arrow Line",command=add_arrow)
-
         menubar.add_cascade(label="Annotate",menu=annotates)
 
 
@@ -901,7 +909,7 @@ def plot_choise(button):
                     legline.set_alpha(1.0)
                 else:
                     legline.set_alpha(0.2)
-                fig.canvas.draw()
+                fig.canvas.draw_idle()
 
         canvas.mpl_connect('pick_event', onpick)
         master.config(menu=menubar)
@@ -924,7 +932,7 @@ r=1
 meas_frame=tk.Frame(choose_plot)
 meas_frame.grid(row=1,column=0,sticky=tk.NSEW)
 meas_frame.grid_rowconfigure(0,weight=1)
-# ,columnspan=len(m)+1)
+
 tk.Label(meas_frame,text='Measurements:',borderwidth=2,relief="groove").grid(row=0,column=0,padx=5)
 for key in m.keys():
     for c in m[key].columns:
