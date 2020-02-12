@@ -14,6 +14,10 @@ mpl.use('TkAgg')
 num_tr=0
 sel_traces=[]
 
+weights = ['normal','bold',]
+styles = ['normal', 'italic']
+families = ['serif', 'sans-serif','DejaVu Sans']
+
 class NavigationToolbar(NavigationToolbar2Tk):
     # only display the buttons we need
     toolitems = [t for t in NavigationToolbar2Tk.toolitems if
@@ -560,21 +564,23 @@ def plot_choise(button):
 
         def interact_title():
             def title():
-                if e_title_text.get()!='':
-                    weight= title_weight_val.get()
-                    try:
-                        size = float(e_title_size.get())
-                    except:
-                        size = 14
-                    title_font={'family': 'serif',
-                        'color':  'black',
-                        'weight': weight,
-                        'size': size}
-                    title_x= axes[0].title.get_position()[0]
-                    title_y= axes[0].title.get_position()[1]
-                    axes[0].set_title(e_title_text.get(),fontdict=title_font,x=title_x,y=title_y)
-                    fig.canvas.draw_idle()
-                    change_title.destroy()
+                weight= title_weight_val.get()
+                style= title_style_val.get()
+                family= title_family_val.get()
+                try:
+                    size = float(e_title_size.get())
+                except:
+                    size = 14
+                title_font={'family': family,
+                    'style' : style,
+                    'color':  'black',
+                    'weight': weight,
+                    'size': size}
+                title_x= axes[0].title.get_position()[0]
+                title_y= axes[0].title.get_position()[1]
+                axes[0].set_title(e_title_text.get(),fontdict=title_font,x=title_x,y=title_y)
+                fig.canvas.draw_idle()
+                change_title.destroy()
             try:
                 if 'normal' == change_title.state():
                     change_title.lift()
@@ -593,20 +599,47 @@ def plot_choise(button):
                 e_title_size.insert(0,axes[0].title.get_fontsize())
                 e_title_size.grid(row=1,column=1,sticky=tk.W)
 
-                title_weight = tk.Label(change_title, text="FontSize").grid(row=2)
-                weight_val = ['normal','bold']
+                global weights
+                global families
+                global styles
+
+                title_weight = tk.Label(change_title, text="FontWeight").grid(row=2)
                 title_weight_val = tk.StringVar(change_title)
-                title_weight_val.set(weight_val[1])
-                e_title_weight = tk.OptionMenu(change_title, title_weight_val, *weight_val)
+                title_weight_val.set(axes[0].title.get_fontweight())
+                e_title_weight = tk.OptionMenu(change_title, title_weight_val, *weights)
                 e_title_weight.grid(row=2,column=1,sticky=tk.W)
 
-                quit_title=tk.Button(change_title, text='Quit',command=change_title.destroy).grid(row=3, column=0, sticky=tk.W, pady=4)
-                apply_title = tk.Button(change_title,text='Apply title', command=title).grid(row=3,column=1,sticky=tk.W, pady=4)
+                title_family = tk.Label(change_title, text="FontFamily").grid(row=3)
+                title_family_val = tk.StringVar(change_title)
+                title_family_val.set(axes[0].title.get_fontfamily()[0])
+                e_title_family = tk.OptionMenu(change_title, title_family_val, *families)
+                e_title_family.grid(row=3,column=1,sticky=tk.W)
+
+                title_style = tk.Label(change_title, text="FontStyle").grid(row=4)
+                title_style_val = tk.StringVar(change_title)
+                title_style_val.set(axes[0].title.get_fontstyle())
+                e_title_style = tk.OptionMenu(change_title, title_style_val, *styles)
+                e_title_style.grid(row=4,column=1,sticky=tk.W)
+
+                quit_title=tk.Button(change_title, text='Quit',command=change_title.destroy).grid(row=5, column=0, sticky=tk.W, pady=4)
+                apply_title = tk.Button(change_title,text='Apply title', command=title).grid(row=5,column=1,sticky=tk.W, pady=4)
 
         def interact_y_label():
             def ylabel():
                 for ind,e_y in enumerate(y_entries):
-                    axes[ind].set_ylabel(e_y.get())
+                    weight= y_weights[ind].get()
+                    style= y_styles[ind].get()
+                    family= y_families[ind].get()
+                    try:
+                        size = float(y_sizes[ind].get())
+                    except:
+                        size = 14
+                    y_font={'family': family,
+                        'style' : style,
+                        'color':  'black',
+                        'weight': weight,
+                        'size': size}
+                    axes[ind].set_ylabel(y_entries[ind].get(),fontdict=y_font)
                     fig.canvas.draw_idle()
                 change_y.destroy()
 
@@ -618,14 +651,55 @@ def plot_choise(button):
                 change_y.resizable(width=False, height=False)
                 change_y.title("Y-labels")
                 y_entries=[]
+                y_sizes=[]
+                y_weights=[]
+                y_styles=[]
+                y_families=[]
+
                 for ind,ax in enumerate(axes):
-                    label_y = tk.Label(change_y, text="Insert Y"+str(ind+1)+"-label").grid(row=ind)
-                    e_y = tk.Entry(change_y,bd=5,width=40)
-                    e_y.insert(0,ax.get_ylabel())
-                    e_y.grid(row=ind,column=1)
-                    y_entries.append(e_y)
-                quit_y=tk.Button(change_y, text='Quit',command=change_y.destroy).grid(row=len(axes)+3, column=0, sticky=tk.W, pady=4)
-                apply_y = tk.Button(change_y,text='Apply', command=ylabel).grid(row=len(axes)+3,column=1,sticky=tk.W, pady=4)
+
+
+                    y_title = tk.Label(change_y, text="Y"+str(ind+1)+"-label").grid(row=6*ind,columnspan=2)
+
+                    y_text = tk.Label(change_y, text="Text").grid(row=6*ind+1)
+                    e_y_text = tk.Entry(change_y,bd=5,width=40)
+                    e_y_text.insert(0,ax.get_ylabel())
+                    e_y_text.grid(row=6*ind+1,column=1)
+                    y_entries.append(e_y_text)
+
+                    y_size = tk.Label(change_y, text="FontSize").grid(row=6*ind+2)
+                    e_y_size = tk.Entry(change_y,bd=5,width=5)
+                    e_y_size.insert(0,ax.yaxis.label.get_fontsize())
+                    e_y_size.grid(row=6*ind+2,column=1,sticky=tk.W)
+                    y_sizes.append(e_y_size)
+
+                    global weights
+                    global families
+                    global styles
+
+                    y_weight = tk.Label(change_y, text="FontWeight").grid(row=6*ind+3)
+                    y_weight_val = tk.StringVar(change_y)
+                    y_weight_val.set(ax.yaxis.label.get_fontweight())
+                    e_y_weight = tk.OptionMenu(change_y, y_weight_val, *weights)
+                    e_y_weight.grid(row=6*ind+3,column=1,sticky=tk.W)
+                    y_weights.append(y_weight_val)
+
+                    y_family = tk.Label(change_y, text="FontFamily").grid(row=6*ind+4)
+                    y_family_val = tk.StringVar(change_y)
+                    y_family_val.set(ax.yaxis.label.get_fontfamily()[0])
+                    e_y_family = tk.OptionMenu(change_y, y_family_val, *families)
+                    e_y_family.grid(row=6*ind+4,column=1,sticky=tk.W)
+                    y_families.append(y_family_val)
+
+                    y_style = tk.Label(change_y, text="FontStyle").grid(row=6*ind+5)
+                    y_style_val = tk.StringVar(change_y)
+                    y_style_val.set(ax.yaxis.label.get_fontstyle())
+                    e_y_style = tk.OptionMenu(change_y, y_style_val, *styles)
+                    e_y_style.grid(row=6*ind+5,column=1,sticky=tk.W)
+                    y_styles.append(y_style_val)
+
+                quit_y=tk.Button(change_y, text='Quit',command=change_y.destroy).grid(row=6*len(axes), column=0, sticky=tk.W, pady=4)
+                apply_y = tk.Button(change_y,text='Apply', command=ylabel).grid(row=6*len(axes),column=1,sticky=tk.W, pady=4)
 
         def interact_leg_label():
             def leglabel():
@@ -653,10 +727,21 @@ def plot_choise(button):
 
         def interact_x_label():
             def xlabel():
-                if e_x.get()!='':
-                    axes[0].set_xlabel(e_x.get())
-                    fig.canvas.draw_idle()
-                    change_x.destroy()
+                weight= x_weight_val.get()
+                style= x_style_val.get()
+                family= x_family_val.get()
+                try:
+                    size = float(e_x_size.get())
+                except:
+                    size = 14
+                x_font={'family': family,
+                    'style' : style,
+                    'color':  'black',
+                    'weight': weight,
+                    'size': size}
+                axes[0].set_xlabel(e_x_text.get(),fontdict=x_font)
+                fig.canvas.draw_idle()
+                change_x.destroy()
             try:
                 if 'normal' == change_x.state():
                     change_x.lift()
@@ -664,12 +749,43 @@ def plot_choise(button):
                 change_x = tk.Toplevel(master)
                 change_x.resizable(width=False, height=False)
                 change_x.title("X-label")
-                label_x = tk.Label(change_x, text="Insert X-label").grid(row=0)
-                e_x = tk.Entry(change_x,bd=5,width=40)
-                e_x.insert(0,axes[0].get_xlabel())
-                e_x.grid(row=0,column=1)
-                quit_x=tk.Button(change_x, text='Quit',command=change_x.destroy).grid(row=3, column=0, sticky=tk.W, pady=4)
-                apply_x = tk.Button(change_x,text='Apply', command=xlabel).grid(row=3,column=1,sticky=tk.W, pady=4)
+
+                x_title = tk.Label(change_x, text="X-label").grid(row=0,columnspan=2)
+                x_text = tk.Label(change_x, text="Text").grid(row=1)
+                e_x_text = tk.Entry(change_x,bd=5,width=40)
+                e_x_text.insert(0,axes[0].get_xlabel())
+                e_x_text.grid(row=1,column=1)
+
+                x_size = tk.Label(change_x, text="FontSize").grid(row=2)
+                e_x_size = tk.Entry(change_x,bd=5,width=5)
+                e_x_size.insert(0,axes[0].xaxis.label.get_fontsize())
+                e_x_size.grid(row=2,column=1,sticky=tk.W)
+
+                global weights
+                global families
+                global styles
+
+                x_weight = tk.Label(change_x, text="FontWeight").grid(row=3)
+                x_weight_val = tk.StringVar(change_x)
+                x_weight_val.set(axes[0].xaxis.label.get_fontweight())
+                e_x_weight = tk.OptionMenu(change_x, x_weight_val, *weights)
+                e_x_weight.grid(row=3,column=1,sticky=tk.W)
+
+                x_family = tk.Label(change_x, text="FontFamily").grid(row=4)
+                x_family_val = tk.StringVar(change_x)
+                x_family_val.set(axes[0].xaxis.label.get_fontfamily()[0])
+                e_x_family = tk.OptionMenu(change_x, x_family_val, *families)
+                e_x_family.grid(row=4,column=1,sticky=tk.W)
+
+                x_style = tk.Label(change_x, text="FontStyle").grid(row=5)
+                x_style_val = tk.StringVar(change_x)
+                x_style_val.set(axes[0].xaxis.label.get_fontstyle())
+                e_x_style = tk.OptionMenu(change_x, x_style_val, *styles)
+                e_x_style.grid(row=5,column=1,sticky=tk.W)
+
+
+                quit_x=tk.Button(change_x, text='Quit',command=change_x.destroy).grid(row=6, column=0, sticky=tk.W, pady=4)
+                apply_x = tk.Button(change_x,text='Apply', command=xlabel).grid(row=6,column=1,sticky=tk.W, pady=4)
 
         def interact_y_limits():
             def ylimits():
@@ -885,11 +1001,11 @@ def plot_choise(button):
         menubar=tk.Menu(master)
 
         labels=tk.Menu(menubar,tearoff=0)
-        labels.add_command(label="Change Title",command = interact_title)
-        labels.add_command(label="Change Y label",command = interact_y_label)
-        labels.add_command(label="Change X label",command = interact_x_label)
-        labels.add_command(label="Change Legend labels",command = interact_leg_label)
-        menubar.add_cascade(label="Labels",menu=labels)
+        labels.add_command(label="Title",command = interact_title)
+        labels.add_command(label="Y labels",command = interact_y_label)
+        labels.add_command(label="X label",command = interact_x_label)
+        labels.add_command(label="Legend",command = interact_leg_label)
+        menubar.add_cascade(label="Style",menu=labels)
 
         limits=tk.Menu(menubar,tearoff=0)
         limits.add_command(label="Change Y limits",command = interact_y_limits)
