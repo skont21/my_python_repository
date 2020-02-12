@@ -14,6 +14,11 @@ mpl.use('TkAgg')
 num_tr=0
 sel_traces=[]
 
+class NavigationToolbar(NavigationToolbar2Tk):
+    # only display the buttons we need
+    toolitems = [t for t in NavigationToolbar2Tk.toolitems if
+                 t[0] in ('Pan', 'Zoom', 'Save')]
+
 class HoverButton(tk.Button):
     def __init__(self, master, **kw):
         tk.Button.__init__(self,master=master,**kw)
@@ -56,9 +61,6 @@ class move_obj:
                 y0 = event.mouseevent.ydata
 
                 if self.align=="Arrow":
-                    print(mdates.num2date(bb_datacoords.xmin))
-                    print(mdates.num2date(bb_datacoords.xmax))
-                    # print(self.figure.axes[0].xaxis.get_ticklabels()[0].get_text())
                     if self.obj.xy[0]>self.obj.xyann[0]:
                         if (x0>bb_datacoords.xmin+(bb_datacoords.xmax-bb_datacoords.xmin)/2):
                             if (x0>bb_datacoords.xmax)|(y0>bb_datacoords.ymax)|(y0<bb_datacoords.ymin):
@@ -97,7 +99,6 @@ class move_obj:
                 ylim_cur=self.figure.axes[0].get_ylim()[1]-self.figure.axes[0].get_ylim()[0]
                 self.xl = self.obj.get_xdata()
                 self.yl = self.obj.get_ydata()
-                print(xlim_cur)
                 if abs(self.yl[0]-event.mouseevent.ydata)>(ylim_cur/100):
                     return
                 self.pick=True
@@ -426,7 +427,6 @@ def plot_choise(button):
                 strace=1
             try:
                 fig,axes,lines,leg= plot_Q(time,m['Q'].iloc[:,0],s['Q'].iloc[:,strace-1],en['Q'].iloc[:,0],qdb)
-                print(fig.axes[0].xaxis.get_ticklabels()[:])
             except TypeError:
                 messagebox.showwarning("Warning","Select a trace",parent=choose_plot)
 
@@ -498,6 +498,7 @@ def plot_choise(button):
         else:
             y2_traces=[]
         fig,axes,lines,leg=custom_plot(data[xtrace],y1_traces+y2_traces)
+
         if not isinstance(data[xtrace][0],pd._libs.tslibs.timestamps.Timestamp):
             time_xaxis=False
 
@@ -505,7 +506,7 @@ def plot_choise(button):
     axes[0].set_zorder(0.1)
     axes[0].patch.set_visible(False)
     ylim_0=fig.axes[0].get_ylim()
-    xlim_0=fig.axes[0].get_ylim()
+    xlim_0=fig.axes[0].get_xlim()
 
     try:
         lined = dict()
@@ -520,44 +521,58 @@ def plot_choise(button):
 
         def destroyer():
             master.destroy()
-        def undo():
-            try:
-                VLs[-1].remove()
-                fig.canvas.draw_idle()
-                VLs.pop()
-            except:
-                pass
+        def reset():
+            fig.axes[0].xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
+            fig.axes[0].set_xlim(xlim_0)
+            fig.axes[0].set_ylim(ylim_0)
+            fig.canvas.draw()
+
         master.protocol("WM_DELETE_WINDOW")
 
         canvas_frame=tk.Frame(master)
         canvas = FigureCanvasTkAgg(fig, canvas_frame)
-        canvas_frame.grid(row=0,sticky=tk.NSEW)
+        canvas_frame.grid(row=0,columnspan=2,sticky=tk.NSEW)
         canvas_frame.grid_rowconfigure(0,weight=1)
         canvas_frame.grid_columnconfigure(0,weight=1)
 
         frame = tk.Frame(master)
-        frame.grid(row=1,sticky=tk.NSEW)
+        frame.grid(row=1,columnspan=2,sticky=tk.NSEW)
         frame.grid_rowconfigure(0,weight=1)
         frame.grid_columnconfigure(0,weight=1)
 
-        toolbar = NavigationToolbar2Tk(canvas, frame)
+        toolbar = NavigationToolbar(canvas, frame)
         toolbar.update()
 
         canvas.get_tk_widget().grid(row=0,sticky=tk.NSEW)
 
         buttons_frame=tk.Frame(master)
-        buttons_frame.grid(row=2,sticky=tk.NSEW)
+        buttons_frame.grid(row=2,columnspan=2,sticky=tk.NSEW)
         buttons_frame.grid_columnconfigure(0,weight=1)
 
-        quitbutton = tk.Button(buttons_frame, text="Quit",borderwidth=2,relief="groove",command=destroyer)
-        quitbutton.grid(row=0,column=0,pady=10)
+
+        quitbutton=HoverButton(buttons_frame,text="Quit",activebackground='red')
+        quitbutton.config(command=destroyer)
+        quitbutton.grid(row=1,column=0)
+        resetbutton=HoverButton(buttons_frame, text="Reset",activebackground='red',background = "white",borderwidth=2,relief="raised")
+        resetbutton.config(command=reset)
+        resetbutton.grid(row=0,columnspan=2,sticky=tk.NSEW)
+
 
         def interact_title():
             def title():
-                if e_title.get()!='':
+                if e_title_text.get()!='':
+                    weight= title_weight_val.get()
+                    try:
+                        size = float(e_title_size.get())
+                    except:
+                        size = 14
+                    title_font={'family': 'serif',
+                        'color':  'black',
+                        'weight': weight,
+                        'size': size}
                     title_x= axes[0].title.get_position()[0]
                     title_y= axes[0].title.get_position()[1]
-                    axes[0].set_title(e_title.get(),fontdict=font,x=title_x,y=title_y)
+                    axes[0].set_title(e_title_text.get(),fontdict=title_font,x=title_x,y=title_y)
                     fig.canvas.draw_idle()
                     change_title.destroy()
             try:
@@ -567,10 +582,24 @@ def plot_choise(button):
                 change_title = tk.Toplevel(master)
                 change_title.resizable(width=False, height=False)
                 change_title.title("Title")
-                label_title = tk.Label(change_title, text="Insert Title").grid(row=0)
-                e_title = tk.Entry(change_title,bd=5,width=40)
-                e_title.insert(0,axes[0].get_title())
-                e_title.grid(row=0,column=1)
+
+                title_text = tk.Label(change_title, text="Text").grid(row=0)
+                e_title_text = tk.Entry(change_title,bd=5,width=40)
+                e_title_text.insert(0,axes[0].get_title())
+                e_title_text.grid(row=0,column=1)
+
+                title_size = tk.Label(change_title, text="FontSize").grid(row=1)
+                e_title_size = tk.Entry(change_title,bd=5,width=5)
+                e_title_size.insert(0,axes[0].title.get_fontsize())
+                e_title_size.grid(row=1,column=1,sticky=tk.W)
+
+                title_weight = tk.Label(change_title, text="FontSize").grid(row=2)
+                weight_val = ['normal','bold']
+                title_weight_val = tk.StringVar(change_title)
+                title_weight_val.set(weight_val[1])
+                e_title_weight = tk.OptionMenu(change_title, title_weight_val, *weight_val)
+                e_title_weight.grid(row=2,column=1,sticky=tk.W)
+
                 quit_title=tk.Button(change_title, text='Quit',command=change_title.destroy).grid(row=3, column=0, sticky=tk.W, pady=4)
                 apply_title = tk.Button(change_title,text='Apply title', command=title).grid(row=3,column=1,sticky=tk.W, pady=4)
 
@@ -692,12 +721,12 @@ def plot_choise(button):
                 elif x_int == 'h':
                     fig.axes[0].xaxis.set_major_locator(mdates.HourLocator(interval = int(x_val)))
                 try:
-                    fig.canvas.draw_idle()
+                    fig.canvas.draw()
                     change_xticks.destroy()
                 except RuntimeError:
                     messagebox.showwarning("Warning","Too many ticks-Zoom in",parent=change_xticks)
                     fig.axes[0].xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
-                    fig.canvas.draw_idle()
+                    fig.canvas.draw()
                     change_xticks.destroy()
 
 

@@ -42,8 +42,8 @@ for m in mod:
     # print(m)
     models.append(m[0].encode('utf-8'))
 
-path_to_files = raw_input('Please insert the path to the pvplants folders:')
-plant_inv = find_plant_inv.main(path_to_files,plants)
+path_to_files = input('Please insert the path to the pvplants folders:')
+plant_inv = find_plant_inv.main(path_to_files)
 
 for entry in plant_inv:
 

@@ -33,20 +33,15 @@ def parse_ods(plant,path):
     plant_ods = plant+'_InstallationData.ods'
     path = path+'/'+plant+'/'
     files = os.listdir(path)
-    # print(path)
 
-    # for f in files:
-    #     if re.search(plant_ods,f):
-    #         ods = f
-            # print("YES")
     try:
         s=odsparser_3.Spreadsheet(path+plant_ods)
     except (UnboundLocalError,IOError,NameError) as e :
         try:
-            s=odsparser_3.Spreadsheet(path+'trunk/Provisioning/'+plant_ods)
+            s=odsparser_3.Spreadsheet(path+plant_ods)
         except (UnboundLocalError,IOError,NameError) as e :
             print(CRED + CBOLD + "ODS FILE NOT FOUND" + CEND + '\n')
-            return(e)
+            return("Error")
 
     try:
         data= s._Spreadsheet__parse_spreadsheet()
