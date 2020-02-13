@@ -1,7 +1,7 @@
 # %matplotlib notebook
 from plot_maplot_v1 import *
 import tkinter as tk
-from tkinter import colorchooser,filedialog,simpledialog,messagebox
+from tkinter import colorchooser,filedialog,simpledialog,messagebox,ttk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg,NavigationToolbar2Tk
 from matplotlib.lines import Line2D
 from matplotlib.text import Text
@@ -17,6 +17,12 @@ sel_traces=[]
 weights = ['normal','bold',]
 styles = ['normal', 'italic']
 families = ['serif', 'sans-serif','DejaVu Sans']
+linestyles = ['-', '--', '-.', ':']
+
+style = ttk.Style()
+style.map('TCombobox', fieldbackground=[('readonly','lightgrey')])
+style.map('TCombobox', selectbackground=[('readonly', 'lightgrey')])
+style.map('TCombobox', selectforeground=[('readonly', 'black')])
 
 class NavigationToolbar(NavigationToolbar2Tk):
     # only display the buttons we need
@@ -170,12 +176,12 @@ class move_obj:
         self.figure.canvas.mpl_disconnect(self.cidmotion)
 
 csv=''
-while not csv:
-    input_csv = tk.Tk()
-    input_csv.withdraw()
-    csv = filedialog.askopenfilename(initialdir = "/home",title = "Select csv file",filetypes = (("csv files","*.csv"),))
-    if not csv:
-        sys.exit()
+# while not csv:
+input_csv = tk.Tk()
+input_csv.withdraw()
+csv = filedialog.askopenfilename(initialdir = "/home",title = "Select csv file",filetypes = (("csv files","*.csv"),),parent=input_csv)
+if not csv:
+    sys.exit()
 
 data = get_data_from_csv(csv)
 
@@ -284,10 +290,12 @@ def plot_choise(button):
         global sel_x
         def apply_trace():
             global sel_x
-            sel_x = var_x.get()
+            sel_x = w_x.get()
             custom_trace.destroy()
         def disable_event():
             pass
+
+
         custom_trace=tk.Toplevel(choose_plot)
         custom_trace.resizable(width=False, height=False)
         custom_trace.geometry("220x100")
@@ -297,16 +305,14 @@ def plot_choise(button):
         custom_trace.protocol("WM_DELETE_WINDOW",disable_event)
         custom_trace.title(title)
 
-
         choices = list(data.columns)
 
         x_ch =tk.Frame(custom_trace)
         x_ch.grid(row=0,column=0,sticky=tk.NSEW)
         x_ch.grid_columnconfigure(0,weight=1)
 
-        var_x = tk.StringVar(x_ch)
-        var_x.set('TIME')
-        w_x = tk.OptionMenu(x_ch, var_x, *choices)
+        w_x = ttk.Combobox(x_ch, values=choices,state="readonly",justify='center')
+        w_x.current(0)
         w_x.grid(row=0,columnspan=2,sticky=tk.NSEW)
 
         buts =tk.Frame(custom_trace)
@@ -341,13 +347,15 @@ def plot_choise(button):
             y_ch =tk.Frame(custom_trace)
             y_ch.grid(row=num_tr,column=0,sticky=tk.NSEW)
             y_ch.grid_columnconfigure(0,weight=1)
-            var_y = tk.StringVar(y_ch)
-            var_y.set(list(data.columns)[1])
-            y1_vars.append(var_y)
-            w_y = tk.OptionMenu(y_ch, var_y, *choices)
-            w_y.grid(row=num_tr,columnspan=2,sticky=tk.NSEW)
-            buts.grid(row=num_tr+1,column=0,sticky=tk.NSEW)
             y1_traces.append(y_ch)
+
+            w_y = ttk.Combobox(y_ch, values=choices,state="readonly",justify='center')
+            w_y.current(1)
+            w_y.grid(row=0,columnspan=2,sticky=tk.NSEW)
+            y1_vars.append(w_y)
+
+            buts.grid(row=num_tr+1,column=0,sticky=tk.NSEW)
+
 
         def remove_trace():
             global num_tr
@@ -370,11 +378,11 @@ def plot_choise(button):
         y_ch.grid(row=0,column=0,sticky=tk.NSEW)
         y_ch.grid_columnconfigure(0,weight=1)
         y1_traces.append(y_ch)
-        var_y = tk.StringVar(y_ch)
-        var_y.set(list(data.columns)[1])
-        y1_vars.append(var_y)
-        w_y = tk.OptionMenu(y_ch, var_y, *choices)
+
+        w_y = ttk.Combobox(y_ch, values=choices,state="readonly",justify='center')
+        w_y.current(1)
         w_y.grid(row=0,columnspan=2,sticky=tk.NSEW)
+        y1_vars.append(w_y)
 
         buts =tk.Frame(custom_trace)
         buts.grid(row=1,column=0,sticky=tk.NSEW)
@@ -595,8 +603,10 @@ def plot_choise(button):
                 e_title_text.grid(row=0,column=1)
 
                 title_size = tk.Label(change_title, text="FontSize").grid(row=1)
-                e_title_size = tk.Entry(change_title,bd=5,width=5)
-                e_title_size.insert(0,axes[0].title.get_fontsize())
+
+                var_title=tk.StringVar(change_title)
+                var_title.set(str(axes[0].title.get_fontsize()))
+                e_title_size = tk.Spinbox(change_title, from_=2, to=30,bd=5,width=5,textvariable=var_title,increment=0.5)
                 e_title_size.grid(row=1,column=1,sticky=tk.W)
 
                 global weights
@@ -667,9 +677,10 @@ def plot_choise(button):
                     e_y_text.grid(row=6*ind+1,column=1)
                     y_entries.append(e_y_text)
 
+                    var_y=tk.StringVar(change_y)
+                    var_y.set(str(ax.yaxis.label.get_fontsize()))
                     y_size = tk.Label(change_y, text="FontSize").grid(row=6*ind+2)
-                    e_y_size = tk.Entry(change_y,bd=5,width=5)
-                    e_y_size.insert(0,ax.yaxis.label.get_fontsize())
+                    e_y_size = tk.Spinbox(change_y, from_=2, to=30,bd=5,width=5,textvariable=var_y,increment=0.5)
                     e_y_size.grid(row=6*ind+2,column=1,sticky=tk.W)
                     y_sizes.append(e_y_size)
 
@@ -705,10 +716,19 @@ def plot_choise(button):
             def leglabel():
                 for ind,e_leg in enumerate(leg_entries):
                     leg.get_texts()[ind].set_text((e_leg.get()))
+                    if e_leg.get()=="":
+                        leg.get_lines()[ind].set_visible(False)
+                    else:
+                        leg.get_lines()[ind].set_visible(True)
                 if leg_f_val.get()=='Hide':
                     leg.set_frame_on(False)
                 else:
                     leg.set_frame_on(True)
+                try:
+                    leg.get_frame().set_linewidth(float(leg_l_entry.get()))
+                except:
+                    leg.get_frame().set_linewidth(1)
+
                 fig.canvas.draw_idle()
                 change_leg.destroy()
 
@@ -745,6 +765,7 @@ def plot_choise(button):
                 lf = leg.get_frame()
                 lf_bcolor = '#%02x%02x%02x' %  (int(lf.get_facecolor()[0]*255),int(lf.get_facecolor()[1]*255),int(lf.get_facecolor()[2]*255))
                 le_bcolor = '#%02x%02x%02x' %  (int(lf.get_edgecolor()[0]*255),int(lf.get_edgecolor()[1]*255),int(lf.get_edgecolor()[2]*255))
+
                 leg_f_vals = ['Show','Hide']
                 leg_f = tk.Label(change_leg,text="Frame").grid(row=i)
                 leg_f_val = tk.StringVar(change_leg)
@@ -753,17 +774,26 @@ def plot_choise(button):
                 leg_f_options = tk.OptionMenu(change_leg, leg_f_val, *leg_f_vals)
                 leg_f_options.grid(row=i,column=1,sticky=tk.W)
 
-                leg_bc_label= tk.Label(change_leg,text="Background Color").grid(row=i+1)
+                leg_l_label = tk.Label(change_leg,text="Frame Line Width").grid(row=i+1)
+
+                var_leg=tk.StringVar(change_leg)
+                var_leg.set(str(lf.get_linewidth()))
+                leg_l_entry = tk.Spinbox(change_leg, from_=1, to=10,bd=5,width=5,textvariable=var_leg,increment=0.5)
+                leg_l_entry.grid(row=i+1,column=1,sticky=tk.W)
+
+                leg_bc_label= tk.Label(change_leg,text="Background Color").grid(row=i+2)
                 leg_bc_button= tk.Button(change_leg,text="Choose Color",background =lf_bcolor,command=leg_bg_color)
-                leg_bc_button.grid(row=i+1,column=1,sticky=tk.W)
+                leg_bc_button.grid(row=i+2,column=1,sticky=tk.W)
 
-                leg_ec_label= tk.Label(change_leg,text="Edge Color").grid(row=i+2)
+                leg_ec_label= tk.Label(change_leg,text="Edge Color").grid(row=i+3)
                 leg_ec_button= tk.Button(change_leg,text="Choose Color",background =le_bcolor,command=leg_eg_color)
-                leg_ec_button.grid(row=i+2,column=1,sticky=tk.W)
+                leg_ec_button.grid(row=i+3,column=1,sticky=tk.W)
 
 
-                quit_leg=tk.Button(change_leg, text='Quit',command=change_leg.destroy).grid(row=len(leg.get_lines())+3, column=0, sticky=tk.W, pady=4)
-                apply_leg = tk.Button(change_leg,text='Apply', command=leglabel).grid(row=len(leg.get_lines())+3,column=1,sticky=tk.W, pady=4)
+
+
+                quit_leg=tk.Button(change_leg, text='Quit',command=change_leg.destroy).grid(row=i+4, column=0, sticky=tk.W, pady=4)
+                apply_leg = tk.Button(change_leg,text='Apply', command=leglabel).grid(row=i+4,column=1,sticky=tk.W, pady=4)
 
         def interact_x_label():
             def xlabel():
@@ -796,9 +826,10 @@ def plot_choise(button):
                 e_x_text.insert(0,axes[0].get_xlabel())
                 e_x_text.grid(row=1,column=1)
 
+                var_x = tk.StringVar(change_x)
+                var_x.set(str(axes[0].xaxis.label.get_fontsize()))
                 x_size = tk.Label(change_x, text="FontSize").grid(row=2)
-                e_x_size = tk.Entry(change_x,bd=5,width=5)
-                e_x_size.insert(0,axes[0].xaxis.label.get_fontsize())
+                e_x_size = tk.Spinbox(change_x, from_=2, to=30,bd=5,width=5,textvariable=var_x,increment=0.5)
                 e_x_size.grid(row=2,column=1,sticky=tk.W)
 
                 global weights
@@ -826,6 +857,89 @@ def plot_choise(button):
 
                 quit_x=tk.Button(change_x, text='Quit',command=change_x.destroy).grid(row=6, column=0, sticky=tk.W, pady=4)
                 apply_x = tk.Button(change_x,text='Apply', command=xlabel).grid(row=6,column=1,sticky=tk.W, pady=4)
+
+        def interact_traces():
+
+            def tr_color(trace):
+                color=colorchooser.askcolor(title="Pick Color")
+                if  color != (None,None):
+                    lines[trace].set_color(color[1])
+                    trace_color_buttons[trace].config(background=color[1])
+                    leg.get_lines()[trace].set_c(color[1])
+
+            def edit_traces():
+                for ind,trace in enumerate(trace_entries):
+                    try:
+                        lines[ind].set_linewidth(trace_widths[ind].get())
+                        lines[ind].set_alpha(float(trace_alphas[ind].get()))
+                        lines[ind].set_linestyle(trace_styles[ind].get())
+                    except:
+                        print(trace_styles[ind].get())
+                        lines[ind].set_linewidth(2)
+                        lines[ind].set_alpha(1)
+                        lines[ind].set_linestyle('-')
+                fig.canvas.draw_idle()
+                change_traces.destroy()
+
+            try:
+                if 'normal' == change_traces.state():
+                    change_traces.lift()
+            except:
+                change_traces=tk.Toplevel(master)
+                change_traces.resizable(width=False,height=False)
+                change_traces.title("Traces")
+
+                trace_entries=[]
+                trace_widths=[]
+                trace_alphas=[]
+                trace_styles=[]
+                trace_color_buttons=[]
+
+                i=0
+                for ind,line in enumerate(lines):
+                    if not (line.get_label() == "_collection0"):
+                        trace_title= tk.Label(change_traces,text=line.get_label()).grid(row=5*ind,columnspan=2)
+                        trace_index=ind
+                        trace_entries.append(trace_index)
+
+                        print(lines[ind].get_color())
+                        if not isinstance (lines[ind].get_color(),str):
+                            trace_color = '#%02x%02x%02x' %  (int(lines[ind].get_color()[0]*255),int(lines[ind].get_color()[1]*255),int(lines[ind].get_color()[2]*255))
+                        else:
+                            trace_color = lines[ind].get_color()
+
+
+                        trace_width= tk.Label(change_traces,text="Width").grid(row=5*ind+1)
+                        trace_width_val=tk.StringVar(change_traces)
+                        trace_width_val.set(line.get_linewidth())
+                        e_trace_width = tk.Spinbox(change_traces,from_=1, to=30,bd=5,width=5,textvariable=trace_width_val,increment=0.5)
+                        e_trace_width.grid(row=5*ind+1,column=1)
+                        trace_widths.append(e_trace_width)
+
+                        trace_alpha= tk.Label(change_traces,text="Opacity").grid(row=5*ind+2)
+                        trace_alpha_val=tk.StringVar(change_traces)
+                        trace_alpha_val.set(line.get_alpha())
+                        e_trace_alpha = tk.Spinbox(change_traces,from_=0, to=1,bd=5,width=5,textvariable=trace_alpha_val,increment=0.05)
+                        e_trace_alpha.grid(row=5*ind+2,column=1)
+                        trace_alphas.append(e_trace_alpha)
+
+                        trace_style= tk.Label(change_traces,text="Style").grid(row=5*ind+3)
+                        trace_style_val=tk.StringVar(change_traces)
+                        trace_style_val.set(line.get_linestyle())
+                        e_trace_style = tk.OptionMenu(change_traces, trace_style_val, *linestyles)
+                        e_trace_style.grid(row=5*ind+3,column=1)
+                        trace_styles.append(trace_style_val)
+
+                        trace_color_label= tk.Label(change_traces,text="Color").grid(row=5*ind+4)
+                        trace_color_button= tk.Button(change_traces,text="Trace Color",background =trace_color)
+                        trace_color_button.config(command=lambda trace=trace_index: tr_color(trace))
+                        trace_color_button.grid(row=5*ind+4,column=1,sticky=tk.W)
+                        trace_color_buttons.append(trace_color_button)
+
+                        i+=1
+
+                quit_traces=tk.Button(change_traces, text='Quit',command=change_traces.destroy).grid(row=5*i, column=0, sticky=tk.W, pady=4)
+                apply_traces = tk.Button(change_traces,text='Apply', command=edit_traces).grid(row=5*i,column=1,sticky=tk.W, pady=4)
 
         def interact_y_limits():
             def ylimits():
@@ -1042,6 +1156,7 @@ def plot_choise(button):
 
         labels=tk.Menu(menubar,tearoff=0)
         labels.add_command(label="Title",command = interact_title)
+        labels.add_command(label="Traces",command = interact_traces)
         labels.add_command(label="Y labels",command = interact_y_label)
         labels.add_command(label="X label",command = interact_x_label)
         labels.add_command(label="Legend",command = interact_leg_label)
