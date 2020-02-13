@@ -705,8 +705,24 @@ def plot_choise(button):
             def leglabel():
                 for ind,e_leg in enumerate(leg_entries):
                     leg.get_texts()[ind].set_text((e_leg.get()))
+                if leg_f_val.get()=='Hide':
+                    leg.set_frame_on(False)
+                else:
+                    leg.set_frame_on(True)
                 fig.canvas.draw_idle()
                 change_leg.destroy()
+
+            def leg_bg_color():
+                bg_color=colorchooser.askcolor(title="Pick Color")
+                if  bg_color != (None,None):
+                    leg.get_frame().set_facecolor(bg_color[1])
+                    leg_bc_button.config(background=bg_color[1])
+
+            def leg_eg_color():
+                eg_color=colorchooser.askcolor(title="Pick Color")
+                if  eg_color != (None,None):
+                    leg.get_frame().set_edgecolor(eg_color[1])
+                    leg_ec_button.config(background=eg_color[1])
 
             try:
                 if 'normal' == change_leg.state():
@@ -716,12 +732,36 @@ def plot_choise(button):
                 change_leg.resizable(width=False, height=False)
                 change_leg.title("Legend-labels")
                 leg_entries=[]
+
+                i=0
                 for ind,l in enumerate(leg.get_lines()):
                     label_leg = tk.Label(change_leg, text="Insert Legend"+str(ind+1)+"-label").grid(row=ind)
                     e_leg = tk.Entry(change_leg,bd=5,width=40)
                     e_leg.insert(0,leg.get_texts()[ind].get_text())
                     e_leg.grid(row=ind,column=1)
                     leg_entries.append(e_leg)
+                    i+=1
+
+                lf = leg.get_frame()
+                lf_bcolor = '#%02x%02x%02x' %  (int(lf.get_facecolor()[0]*255),int(lf.get_facecolor()[1]*255),int(lf.get_facecolor()[2]*255))
+                le_bcolor = '#%02x%02x%02x' %  (int(lf.get_edgecolor()[0]*255),int(lf.get_edgecolor()[1]*255),int(lf.get_edgecolor()[2]*255))
+                leg_f_vals = ['Show','Hide']
+                leg_f = tk.Label(change_leg,text="Frame").grid(row=i)
+                leg_f_val = tk.StringVar(change_leg)
+                leg_f_val.set(leg_f_vals[0])
+
+                leg_f_options = tk.OptionMenu(change_leg, leg_f_val, *leg_f_vals)
+                leg_f_options.grid(row=i,column=1,sticky=tk.W)
+
+                leg_bc_label= tk.Label(change_leg,text="Background Color").grid(row=i+1)
+                leg_bc_button= tk.Button(change_leg,text="Choose Color",background =lf_bcolor,command=leg_bg_color)
+                leg_bc_button.grid(row=i+1,column=1,sticky=tk.W)
+
+                leg_ec_label= tk.Label(change_leg,text="Edge Color").grid(row=i+2)
+                leg_ec_button= tk.Button(change_leg,text="Choose Color",background =le_bcolor,command=leg_eg_color)
+                leg_ec_button.grid(row=i+2,column=1,sticky=tk.W)
+
+
                 quit_leg=tk.Button(change_leg, text='Quit',command=change_leg.destroy).grid(row=len(leg.get_lines())+3, column=0, sticky=tk.W, pady=4)
                 apply_leg = tk.Button(change_leg,text='Apply', command=leglabel).grid(row=len(leg.get_lines())+3,column=1,sticky=tk.W, pady=4)
 
