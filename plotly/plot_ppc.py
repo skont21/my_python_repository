@@ -161,10 +161,6 @@ class move_obj:
             if event.button == 1:
                 if self.obj in self.figure.axes[0].texts:
                     if self.align==None:
-                        # delete= tk.messagebox.askquestion('Delete TextBox','Are you sure you want to delete the texbox?',icon = 'warning',parent=self.parent)
-                        # if delete =="yes":
-                        #     self.obj.remove()
-                        #     self.figure.canvas.draw()
                         def apply_text():
                             self.obj.set_text(e_text.get())
                             try:
@@ -288,15 +284,142 @@ class move_obj:
                             quit_text=tk.Button(change_text, text='Delete',command=delete_text).grid(row=10, column=0, sticky=tk.W, pady=4)
                             apply_text = tk.Button(change_text,text='Apply',command=apply_text).grid(row=10,column=1,sticky=tk.W, pady=4)
                     else:
-                        delete= tk.messagebox.askquestion('Delete Arrow','Are you sure you want to delete the arrow?',icon = 'warning',parent=self.parent)
-                        if delete =="yes":
+
+                        def ar_color():
+                            color=colorchooser.askcolor(title="Pick Color")
+                            if  color != (None,None):
+                                self.obj.arrow_patch.set_edgecolor(color[1])
+                                arrow_color_button.config(background=color[1])
+                                arrow_color_button.config(activebackground=arrow_color_button.cget('background'))
+
+                        def delete_arrows():
                             self.obj.remove()
-                            self.figure.canvas.draw()
+                            self.figure.canvas.draw_idle()
+                            change_arrows.destroy()
+
+                        def edit_arrows():
+                            try:
+                                self.obj.arrow_patch.set_linewidth(float(e_arrow_width.get()))
+                            except:
+                                self.obj.arrowprops['lw']=2
+                            try:
+                                self.obj.arrow_patch.set_alpha(float(e_arrow_alpha.get()))
+                            except:
+                                self.obj.arrowprops['alpha']= 1
+
+                            self.obj.arrow_patch.set_linestyle(arrow_linestyle_val.get())
+
+                            self.figure.canvas.draw_idle()
+                            change_arrows.destroy()
+
+                        try:
+                          if 'normal' == change_arrows.state():
+                              change_arrows.lift()
+                        except:
+                          change_arrows=tk.Toplevel(self.parent)
+                          change_arrows.resizable(width=False,height=False)
+                          change_arrows.title("arrows")
+
+                          arrow_title= tk.Label(change_arrows,text=self.align+" arrow").grid(row=0,columnspan=2)
+
+                          arrow_width= tk.Label(change_arrows,text="Width").grid(row=1)
+                          arrow_width_val=tk.StringVar(change_arrows)
+                          arrow_width_val.set(self.obj.arrow_patch.get_linewidth())
+                          e_arrow_width = tk.Spinbox(change_arrows,from_=1, to=30,bd=5,width=5,textvariable=arrow_width_val,increment=0.5)
+                          e_arrow_width.grid(row=1,column=1)
+
+                          arrow_alpha= tk.Label(change_arrows,text="Opacity").grid(row=2)
+                          arrow_alpha_val=tk.StringVar(change_arrows)
+                          arrow_alpha_val.set(self.obj.arrow_patch.get_alpha())
+                          e_arrow_alpha = tk.Spinbox(change_arrows,from_=0, to=1,bd=5,width=5,textvariable=arrow_alpha_val,increment=0.05)
+                          e_arrow_alpha.grid(row=2,column=1)
+
+                          arrow_linestyle= tk.Label(change_arrows,text="Style").grid(row=3)
+                          arrow_linestyle_val=tk.StringVar(change_arrows)
+                          arrow_linestyle_val.set(self.obj.arrow_patch.get_linestyle())
+                          e_arrow_linestyle = tk.OptionMenu(change_arrows, arrow_linestyle_val, *linestyles)
+                          e_arrow_linestyle.grid(row=3,column=1)
+
+                          arrow_color_rgb = self.obj.arrow_patch.get_edgecolor()
+                          arrow_color = '#%02x%02x%02x' %  (int(arrow_color_rgb[0]*255),int(arrow_color_rgb[1]*255),int(arrow_color_rgb[2]*255))
+
+                          arrow_color_label= tk.Label(change_arrows,text="Color").grid(row=4)
+                          arrow_color_button= tk.Button(change_arrows,text="          ",background =arrow_color)
+                          arrow_color_button.config(activebackground=arrow_color_button.cget('background'))
+                          arrow_color_button.config(command=ar_color)
+                          arrow_color_button.grid(row=4,column=1,sticky=tk.W)
+
+                        quit_arrows=tk.Button(change_arrows, text='Delete',command=delete_arrows).grid(row=5, column=0, sticky=tk.W, pady=4)
+                        apply_arrows = tk.Button(change_arrows,text='Apply', command=edit_arrows).grid(row=5,column=1,sticky=tk.W, pady=4)
+
                 elif self.obj in self.figure.axes[0].lines:
-                    delete= tk.messagebox.askquestion('Delete Line','Are you sure you want to delete the line?',icon = 'warning',parent=self.parent)
-                    if delete =="yes":
+
+                    def l_color():
+                        color=colorchooser.askcolor(title="Pick Color")
+                        if  color != (None,None):
+                            self.obj.set_color(color[1])
+                            line_color_button.config(background=color[1])
+                            line_color_button.config(activebackground=line_color_button.cget('background'))
+
+                    def delete_lines():
                         self.obj.remove()
-                        self.figure.canvas.draw()
+                        self.figure.canvas.draw_idle()
+                        change_lines.destroy()
+
+                    def edit_lines():
+                        try:
+                            self.obj.set_linewidth(float(e_line_width.get()))
+                        except:
+                            self.obj.set_linewidth(2)
+                        try:
+                            self.obj.set_alpha(float(e_line_alpha.get()))
+                        except:
+                            self.obj.set_alpha(1)
+
+                        self.obj.set_linestyle(line_style_val.get())
+
+                        self.figure.canvas.draw_idle()
+                        change_lines.destroy()
+
+                    try:
+                        if 'normal' == change_lines.state():
+                            change_lines.lift()
+                    except:
+
+                        change_lines=tk.Toplevel(self.parent)
+                        change_lines.resizable(width=False,height=False)
+                        change_lines.title("Lines")
+
+                        line_title= tk.Label(change_lines,text=self.align+" Line").grid(row=0,columnspan=2)
+
+                        line_width= tk.Label(change_lines,text="Width").grid(row=1)
+                        line_width_val=tk.StringVar(change_lines)
+                        line_width_val.set(self.obj.get_linewidth())
+                        e_line_width = tk.Spinbox(change_lines,from_=1, to=30,bd=5,width=5,textvariable=line_width_val,increment=0.5)
+                        e_line_width.grid(row=1,column=1)
+
+                        line_alpha= tk.Label(change_lines,text="Opacity").grid(row=2)
+                        line_alpha_val=tk.StringVar(change_lines)
+                        line_alpha_val.set(self.obj.get_alpha())
+                        e_line_alpha = tk.Spinbox(change_lines,from_=0, to=1,bd=5,width=5,textvariable=line_alpha_val,increment=0.05)
+                        e_line_alpha.grid(row=2,column=1)
+
+                        line_style= tk.Label(change_lines,text="Style").grid(row=3)
+                        line_style_val=tk.StringVar(change_lines)
+                        line_style_val.set(self.obj.get_linestyle())
+                        e_line_style = tk.OptionMenu(change_lines, line_style_val, *linestyles)
+                        e_line_style.grid(row=3,column=1)
+
+                        line_color = self.obj.get_color()
+
+                        line_color_label= tk.Label(change_lines,text="Color").grid(row=4)
+                        line_color_button= tk.Button(change_lines,text="          ",background =line_color)
+                        line_color_button.config(activebackground=line_color_button.cget('background'))
+                        line_color_button.config(command=l_color)
+                        line_color_button.grid(row=4,column=1,sticky=tk.W)
+
+                    quit_lines=tk.Button(change_lines, text='Delete',command=delete_lines).grid(row=5, column=0, sticky=tk.W, pady=4)
+                    apply_lines = tk.Button(change_lines,text='Apply', command=edit_lines).grid(row=5,column=1,sticky=tk.W, pady=4)
 
 
     def disconnect_obj(self):
@@ -1315,7 +1438,7 @@ def plot_choise(button):
         vlines=[]
         def add_vertical():
             x=fig.axes[0].get_xlim()[0]+(fig.axes[0].get_xlim()[1]-fig.axes[0].get_xlim()[0])/2
-            v_line=fig.axes[0].axvline(x=x,linewidth=2,ls="--",c='k',picker=5)
+            v_line=fig.axes[0].axvline(x=x,linewidth=2,ls="--",c='#000000',alpha=1,picker=5)
             vlines.append(v_line)
             fig.canvas.draw_idle()
             dv = move_obj(v_line,fig,"Vertical",master)
@@ -1326,7 +1449,7 @@ def plot_choise(button):
         hlines=[]
         def add_horizontal():
             y=fig.axes[0].get_ylim()[0]+(fig.axes[0].get_ylim()[1]-fig.axes[0].get_ylim()[0])/10
-            h_line=fig.axes[0].axhline(y=y,linewidth=2,ls="--",c='k',picker=5)
+            h_line=fig.axes[0].axhline(y=y,linewidth=2,ls="--",c='#000000',alpha=1,picker=5)
             hlines.append(h_line)
             fig.canvas.draw_idle()
             dh = move_obj(h_line,fig,"Horizontal",master)
@@ -1341,21 +1464,20 @@ def plot_choise(button):
                 y=fig.axes[0].get_ylim()[0]+(fig.axes[0].get_ylim()[1]-fig.axes[0].get_ylim()[0])/10
                 xstart = fig.axes[0].get_xlim()[0]+(fig.axes[0].get_xlim()[1]-fig.axes[0].get_xlim()[0])/10
                 if choise == "No Arrow":
-                    arrow_line = fig.axes[0].annotate(s="",xy=(x,y),xytext=(xstart,y), arrowprops=dict(lw=2,arrowstyle='-'),picker=5)
+                    arrow_line = fig.axes[0].annotate(s="",xy=(x,y),xytext=(xstart,y), arrowprops=dict(lw=2,arrowstyle='-',color="#000000",ls='-',alpha=1),picker=5)
                     fig.canvas.draw_idle()
                     da = move_obj(arrow_line,fig,"Arrow",master)
                     da.connect_obj()
                     das.append(da)
                 elif choise == "Single Arrow":
-                    arrow_line = fig.axes[0].annotate(s="",xy=(x,y),xytext=(xstart,y), arrowprops=dict(lw=2,arrowstyle='->'),picker=5)
-                    # arrow_line.draggable(state=True)
+                    arrow_line = fig.axes[0].annotate(s="",xy=(x,y),xytext=(xstart,y), arrowprops=dict(lw=2,arrowstyle='->',color="#000000",ls='-',alpha=1),picker=5)
                     fig.canvas.draw_idle()
                     da = move_obj(arrow_line,fig,"Arrow",master)
                     da.connect_obj()
                     das.append(da)
 
                 elif choise == "Double Arrow":
-                    arrow_line = fig.axes[0].annotate(s="",xy=(x,y),xytext=(xstart,y), arrowprops=dict(lw=2,arrowstyle='<->'),picker=5)
+                    arrow_line = fig.axes[0].annotate(s="",xy=(x,y),xytext=(xstart,y), arrowprops=dict(lw=2,arrowstyle='<->',color="#000000",ls='-',alpha=1),picker=5)
                     fig.canvas.draw_idle()
                     da = move_obj(arrow_line,fig,"Arrow",master)
                     da.connect_obj()
