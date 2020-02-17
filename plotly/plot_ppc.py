@@ -13,16 +13,18 @@ import matplotlib.dates as mdates
 mpl.use('TkAgg')
 num_tr=0
 sel_traces=[]
+grid_color=((11,11,11),'#b0b0b0')
+dead_flag = 0
+line_deads=[]
+line_deads_val=[]
 
 weights = ['normal','bold',]
 styles = ['normal', 'italic']
 families = ['serif', 'sans-serif','DejaVu Sans']
 linestyles = ['-', '--', '-.', ':']
+which = ['major','minor','both']
+which_axis = ['both','y','x']
 
-style = ttk.Style()
-style.map('TCombobox', fieldbackground=[('readonly','lightgrey')])
-style.map('TCombobox', selectbackground=[('readonly', 'lightgrey')])
-style.map('TCombobox', selectforeground=[('readonly', 'black')])
 
 class NavigationToolbar(NavigationToolbar2Tk):
     # only display the buttons we need
@@ -158,10 +160,138 @@ class move_obj:
         if event.dblclick:
             if event.button == 1:
                 if self.obj in self.figure.axes[0].texts:
-                    delete= tk.messagebox.askquestion('Delete TextBox','Are you sure you want to delete the texbox?',icon = 'warning',parent=self.parent)
-                    if delete =="yes":
-                        self.obj.remove()
-                        self.figure.canvas.draw()
+                    if self.align==None:
+                        # delete= tk.messagebox.askquestion('Delete TextBox','Are you sure you want to delete the texbox?',icon = 'warning',parent=self.parent)
+                        # if delete =="yes":
+                        #     self.obj.remove()
+                        #     self.figure.canvas.draw()
+                        def apply_text():
+                            self.obj.set_text(e_text.get())
+                            try:
+                                self.obj.set_rotation(float(text_rot.get()))
+                            except:
+                                self.obj.set_rotation(0)
+                            try:
+                                self.obj.set_fontsize(float(text_size.get()))
+                            except:
+                                self.obj.set_fontsize(12)
+                            try:
+                                self.obj.get_bbox_patch().set_linewidth(text_frame.get())
+                            except:
+                                self.obj.get_bbox_patch().set_linewidth(1)
+                            try:
+                                self.obj.get_bbox_patch().set_alpha(float(text_alpha.get()))
+                            except:
+                                self.obj.get_bbox_patch().set_alpha(1)
+
+                            self.obj.set_fontweight(var_weight.get())
+                            self.obj.set_fontstyle(var_style.get())
+                            self.figure.canvas.draw()
+                            change_text.destroy()
+
+                        def delete_text():
+                            self.obj.remove()
+                            self.figure.canvas.draw()
+                            change_text.destroy()
+
+                        def text_t_color():
+                            color=colorchooser.askcolor(title="Pick Color")
+                            if color != (None,None):
+                                self.obj.set_color(color[1])
+                                text_c_button.config(background=color[1])
+                                text_c_button.config(activebackground=text_c_button.cget('background'))
+
+                        def text_bg_color():
+                            color=colorchooser.askcolor(title="Pick Color")
+                            if color != (None,None):
+                                self.obj.get_bbox_patch().set_facecolor(color[1])
+                                text_bc_button.config(background=color[1])
+                                text_bc_button.config(activebackground=text_bc_button.cget('background'))
+
+                        def text_eg_color():
+                            color=colorchooser.askcolor(title="Pick Color")
+                            if color != (None,None):
+                                self.obj.get_bbox_patch().set_edgecolor(color[1])
+                                text_ec_button.config(background=color[1])
+                                text_ec_button.config(activebackground=text_ec_button.cget('background'))
+
+                        try:
+                            if 'normal' == change_text.state():
+                                change_text.lift()
+                        except:
+                            change_text=tk.Toplevel(self.parent)
+                            change_text.resizable(height=False,width=False)
+                            change_text.title("Text")
+
+                            label_text = tk.Label(change_text, text="Insert Text").grid(row=0)
+                            e_text = tk.Entry(change_text,bd=5,width=40)
+                            e_text.insert(0,self.obj.get_text())
+                            e_text.grid(row=0,column=1)
+
+                            text_rot_label = tk.Label(change_text,text="Rotation").grid(row=1)
+                            var_rot=tk.StringVar(change_text)
+                            var_rot.set(self.obj.get_rotation())
+                            text_rot = tk.Spinbox(change_text,from_=0,to=360,bd=5,width=5,textvariable=var_rot,increment=5)
+                            text_rot.grid(row=1,column=1,sticky=tk.W)
+
+                            text_size_label = tk.Label(change_text,text="Size").grid(row=2)
+                            var_size=tk.StringVar(change_text)
+                            var_size.set(self.obj.get_fontsize())
+                            text_size=tk.Spinbox(change_text,from_=2,to=30,bd=5,width=5,textvariable=var_size,increment=0.5)
+                            text_size.grid(row=2,column=1,sticky=tk.W)
+
+                            text_weight_label = tk.Label(change_text, text="FontWeight").grid(row=3)
+                            var_weight = tk.StringVar(change_text)
+                            var_weight.set(self.obj.get_fontweight())
+                            text_weight = tk.OptionMenu(change_text, var_weight, *weights)
+                            text_weight.grid(row=3,column=1,sticky=tk.W)
+
+                            text_style_label = tk.Label(change_text, text="FontStyle").grid(row=4)
+                            var_style = tk.StringVar(change_text)
+                            var_style.set(self.obj.get_fontstyle())
+                            text_style = tk.OptionMenu(change_text, var_style, *styles)
+                            text_style.grid(row=4,column=1,sticky=tk.W)
+
+                            text_frame_label = tk.Label(change_text,text="FrameWidth").grid(row=5)
+                            var_frame=tk.StringVar(change_text)
+                            var_frame.set(self.obj.get_bbox_patch().get_linewidth())
+                            text_frame=tk.Spinbox(change_text,from_=0,to=10,bd=5,width=5,textvariable=var_frame,increment=0.5)
+                            text_frame.grid(row=5,column=1,sticky=tk.W)
+
+                            t_color = self.obj.get_color()
+                            te_color_rgb= self.obj.get_bbox_patch().get_edgecolor()
+                            te_color='#%02x%02x%02x' %  (int(te_color_rgb[0]*255),int(te_color_rgb[1]*255),int(te_color_rgb[2]*255))
+                            tb_color_rgb= self.obj.get_bbox_patch().get_facecolor()
+                            tb_color='#%02x%02x%02x' %  (int(tb_color_rgb[0]*255),int(tb_color_rgb[1]*255),int(tb_color_rgb[2]*255))
+
+                            text_c_label= tk.Label(change_text,text="Text Color").grid(row=6)
+                            text_c_button= tk.Button(change_text,background =t_color,command=text_t_color)
+                            text_c_button.config(activebackground=text_c_button.cget('background'))
+                            text_c_button.grid(row=6,column=1,sticky=tk.W)
+
+                            text_bc_label= tk.Label(change_text,text="Background Color").grid(row=7)
+                            text_bc_button= tk.Button(change_text,text="          ",background =tb_color,command=text_bg_color)
+                            text_bc_button.config(activebackground=text_bc_button.cget('background'))
+                            text_bc_button.grid(row=7,column=1,sticky=tk.W)
+
+                            text_ec_label= tk.Label(change_text,text="Edge Color").grid(row=8)
+                            text_ec_button= tk.Button(change_text,text="          ",background =te_color,command=text_eg_color)
+                            text_ec_button.config(activebackground=text_ec_button.cget('background'))
+                            text_ec_button.grid(row=8,column=1,sticky=tk.W)
+
+                            text_alpha_label= tk.Label(change_text,text="Opacity").grid(row=9)
+                            var_alpha=tk.StringVar(change_text)
+                            var_alpha.set(self.obj.get_bbox_patch().get_alpha())
+                            text_alpha = tk.Spinbox(change_text,from_=0, to=1,bd=5,width=5,textvariable=var_alpha,increment=0.05)
+                            text_alpha.grid(row=9,column=1,sticky=tk.W)
+
+                            quit_text=tk.Button(change_text, text='Delete',command=delete_text).grid(row=10, column=0, sticky=tk.W, pady=4)
+                            apply_text = tk.Button(change_text,text='Apply',command=apply_text).grid(row=10,column=1,sticky=tk.W, pady=4)
+                    else:
+                        delete= tk.messagebox.askquestion('Delete Arrow','Are you sure you want to delete the arrow?',icon = 'warning',parent=self.parent)
+                        if delete =="yes":
+                            self.obj.remove()
+                            self.figure.canvas.draw()
                 elif self.obj in self.figure.axes[0].lines:
                     delete= tk.messagebox.askquestion('Delete Line','Are you sure you want to delete the line?',icon = 'warning',parent=self.parent)
                     if delete =="yes":
@@ -210,46 +340,14 @@ choose_plot.geometry("")
 choose_plot.grid_columnconfigure(0, weight=1)
 choose_plot.grid_rowconfigure(0, weight=1)
 
+style = ttk.Style()
+style.map('TCombobox', fieldbackground=[('readonly','lightgrey')])
+style.map('TCombobox', selectbackground=[('readonly', 'lightgrey')])
+style.map('TCombobox', selectforeground=[('readonly', 'black')])
 
 def plot_choise(button):
     global strace
-
-    def ask_deadband(title):
-        global deadband
-
-        def apply_db(event=None):
-            global deadband
-            try:
-                deadband=float(e_db.get())
-            except:
-                deadband=""
-                messagebox.showwarning("Warning","Invalid Input",parent=input_db)
-            input_db.destroy()
-
-        def func(event):
-            global deadband
-            try:
-                deadband=float(e_db.get())
-            except:
-                deadband=""
-                messagebox.showwarning("Warning","Invalid Input",parent=input_db)
-            input_db.destroy()
-
-        input_db=tk.Toplevel(choose_plot)
-        input_db.geometry("+{}+{}".format(choose_plot.winfo_x(),choose_plot.winfo_y()))
-        input_db.withdraw()
-        input_db.protocol("WM_DELETE_WINDOW")
-        input_db.title(title)
-        tk.Label(input_db,text='Enter Deadband').grid(row=0)
-        e_db=tk.Entry(input_db)
-        e_db.focus()
-        e_db.grid(row=0,column=1)
-        apply_db=tk.Button(input_db,text="Apply",command=apply_db)
-        apply_db.grid(row=2,column=0,columnspan=2,pady=4)
-        input_db.bind('<Return>',func)
-        input_db.deiconify()
-        input_db.grab_set()
-        input_db.wait_window(input_db)
+    global line_deads_val
 
 
     def ask_trace(title,sets):
@@ -402,99 +500,77 @@ def plot_choise(button):
     time_xaxis=True
     if button_text=="P":
 
-        ask_deadband('P Deadband in kW')
-        pdb=deadband
-        if type(deadband)==float:
-            if len(s['P'].columns)>1:
-                ask_trace('P Setpoint',s['P'])
-            else:
-                strace=1
-            try:
-                fig,axes,lines,leg= plot_P(time,m['P'].iloc[:,0],s['P'].iloc[:,strace-1],en['P'].iloc[:,0],pdb)
-            except TypeError:
-                messagebox.showwarning("Warning","Select a trace",parent=choose_plot)
+        if len(s['P'].columns)>1:
+            ask_trace('P Setpoint',s['P'])
+        else:
+            strace=1
+        try:
+            fig,axes,lines,leg= plot_P(time,m['P'].iloc[:,0],s['P'].iloc[:,strace-1],en['P'].iloc[:,0])
+        except TypeError:
+            messagebox.showwarning("Warning","Select a trace",parent=choose_plot)
 
     elif button_text=="Pexp":
 
-        ask_deadband('P Deadband in kW')
-        pdb=deadband
-        if type(deadband)==float:
-            if len(s['P'].columns)>1:
-                ask_trace('P Setpoint',s['P'])
-            else:
-                strace=1
-            try:
-                fig,axes,lines,leg= plot_Pexp(time,m['P'].iloc[:,0],s['P'].iloc[:,strace-1],en['P'].iloc[:,0],m['Pexp'],pdb)
-            except TypeError:
-                messagebox.showwarning("Warning","Select a trace",parent=choose_plot)
+        if len(s['P'].columns)>1:
+            ask_trace('P Setpoint',s['P'])
+        else:
+            strace=1
+        try:
+            fig,axes,lines,leg= plot_Pexp(time,m['P'].iloc[:,0],s['P'].iloc[:,strace-1],en['P'].iloc[:,0],m['Pexp'])
+        except TypeError:
+            messagebox.showwarning("Warning","Select a trace",parent=choose_plot)
 
     elif  button_text=="Q":
 
-        ask_deadband('Q Deadband in kVAr')
-        qdb=deadband
-        if type(deadband)==float:
-            if len(s['Q'].columns)>1:
-                ask_trace('Q Setpoint',s['Q'])
-            else:
-                strace=1
-            try:
-                fig,axes,lines,leg= plot_Q(time,m['Q'].iloc[:,0],s['Q'].iloc[:,strace-1],en['Q'].iloc[:,0],qdb)
-            except TypeError:
-                messagebox.showwarning("Warning","Select a trace",parent=choose_plot)
+        if len(s['Q'].columns)>1:
+            ask_trace('Q Setpoint',s['Q'])
+        else:
+            strace=1
+        try:
+            fig,axes,lines,leg= plot_Q(time,m['Q'].iloc[:,0],s['Q'].iloc[:,strace-1],en['Q'].iloc[:,0])
+        except TypeError:
+            messagebox.showwarning("Warning","Select a trace",parent=choose_plot)
 
     elif  button_text=="AVR":
-        ask_deadband('Voltage Deadband in V')
-        avrdb=deadband
-        if type(deadband)==float:
-            fig,axes,lines,leg= plot_AVR(time,m['V'].iloc[:,0],s['AVR'].iloc[:,0],m['Q'].iloc[:,0],en['AVR'].iloc[:,0],avrdb)
+        fig,axes,lines,leg= plot_AVR(time,m['V'].iloc[:,0],s['AVR'].iloc[:,0],m['Q'].iloc[:,0],en['AVR'].iloc[:,0])
 
     elif  button_text=="QV":
-        ask_deadband('Q Deadband in kVAr')
-        qdb=deadband
-        if type(deadband)==float:
-            if len(s['Q'].columns)>1:
-                ask_trace('Q Setpoint',s['Q'])
-            else:
-                strace=1
-            try:
-                fig,axes,lines,leg= plot_QV(time,m['V'].iloc[:,0],s['QV'].iloc[:,0],m['Q'].iloc[:,0],s['Q'][:,strace-1],en['QV'].iloc[:,0],qdb)
-            except TypeError:
-                messagebox.showwarning("Warning","Select a trace",parent=choose_plot)
+
+        if len(s['Q'].columns)>1:
+            ask_trace('Q Setpoint',s['Q'])
+        else:
+            strace=1
+        try:
+            fig,axes,lines,leg= plot_QV(time,m['V'].iloc[:,0],s['QV'].iloc[:,0],m['Q'].iloc[:,0],s['Q'][:,strace-1],en['QV'].iloc[:,0])
+        except TypeError:
+            messagebox.showwarning("Warning","Select a trace",parent=choose_plot)
 
     elif  button_text=="F":
-        ask_deadband('P Deadband in kW')
-        pdb=deadband
-        if type(deadband)==float:
-            if len(s['P'].columns)>1:
-                ask_trace('P Setpoint',s['P'])
-            else:
-                strace=1
-            try:
-                fig,axes,lines,leg= plot_F_P(time,m['P'].iloc[:,0],s['P'].iloc[:,strace-1],m['F'].iloc[:,0],s['F'].iloc[:,0],en['F'].iloc[:,0],pdb)
-            except TypeError:
-                messagebox.showwarning("Warning","Select a trace",parent=choose_plot)
+        if len(s['P'].columns)>1:
+            ask_trace('P Setpoint',s['P'])
+        else:
+            strace=1
+        try:
+            fig,axes,lines,leg= plot_F_P(time,m['P'].iloc[:,0],s['P'].iloc[:,strace-1],m['F'].iloc[:,0],s['F'].iloc[:,0],en['F'].iloc[:,0])
+        except TypeError:
+            messagebox.showwarning("Warning","Select a trace",parent=choose_plot)
 
     elif  button_text=="PF":
-        ask_deadband('PF Deadband')
-        pfdb=deadband
-        if type(deadband)==float:
-            fig,axes,lines,leg= plot_PF(time,m['PF'].iloc[:,0],s['PF'].iloc[:,0],en['PF'].iloc[:,0],pfdb)
+        fig,axes,lines,leg= plot_PF(time,m['PF'].iloc[:,0],s['PF'].iloc[:,0],en['PF'].iloc[:,0])
 
     elif  button_text=="All Measurements":
         fig,axes,lines,leg= plot_meas(time,m)
 
     elif  button_text=="Q Capability":
-        ask_deadband('Q Deadband in kVAr')
-        qdb=deadband
-        if type(deadband)==float:
-            if len(s['Q'].columns)>1:
-                ask_trace('Q Setpoint',s['Q'])
-            else:
-                strace=1
-            try:
-                fig,axes,lines,leg= plot_PQ(time,m['P'].iloc[:,0],m['Q'].iloc[:,0],s['Q'].iloc[:,strace-1],en['Q'].iloc[:,0],qdb)
-            except TypeError:
-                messagebox.showwarning("Warning","Select a trace",parent=choose_plot)
+        if len(s['Q'].columns)>1:
+            ask_trace('Q Setpoint',s['Q'])
+        else:
+            strace=1
+        try:
+            fig,axes,lines,leg= plot_PQ(time,m['P'].iloc[:,0],m['Q'].iloc[:,0],s['Q'].iloc[:,strace-1],en['Q'].iloc[:,0])
+        except TypeError:
+            messagebox.showwarning("Warning","Select a trace",parent=choose_plot)
+
     elif button_text=="Custom Plot":
         xtrace = ask_xtrace(data,"Select X-axis trace")
         ytraces=ask_ytrace(data,"Select Y-axis traces")
@@ -515,9 +591,17 @@ def plot_choise(button):
             time_xaxis=False
 
 
+    line_deads_val=[]
+    for l in lines:
+        line_deads_val.append(0)
     axes[0].set_zorder(0.1)
-    axes[0].patch.set_visible(False)
-    ylim_0=fig.axes[0].get_ylim()
+    if len(axes)==2:
+        axes[0].patch.set_visible(False)
+        axes[1].patch.set_visible(True)
+        axes[1].set_facecolor('whitesmoke')
+    ylims_0=[]
+    for ax in axes:
+        ylims_0.append(ax.get_ylim())
     xlim_0=fig.axes[0].get_xlim()
 
     try:
@@ -532,11 +616,21 @@ def plot_choise(button):
         master.grid_rowconfigure(0, weight=1)
 
         def destroyer():
+            global grid_color
+            global dead_flag
+            global line_deads
+            grid_color=((11,11,11),'#b0b0b0')
+            line_deads=[]
+            dead_flag=0
+
             master.destroy()
+
+
         def reset():
             fig.axes[0].xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
             fig.axes[0].set_xlim(xlim_0)
-            fig.axes[0].set_ylim(ylim_0)
+            for ind,ax in enumerate(axes):
+                ax.set_ylim(ylims_0[ind])
             fig.canvas.draw()
 
         master.protocol("WM_DELETE_WINDOW")
@@ -712,6 +806,104 @@ def plot_choise(button):
                 quit_y=tk.Button(change_y, text='Quit',command=change_y.destroy).grid(row=6*len(axes), column=0, sticky=tk.W, pady=4)
                 apply_y = tk.Button(change_y,text='Apply', command=ylabel).grid(row=6*len(axes),column=1,sticky=tk.W, pady=4)
 
+
+        def interact_grid():
+
+            def apply_grid():
+                global grid_color
+
+                for ind,ax in enumerate(axes):
+                    ax.grid(False,which='both')
+                    if grid_ons[ind].get()=='Show':
+                        ax.grid(which=grid_whichs[ind].get(),axis=grid_axes[ind].get(),linestyle=grid_styles[ind].get(),linewidth=float(grid_widths[ind].get()),c=grid_color[1],alpha=float(grid_alpha_val.get()))
+                fig.canvas.draw_idle()
+                change_grid.destroy()
+
+            def grid_color():
+                global grid_color
+                grid_color=colorchooser.askcolor(title="Pick Color")
+                if  grid_color != (None,None):
+                    grid_color_button.config(background=grid_color[1])
+                    grid_color_button.config(activebackground=grid_color_button.cget('background'))
+
+            try:
+                if 'normal' == change_grid.state():
+                    change_grid.lift()
+            except:
+                change_grid = tk.Toplevel(master)
+                change_grid.resizable(width=False, height=False)
+                change_grid.title("Grid")
+
+                global which
+                global which_axis
+                global linestyles
+                global grid_ax
+                global grid_tick
+                on_off = ['Show','Hide']
+                grid_whichs=[]
+                grid_axes=[]
+                grid_styles=[]
+                grid_widths=[]
+                grid_ons=[]
+
+                for ind,ax in enumerate(axes):
+
+                    gl=ax.get_xgridlines()[0]
+                    grid_title = tk.Label(change_grid, text="Y"+str(ind+1)+"-grid").grid(row=6*ind,columnspan=2)
+
+                    grid_on = tk.Label(change_grid, text="Y"+str(ind+1)+"-grid").grid(row=6*ind+1)
+                    grid_on_val=tk.StringVar(change_grid)
+                    grid_on_val.set('Show')
+                    e_grid_on = tk.OptionMenu(change_grid, grid_on_val, *on_off)
+                    e_grid_on.grid(row=6*ind+1,column=1)
+                    grid_ons.append(grid_on_val)
+
+                    grid_which = tk.Label(change_grid, text="Ticks").grid(row=6*ind+2)
+                    grid_which_val = tk.StringVar(change_grid)
+                    grid_which_val.set(which[0])
+                    e_grid_which = tk.OptionMenu(change_grid, grid_which_val, *which)
+                    e_grid_which.grid(row=6*ind+2,column=1,sticky=tk.W)
+                    grid_whichs.append(grid_which_val)
+
+                    grid_axis = tk.Label(change_grid, text="Axes").grid(row=6*ind+3)
+                    grid_axis_val = tk.StringVar(change_grid)
+                    grid_axis_val.set(which_axis[0])
+                    e_grid_axis = tk.OptionMenu(change_grid, grid_axis_val, *which_axis)
+                    e_grid_axis.grid(row=6*ind+3,column=1,sticky=tk.W)
+                    grid_axes.append(grid_axis_val)
+
+                    grid_style= tk.Label(change_grid,text="Line Style").grid(row=6*ind+4)
+                    grid_style_val=tk.StringVar(change_grid)
+                    grid_style_val.set(gl.get_linestyle())
+                    e_grid_style = tk.OptionMenu(change_grid, grid_style_val, *linestyles)
+                    e_grid_style.grid(row=6*ind+4,column=1)
+                    grid_styles.append(grid_style_val)
+
+                    grid_width= tk.Label(change_grid,text="Line Width").grid(row=6*ind+5)
+                    grid_width_val=tk.StringVar(change_grid)
+                    grid_width_val.set(gl.get_linewidth())
+                    e_grid_width = tk.Spinbox(change_grid,from_=1, to=10,bd=5,width=5,textvariable=grid_width_val,increment=0.5)
+                    e_grid_width.grid(row=6*ind+5,column=1)
+                    grid_widths.append(grid_width_val)
+
+                grid_color_label= tk.Label(change_grid,text="Color").grid(row=6*len(axes),columnspan=2)
+                grid_color_button= tk.Button(change_grid,text="          ",background =gl.get_c())
+                grid_color_button.config(command=grid_color)
+                grid_color_button.config(activebackground=grid_color_button.cget('background'))
+                grid_color_button.grid(row=6*len(axes)+1,columnspan=2)
+
+                grid_alpha= tk.Label(change_grid,text="Opacity").grid(row=6*len(axes)+2,columnspan=2)
+                grid_alpha_val=tk.StringVar(change_grid)
+                grid_alpha_val.set(1)
+                e_grid_alpha = tk.Spinbox(change_grid,from_=0, to=1,bd=5,width=5,textvariable=grid_alpha_val,increment=0.05)
+                e_grid_alpha.grid(row=6*len(axes)+3,column=0,columnspan=2)
+
+
+
+
+                quit_grid=tk.Button(change_grid, text='Quit',command=change_grid.destroy).grid(row=6*len(axes)+4, column=0, sticky=tk.W, pady=4)
+                apply_grid = tk.Button(change_grid,text='Apply',command=apply_grid).grid(row=6*len(axes)+4,column=1,sticky=tk.W, pady=4)
+
         def interact_leg_label():
             def leglabel():
                 for ind,e_leg in enumerate(leg_entries):
@@ -737,12 +929,14 @@ def plot_choise(button):
                 if  bg_color != (None,None):
                     leg.get_frame().set_facecolor(bg_color[1])
                     leg_bc_button.config(background=bg_color[1])
+                    leg_bc_button.config(activebackground=leg_bc_button.cget('background'))
 
             def leg_eg_color():
                 eg_color=colorchooser.askcolor(title="Pick Color")
                 if  eg_color != (None,None):
                     leg.get_frame().set_edgecolor(eg_color[1])
                     leg_ec_button.config(background=eg_color[1])
+                    leg_ec_button.config(activebackground=leg_ec_button.cget('background'))
 
             try:
                 if 'normal' == change_leg.state():
@@ -782,11 +976,13 @@ def plot_choise(button):
                 leg_l_entry.grid(row=i+1,column=1,sticky=tk.W)
 
                 leg_bc_label= tk.Label(change_leg,text="Background Color").grid(row=i+2)
-                leg_bc_button= tk.Button(change_leg,text="Choose Color",background =lf_bcolor,command=leg_bg_color)
+                leg_bc_button= tk.Button(change_leg,text="          ",background =lf_bcolor,command=leg_bg_color)
+                leg_bc_button.config(activebackground=leg_bc_button.cget('background'))
                 leg_bc_button.grid(row=i+2,column=1,sticky=tk.W)
 
                 leg_ec_label= tk.Label(change_leg,text="Edge Color").grid(row=i+3)
-                leg_ec_button= tk.Button(change_leg,text="Choose Color",background =le_bcolor,command=leg_eg_color)
+                leg_ec_button= tk.Button(change_leg,text="          ",background =le_bcolor,command=leg_eg_color)
+                leg_ec_button.config(activebackground=leg_ec_button.cget('background'))
                 leg_ec_button.grid(row=i+3,column=1,sticky=tk.W)
 
 
@@ -859,25 +1055,38 @@ def plot_choise(button):
                 apply_x = tk.Button(change_x,text='Apply', command=xlabel).grid(row=6,column=1,sticky=tk.W, pady=4)
 
         def interact_traces():
+            global line_deads_val
 
             def tr_color(trace):
                 color=colorchooser.askcolor(title="Pick Color")
                 if  color != (None,None):
                     lines[trace].set_color(color[1])
                     trace_color_buttons[trace].config(background=color[1])
+                    trace_color_buttons[trace].config(activebackground=trace_color_buttons[trace].cget('background'))
                     leg.get_lines()[trace].set_c(color[1])
 
             def edit_traces():
+                global dead_flag
+                global line_deads
+                global line_deads_val
                 for ind,trace in enumerate(trace_entries):
                     try:
                         lines[ind].set_linewidth(trace_widths[ind].get())
+                        leg.get_lines()[ind].set_linewidth(trace_widths[ind].get())
                         lines[ind].set_alpha(float(trace_alphas[ind].get()))
                         lines[ind].set_linestyle(trace_styles[ind].get())
+                        if dead_flag !=0:
+                            line_deads[ind].remove()
+                            line_deads.pop(ind)
+                        lb=lines[ind].axes.fill_between(lines[ind].get_data()[0],lines[ind].get_data()[1]-float(trace_deads[ind].get()),lines[ind].get_data()[1]+float(trace_deads[ind].get()),alpha=0.5,facecolor=lines[ind].get_color())
+                        line_deads_val[ind]=float(trace_deads[ind].get())
+                        line_deads.insert(ind,lb)
                     except:
                         print(trace_styles[ind].get())
                         lines[ind].set_linewidth(2)
                         lines[ind].set_alpha(1)
                         lines[ind].set_linestyle('-')
+                dead_flag+=1
                 fig.canvas.draw_idle()
                 change_traces.destroy()
 
@@ -894,52 +1103,107 @@ def plot_choise(button):
                 trace_alphas=[]
                 trace_styles=[]
                 trace_color_buttons=[]
+                trace_deads=[]
 
                 i=0
                 for ind,line in enumerate(lines):
-                    if not (line.get_label() == "_collection0"):
-                        trace_title= tk.Label(change_traces,text=line.get_label()).grid(row=5*ind,columnspan=2)
-                        trace_index=ind
-                        trace_entries.append(trace_index)
 
-                        print(lines[ind].get_color())
-                        if not isinstance (lines[ind].get_color(),str):
-                            trace_color = '#%02x%02x%02x' %  (int(lines[ind].get_color()[0]*255),int(lines[ind].get_color()[1]*255),int(lines[ind].get_color()[2]*255))
-                        else:
-                            trace_color = lines[ind].get_color()
+                    trace_title= tk.Label(change_traces,text=line.get_label()).grid(row=6*ind,columnspan=2)
+                    trace_index=ind
+                    trace_entries.append(trace_index)
+
+                    if not isinstance (lines[ind].get_color(),str):
+                        trace_color = '#%02x%02x%02x' %  (int(lines[ind].get_color()[0]*255),int(lines[ind].get_color()[1]*255),int(lines[ind].get_color()[2]*255))
+                    else:
+                        trace_color = lines[ind].get_color()
 
 
-                        trace_width= tk.Label(change_traces,text="Width").grid(row=5*ind+1)
-                        trace_width_val=tk.StringVar(change_traces)
-                        trace_width_val.set(line.get_linewidth())
-                        e_trace_width = tk.Spinbox(change_traces,from_=1, to=30,bd=5,width=5,textvariable=trace_width_val,increment=0.5)
-                        e_trace_width.grid(row=5*ind+1,column=1)
-                        trace_widths.append(e_trace_width)
+                    trace_width= tk.Label(change_traces,text="Width").grid(row=6*ind+1)
+                    trace_width_val=tk.StringVar(change_traces)
+                    trace_width_val.set(line.get_linewidth())
+                    e_trace_width = tk.Spinbox(change_traces,from_=1, to=30,bd=5,width=5,textvariable=trace_width_val,increment=0.5)
+                    e_trace_width.grid(row=6*ind+1,column=1)
+                    trace_widths.append(e_trace_width)
 
-                        trace_alpha= tk.Label(change_traces,text="Opacity").grid(row=5*ind+2)
-                        trace_alpha_val=tk.StringVar(change_traces)
-                        trace_alpha_val.set(line.get_alpha())
-                        e_trace_alpha = tk.Spinbox(change_traces,from_=0, to=1,bd=5,width=5,textvariable=trace_alpha_val,increment=0.05)
-                        e_trace_alpha.grid(row=5*ind+2,column=1)
-                        trace_alphas.append(e_trace_alpha)
+                    trace_alpha= tk.Label(change_traces,text="Opacity").grid(row=6*ind+2)
+                    trace_alpha_val=tk.StringVar(change_traces)
+                    trace_alpha_val.set(line.get_alpha())
+                    e_trace_alpha = tk.Spinbox(change_traces,from_=0, to=1,bd=5,width=5,textvariable=trace_alpha_val,increment=0.05)
+                    e_trace_alpha.grid(row=6*ind+2,column=1)
+                    trace_alphas.append(e_trace_alpha)
 
-                        trace_style= tk.Label(change_traces,text="Style").grid(row=5*ind+3)
-                        trace_style_val=tk.StringVar(change_traces)
-                        trace_style_val.set(line.get_linestyle())
-                        e_trace_style = tk.OptionMenu(change_traces, trace_style_val, *linestyles)
-                        e_trace_style.grid(row=5*ind+3,column=1)
-                        trace_styles.append(trace_style_val)
+                    trace_style= tk.Label(change_traces,text="Style").grid(row=6*ind+3)
+                    trace_style_val=tk.StringVar(change_traces)
+                    trace_style_val.set(line.get_linestyle())
+                    e_trace_style = tk.OptionMenu(change_traces, trace_style_val, *linestyles)
+                    e_trace_style.grid(row=6*ind+3,column=1)
+                    trace_styles.append(trace_style_val)
 
-                        trace_color_label= tk.Label(change_traces,text="Color").grid(row=5*ind+4)
-                        trace_color_button= tk.Button(change_traces,text="Trace Color",background =trace_color)
-                        trace_color_button.config(command=lambda trace=trace_index: tr_color(trace))
-                        trace_color_button.grid(row=5*ind+4,column=1,sticky=tk.W)
-                        trace_color_buttons.append(trace_color_button)
+                    trace_color_label= tk.Label(change_traces,text="Color").grid(row=6*ind+4)
+                    trace_color_button= tk.Button(change_traces,text="          ",background =trace_color)
+                    trace_color_button.config(activebackground=trace_color_button.cget('background'))
+                    trace_color_button.config(command=lambda trace=trace_index: tr_color(trace))
+                    trace_color_button.grid(row=6*ind+4,column=1,sticky=tk.W)
+                    trace_color_buttons.append(trace_color_button)
 
-                        i+=1
 
-                quit_traces=tk.Button(change_traces, text='Quit',command=change_traces.destroy).grid(row=5*i, column=0, sticky=tk.W, pady=4)
-                apply_traces = tk.Button(change_traces,text='Apply', command=edit_traces).grid(row=5*i,column=1,sticky=tk.W, pady=4)
+                    trace_dead_label = tk.Label(change_traces,text='Deadband').grid(row=6*ind+5)
+                    trace_dead_val = tk.StringVar(change_traces)
+                    trace_dead_val.set(line_deads_val[ind])
+                    e_trace_dead = tk.Spinbox(change_traces,from_=0, to=5000,bd=5,width=10,textvariable=trace_dead_val,increment=50)
+                    e_trace_dead.grid(row=6*ind+5,column=1)
+                    trace_deads.append(trace_dead_val)
+
+                    i+=1
+
+                quit_traces=tk.Button(change_traces, text='Quit',command=change_traces.destroy).grid(row=6*i, column=0, sticky=tk.W, pady=4)
+                apply_traces = tk.Button(change_traces,text='Apply', command=edit_traces).grid(row=6*i,column=1,sticky=tk.W, pady=4)
+
+        def interact_axes():
+
+            def edit_axes():
+                fig.canvas.draw_idle()
+                change_axes.destroy()
+
+            def plot_bg_color():
+                bg_color=colorchooser.askcolor(title="Pick Color")
+                if  bg_color != (None,None):
+                    for ax in axes:
+                        ax.set_facecolor(bg_color[1])
+                    axes_bg_color_button.config(background=bg_color[1])
+                    axes_bg_color_button.config(activebackground=axes_bg_color_button.cget('background'))
+
+
+            def plot_mg_color():
+                mg_color=colorchooser.askcolor(title="Pick Color")
+                if  mg_color != (None,None):
+                    fig.set_facecolor(mg_color[1])
+                    axes_mg_color_button.config(background=mg_color[1])
+                    axes_mg_color_button.config(activebackground=axes_mg_color_button.cget('background'))
+
+            try:
+                if 'normal' == change_axes.state():
+                    change_axes.lift()
+            except:
+                change_axes = tk.Toplevel(master)
+                change_axes.resizable(width=False,height=False)
+                change_axes.title("Axes")
+
+                axes_bg_color='#%02x%02x%02x' %  (int(axes[0].get_facecolor()[0]*255),int(axes[0].get_facecolor()[1]*255),int(axes[0].get_facecolor()[2]*255))
+                axes_mg_color='#%02x%02x%02x' %  (int(fig.get_facecolor()[0]*255),int(fig.get_facecolor()[1]*255),int(fig.get_facecolor()[2]*255))
+
+                axes_bg_color_label = tk.Label(change_axes,text="Plot Background Color").grid(row=0)
+                axes_bg_color_button = tk.Button(change_axes,text="          ",background=axes_bg_color,command=plot_bg_color)
+                axes_bg_color_button.config(activebackground=axes_bg_color_button.cget('background'))
+                axes_bg_color_button.grid(row=0,column=1)
+
+                axes_mg_color_label = tk.Label(change_axes,text="Plot Margin Color").grid(row=1)
+                axes_mg_color_button = tk.Button(change_axes,text="          ",background=axes_mg_color,command=plot_mg_color)
+                axes_mg_color_button.config(activebackground=axes_mg_color_button.cget('background'))
+                axes_mg_color_button.grid(row=1,column=1)
+
+                quit_axes=tk.Button(change_axes, text='Quit',command=change_axes.destroy).grid(row=3, column=0, sticky=tk.W, pady=4)
+                apply_axes = tk.Button(change_axes,text='Apply', command=edit_axes).grid(row=3,column=1,sticky=tk.W, pady=4)
 
         def interact_y_limits():
             def ylimits():
@@ -1029,38 +1293,6 @@ def plot_choise(button):
                 apply_xtick = tk.Button(change_xticks, text='Apply',command=apply_xticks).grid(row=1,column=0,pady=5)
                 reset_xtick = tk.Button(change_xticks, text='Reset',command=reset_xticks).grid(row=1,column=1,pady=5)
 
-        def interact_colors():
-            def OnClick(btn):
-                text = btn.cget("text")
-                pick_color=colorchooser.askcolor(title="Pick Color("+text+")")
-
-                if  pick_color != (None,None):
-                    for ind,l in enumerate(lines):
-                        if l.get_label()==text:
-                            l.set_c(pick_color[1])
-                            leg.get_lines()[ind].set_c(pick_color[1])
-                    if "Setpoint" in text:
-                        lines[-1].set_color(pick_color[1])
-
-                fig.canvas.draw_idle()
-
-            try:
-                if 'normal' == change_color.state():
-                    change_color.lift()
-            except:
-                change_color = tk.Toplevel()
-                # change_color.resizable(width=False,height=False)
-                change_color.title("ColorChanger")
-                tk.Label(change_color,text="Pick a line:").grid(row=0,sticky=tk.W)
-                for ind,line in enumerate(lines):
-                    if not (line.get_label() == "_collection0"):
-                        line_button=tk.Button(change_color,text=line.get_label())
-                        line_button.config(command=lambda btn=line_button: OnClick(btn))
-                        line_button.grid(row=0,column=ind+1)
-
-            quit_y=tk.Button(change_color, text='Quit',command=change_color.destroy)
-            quit_y.grid(row=1, column=0, sticky=tk.W, pady=5)
-
         global texts
         global vlines
         global hlines
@@ -1068,12 +1300,11 @@ def plot_choise(button):
         drs=[]
         texts=[]
         def add_text():
-            props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+            props = dict(boxstyle='round', facecolor='#F5DEB3', alpha=1)
             y=fig.axes[0].get_ylim()[0]+(fig.axes[0].get_ylim()[1]-fig.axes[0].get_ylim()[0])/10
             x=fig.axes[0].get_xlim()[0]+(fig.axes[0].get_xlim()[1]-fig.axes[0].get_xlim()[0])/10
             ask_text = simpledialog.askstring("Add TextBox","Insert text",parent=master)
-            text_rot = simpledialog.askfloat("Text Rotation","Insert text rotation(deg)",parent=master)
-            text = fig.axes[0].text(x,y,ask_text,rotation=text_rot,fontdict={'size':12,'weight':'bold'},bbox=props,picker=5)
+            text = fig.axes[0].text(x,y,ask_text,rotation=0,c='#000000',fontdict={'size':12,'weight':'bold'},bbox=props,picker=5)
             texts.append(text)
             fig.canvas.draw_idle()
             dr = move_obj(text,fig,None,master)
@@ -1160,6 +1391,8 @@ def plot_choise(button):
         labels.add_command(label="Y labels",command = interact_y_label)
         labels.add_command(label="X label",command = interact_x_label)
         labels.add_command(label="Legend",command = interact_leg_label)
+        labels.add_command(label="Figure",command = interact_axes)
+        labels.add_command(label="Grid",command = interact_grid)
         menubar.add_cascade(label="Style",menu=labels)
 
         limits=tk.Menu(menubar,tearoff=0)
@@ -1170,10 +1403,6 @@ def plot_choise(button):
             ticks_x=tk.Menu(menubar,tearoff=0)
             ticks_x.add_command(label="Change X ticks",command = interact_x_ticks)
             menubar.add_cascade(label="X ticks",menu=ticks_x)
-
-        colors=tk.Menu(menubar,tearoff=0)
-        colors.add_command(label="Change Line Colors",command=interact_colors)
-        menubar.add_cascade(label="LineColors",menu=colors)
 
         annotates=tk.Menu(menubar,tearoff=0)
         annotates.add_command(label="Text",command=add_text)
