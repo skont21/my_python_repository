@@ -1,7 +1,8 @@
 # %matplotlib notebook
 from plot_maplot_v1 import *
 import tkinter as tk
-from tkinter import colorchooser,filedialog,simpledialog,messagebox,ttk
+from tkinter import colorchooser,filedialog,simpledialog,messagebox,ttk,PhotoImage
+from PIL import Image, ImageTk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg,NavigationToolbar2Tk
 from matplotlib.lines import Line2D
 from matplotlib.text import Text
@@ -460,6 +461,7 @@ choose_plot.protocol("WM_DELETE_WINDOW",destroyer)
 choose_plot.title("Available Plots")
 choose_plot.resizable(width=False, height=False)
 choose_plot.geometry("")
+choose_plot.config(background='#000000')
 choose_plot.grid_columnconfigure(0, weight=1)
 choose_plot.grid_rowconfigure(0, weight=1)
 
@@ -1571,48 +1573,23 @@ buttons=[]
 buttons_frame=tk.Frame(choose_plot,borderwidth=2,relief="groove")
 buttons_frame.grid(row=0,column=0,sticky=tk.NSEW)
 buttons_frame.grid_columnconfigure(0,weight=1)
+buttons_frame.grid_columnconfigure(1,weight=1)
+buttons_frame.config(background='#800000')
 
+photos=[]
 for k,v, in plots.items():
-    buttons_frame.grid_rowconfigure(i,weight=1)
-    b=HoverButton(buttons_frame,text=v,activebackground='green')
+    image = Image.open("/home/spiros/my_git/plotly/"+v+".png")
+    photo = ImageTk.PhotoImage(image,master=choose_plot)
+    photos.append(photo)
+    buttons_frame.grid_rowconfigure(int(np.floor(i/2)),weight=1)
+    b=tk.Button(buttons_frame,text=v,image= photos[i],relief='raised',bd=4)
     b.config(command= lambda btn=b: plot_choise(btn))
-    b.grid(row=i,column=0,sticky=tk.NSEW)
+    b.grid(row=int(np.floor(i/2)),column=i%2,padx=10,pady=10,sticky=tk.NSEW)
     i=i+1
+if (i%2)==1:
+    b.grid(row=int(np.floor(i/2)),column=0,columnspan=2,padx=10,pady=10,sticky=tk.NS)
+buttons_frame.grid_rowconfigure(int(np.floor(i/2))+1,weight=1)
+quit_button=tk.Button(buttons_frame,text='Quit',relief='raised',bd=4,command=destroyer)
+quit_button.grid(row=int(np.floor(i/2))+1,columnspan=2,pady=10,sticky=tk.NSEW)
 
-r=1
-meas_frame=tk.Frame(choose_plot)
-meas_frame.grid(row=1,column=0,sticky=tk.NSEW)
-meas_frame.grid_rowconfigure(0,weight=1)
-
-tk.Label(meas_frame,text='Measurements:',borderwidth=2,relief="groove").grid(row=0,column=0,padx=5)
-for key in m.keys():
-    for c in m[key].columns:
-        meas_frame.grid_columnconfigure(r,weight=1)
-        tk.Label(meas_frame,text=c).grid(row=0,column=r,padx=5)
-        r+=1
-r=1
-sets_frame=tk.Frame(choose_plot)
-sets_frame.grid(row=2,column=0,sticky=tk.NSEW)
-sets_frame.grid_rowconfigure(0,weight=1)
-
-tk.Label(sets_frame,text='Setpoints:',borderwidth=2,relief="groove").grid(row=0,column=0,padx=5)
-for key in s.keys():
-    for c in s[key].columns:
-        sets_frame.grid_columnconfigure(r,weight=1)
-        tk.Label(sets_frame,text=c).grid(row=0,column=r,padx=5)
-        r+=1
-r=1
-en_frame=tk.Frame(choose_plot)
-en_frame.grid(row=3,column=0,sticky=tk.NSEW)
-en_frame.grid_rowconfigure(0,weight=1)
-
-tk.Label(en_frame,text='Enabled/Disabled:',borderwidth=2,relief="groove").grid(row=0,column=0,padx=5)
-for key in en.keys():
-    for c in en[key].columns:
-        en_frame.grid_columnconfigure(r,weight=1)
-        tk.Label(en_frame,text=c).grid(row=0,column=r,padx=5)
-        r+=1
-
-quit_button=tk.Button(choose_plot,text='Quit',command=destroyer)
-quit_button.grid(columnspan=i,pady=10)
 choose_plot.mainloop()

@@ -77,6 +77,11 @@ def get_data_from_csv(data_csv):
 def get_traces(data):
 
     time =data['TIME']
+    if pd.Timestamp(1900,1,1,0,0,0) in time.to_list():
+        new_day = time.index[time == pd.Timestamp(1900,1,1,0,0,0)].tolist()
+        time_new = time.copy()
+        time_new[time_new.index>=new_day[0]]=time[time.index>8070]+datetime.timedelta(days=1)
+        time=time_new
 
     P = [l for k in Active for l in data.columns if re.match(k,l)]
     Q = [l for k in Reactive for l in data.columns if re.match(k,l)]
