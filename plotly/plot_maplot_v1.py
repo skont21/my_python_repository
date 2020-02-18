@@ -640,7 +640,7 @@ def plot_meas(TIME,meas):
 
 
     if len(meas)>1:
-        axes[0].set_title('Measurements',fontdict=font,x=0.5,y=1.5)
+        axes[0].set_title('Measurements',fontdict=font,x=0.5,y=1+0.1*len(meas))
         axes[-1].set_xlabel('TIME',fontdict=font)
     else:
         axes.set_title('Measurements',fontdict=font)
@@ -652,7 +652,7 @@ def plot_meas(TIME,meas):
         l.set_alpha(1)
 
     if len(meas)>1:
-        leg = axes[0].legend(lines,labs,bbox_to_anchor=(0.5, 1.4),loc='upper center',ncol=len(lines),prop=legend_font,
+        leg = axes[0].legend(lines,labs,bbox_to_anchor=(0.5, 1+0.08*len(meas)),loc='upper center',ncol=len(lines),prop=legend_font,
                fancybox=True, shadow=True)
     else:
         leg = axes.legend(lines,labs,bbox_to_anchor=(0.5, 1.4),loc='upper center',ncol=len(lines),prop=legend_font,

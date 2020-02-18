@@ -1591,8 +1591,8 @@ for k,v, in plots.items():
         image = Image.open(f)
         photo = ImageTk.PhotoImage(image,master=choose_plot)
         photos.append(photo)
-    elif v == "V":
-        f = io.BytesIO(base64.b64decode(Vim))
+    elif v == "AVR":
+        f = io.BytesIO(base64.b64decode(AVRim))
         image = Image.open(f)
         photo = ImageTk.PhotoImage(image,master=choose_plot)
         photos.append(photo)
