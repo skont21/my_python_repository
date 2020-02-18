@@ -1,5 +1,8 @@
 # %matplotlib notebook
 from plot_maplot_v1 import *
+from recourses import *
+import base64
+import io
 import tkinter as tk
 from tkinter import colorchooser,filedialog,simpledialog,messagebox,ttk,PhotoImage
 from PIL import Image, ImageTk
@@ -1578,9 +1581,47 @@ buttons_frame.config(background='#800000')
 
 photos=[]
 for k,v, in plots.items():
-    image = Image.open("/home/spiros/my_git/plotly/"+v+".png")
-    photo = ImageTk.PhotoImage(image,master=choose_plot)
-    photos.append(photo)
+    if v == "P":
+        f = io.BytesIO(base64.b64decode(Pim))
+        image = Image.open(f)
+        photo = ImageTk.PhotoImage(image,master=choose_plot)
+        photos.append(photo)
+    elif v == "Q":
+        f = io.BytesIO(base64.b64decode(Qim))
+        image = Image.open(f)
+        photo = ImageTk.PhotoImage(image,master=choose_plot)
+        photos.append(photo)
+    elif v == "V":
+        f = io.BytesIO(base64.b64decode(Vim))
+        image = Image.open(f)
+        photo = ImageTk.PhotoImage(image,master=choose_plot)
+        photos.append(photo)
+    elif v == "F":
+        f = io.BytesIO(base64.b64decode(Fim))
+        image = Image.open(f)
+        photo = ImageTk.PhotoImage(image,master=choose_plot)
+        photos.append(photo)
+    elif v == "PF":
+        f = io.BytesIO(base64.b64decode(PFim))
+        image = Image.open(f)
+        photo = ImageTk.PhotoImage(image,master=choose_plot)
+        photos.append(photo)
+    elif v == "Q Capability":
+        f = io.BytesIO(base64.b64decode(QCAPim))
+        image = Image.open(f)
+        photo = ImageTk.PhotoImage(image,master=choose_plot)
+        photos.append(photo)
+    elif v == "All Measurements":
+        f = io.BytesIO(base64.b64decode(ALLMEASim))
+        image = Image.open(f)
+        photo = ImageTk.PhotoImage(image,master=choose_plot)
+        photos.append(photo)
+    else:
+        f = io.BytesIO(base64.b64decode(CUSTOMim))
+        image = Image.open(f)
+        photo = ImageTk.PhotoImage(image,master=choose_plot)
+        photos.append(photo)
+
     buttons_frame.grid_rowconfigure(int(np.floor(i/2)),weight=1)
     b=tk.Button(buttons_frame,text=v,image= photos[i],relief='raised',bd=4)
     b.config(command= lambda btn=b: plot_choise(btn))
