@@ -514,21 +514,19 @@ def plot_choise(button):
 
     def ask_xtrace(data,title):
         global sel_x
+
         def apply_trace():
             global sel_x
             sel_x = w_x.get()
             custom_trace.destroy()
-        def disable_event():
-            pass
-
 
         custom_trace=tk.Toplevel(choose_plot)
         custom_trace.resizable(width=False, height=False)
-        custom_trace.geometry("220x100")
+        # custom_trace.geometry("200x70")
         custom_trace.grid_columnconfigure(0, weight=1)
         custom_trace.grid_rowconfigure(0, weight=1)
         custom_trace.withdraw()
-        custom_trace.protocol("WM_DELETE_WINDOW",disable_event)
+        custom_trace.protocol("WM_DELETE_WINDOW")
         custom_trace.title(title)
 
         choices = list(data.columns)
@@ -550,7 +548,10 @@ def plot_choise(button):
         custom_trace.deiconify()
         custom_trace.grab_set()
         custom_trace.wait_window(custom_trace)
-        return(sel_x)
+        try:
+            return(sel_x)
+        except:
+            return None
 
     def ask_ytrace(data,title):
         global sel_traces
@@ -558,8 +559,6 @@ def plot_choise(button):
         y1_traces=[]
         y1_vars=[]
         choices = list(data.columns)
-        def disable_event():
-            pass
 
         def apply_trace():
             global sel_traces
@@ -570,9 +569,11 @@ def plot_choise(button):
         def add_trace():
             global num_tr
             num_tr+=1
+            custom_trace.grid_rowconfigure(num_tr, weight=1)
             y_ch =tk.Frame(custom_trace)
-            y_ch.grid(row=num_tr,column=0,sticky=tk.NSEW)
+            y_ch.grid(row=num_tr,column=0,columnspan=4,sticky=tk.NSEW)
             y_ch.grid_columnconfigure(0,weight=1)
+            y_ch.grid_rowconfigure(0,weight=1)
             y1_traces.append(y_ch)
 
             w_y = ttk.Combobox(y_ch, values=choices,state="readonly",justify='center')
@@ -593,21 +594,22 @@ def plot_choise(button):
                 y1_vars.pop()
 
         custom_trace=tk.Toplevel(choose_plot)
-        custom_trace.resizable(width=False, height=False)
         custom_trace.grid_columnconfigure(0, weight=1)
         custom_trace.grid_rowconfigure(0, weight=1)
+        custom_trace.resizable(width=False, height=False)
         custom_trace.withdraw()
-        custom_trace.protocol("WM_DELETE_WINDOW",disable_event)
+        custom_trace.protocol("WM_DELETE_WINDOW")
         custom_trace.title(title)
 
         y_ch =tk.Frame(custom_trace)
-        y_ch.grid(row=0,column=0,sticky=tk.NSEW)
+        y_ch.grid(row=0,column=0,columnspan=4,sticky=tk.NSEW)
         y_ch.grid_columnconfigure(0,weight=1)
+        y_ch.grid_rowconfigure(0,weight=1)
         y1_traces.append(y_ch)
 
         w_y = ttk.Combobox(y_ch, values=choices,state="readonly",justify='center')
         w_y.current(1)
-        w_y.grid(row=0,columnspan=2,sticky=tk.NSEW)
+        w_y.grid(row=0,sticky=tk.NSEW)
         y1_vars.append(w_y)
 
         buts =tk.Frame(custom_trace)
@@ -624,7 +626,11 @@ def plot_choise(button):
         custom_trace.grab_set()
         custom_trace.wait_window(custom_trace)
 
-        return(list(sel_traces))
+        try:
+            return(list(sel_traces))
+        except:
+            return None
+
     time_xaxis=True
     if button_text=="P":
 
@@ -700,39 +706,42 @@ def plot_choise(button):
             messagebox.showwarning("Warning","Select a trace",parent=choose_plot)
 
     elif button_text=="Custom Plot":
-        xtrace = ask_xtrace(data,"Select X-axis trace")
-        ytraces=ask_ytrace(data,"Select Y-axis traces")
-        y1_traces=[]
-        for tr in ytraces:
-            y1_traces.append({"tr":data[tr],"ax2":False})
-        y2= messagebox.askquestion('2nd Y-Axis','Would you like adding 2nd Y-axis?',parent=choose_plot)
-        if y2=="yes":
-            ytraces=ask_ytrace(data,"Select Y2-axis traces")
-            y2_traces=[]
-            for tr in ytraces:
-                y2_traces.append({"tr":data[tr],"ax2":True})
-        else:
-            y2_traces=[]
-        fig,axes,lines,leg=custom_plot(data[xtrace],y1_traces+y2_traces)
+        xtrace = ask_xtrace(data,"X-axis trace")
+        if xtrace != None:
+            ytraces=ask_ytrace(data,"Y-axis traces")
+            print(ytraces)
+            if ytraces:
+                y1_traces=[]
+                for tr in ytraces:
+                    y1_traces.append({"tr":data[tr],"ax2":False})
+                y2= messagebox.askquestion('2nd Y-Axis','Would you like adding 2nd Y-axis?',parent=choose_plot)
+                if y2=="yes":
+                    ytraces=ask_ytrace(data,"Y2-axis traces")
+                    y2_traces=[]
+                    for tr in ytraces:
+                        y2_traces.append({"tr":data[tr],"ax2":True})
+                else:
+                    y2_traces=[]
+                fig,axes,lines,leg=custom_plot(data[xtrace],y1_traces+y2_traces)
 
-        if not isinstance(data[xtrace][0],pd._libs.tslibs.timestamps.Timestamp):
-            time_xaxis=False
-
-
-    line_deads_val=[]
-    for l in lines:
-        line_deads_val.append(0)
-    axes[0].set_zorder(0.1)
-    if len(axes)==2:
-        axes[0].patch.set_visible(False)
-        axes[1].patch.set_visible(True)
-        axes[1].set_facecolor('whitesmoke')
-    ylims_0=[]
-    for ax in axes:
-        ylims_0.append(ax.get_ylim())
-    xlim_0=fig.axes[0].get_xlim()
+                if not isinstance(data[xtrace][0],pd._libs.tslibs.timestamps.Timestamp):
+                    time_xaxis=False
 
     try:
+        line_deads_val=[]
+        for l in lines:
+            line_deads_val.append(0)
+        axes[0].set_zorder(0.1)
+        if len(axes)==2:
+            axes[0].patch.set_visible(False)
+            axes[1].patch.set_visible(True)
+            axes[1].set_facecolor('whitesmoke')
+        ylims_0=[]
+        for ax in axes:
+            ylims_0.append(ax.get_ylim())
+        xlim_0=fig.axes[0].get_xlim()
+
+
         lined = dict()
         for legline, origline in zip(leg.get_lines(), lines):
             legline.set_picker(5)  # 5 pts tolerance
@@ -891,48 +900,51 @@ def plot_choise(button):
                 for ind,ax in enumerate(axes):
 
 
-                    y_title = tk.Label(change_y, text="Y"+str(ind+1)+"-label").grid(row=6*ind,columnspan=2)
+                    y_title = tk.Label(change_y, text="Y"+str(ind+1)+"-label").grid(row=0,column=2*ind,columnspan=2)
 
-                    y_text = tk.Label(change_y, text="Text").grid(row=6*ind+1)
-                    e_y_text = tk.Entry(change_y,bd=5,width=40)
+                    y_text = tk.Label(change_y, text="Text").grid(row=1,column=2*ind)
+                    e_y_text = tk.Entry(change_y,bd=5,width=25)
                     e_y_text.insert(0,ax.get_ylabel())
-                    e_y_text.grid(row=6*ind+1,column=1)
+                    e_y_text.grid(row=1,column=2*ind+1,sticky=tk.W)
                     y_entries.append(e_y_text)
 
                     var_y=tk.StringVar(change_y)
                     var_y.set(str(ax.yaxis.label.get_fontsize()))
-                    y_size = tk.Label(change_y, text="FontSize").grid(row=6*ind+2)
+                    y_size = tk.Label(change_y, text="FontSize").grid(row=2,column=2*ind)
                     e_y_size = tk.Spinbox(change_y, from_=2, to=30,bd=5,width=5,textvariable=var_y,increment=0.5)
-                    e_y_size.grid(row=6*ind+2,column=1,sticky=tk.W)
+                    e_y_size.grid(row=2,column=2*ind+1,sticky=tk.W)
                     y_sizes.append(e_y_size)
 
                     global weights
                     global families
                     global styles
 
-                    y_weight = tk.Label(change_y, text="FontWeight").grid(row=6*ind+3)
+                    y_weight = tk.Label(change_y, text="FontWeight").grid(row=3,column=2*ind)
                     y_weight_val = tk.StringVar(change_y)
                     y_weight_val.set(ax.yaxis.label.get_fontweight())
                     e_y_weight = tk.OptionMenu(change_y, y_weight_val, *weights)
-                    e_y_weight.grid(row=6*ind+3,column=1,sticky=tk.W)
+                    e_y_weight.grid(row=3,column=2*ind+1,sticky=tk.W)
                     y_weights.append(y_weight_val)
 
-                    y_family = tk.Label(change_y, text="FontFamily").grid(row=6*ind+4)
+                    y_family = tk.Label(change_y, text="FontFamily").grid(row=4,column=2*ind)
                     y_family_val = tk.StringVar(change_y)
                     y_family_val.set(ax.yaxis.label.get_fontfamily()[0])
                     e_y_family = tk.OptionMenu(change_y, y_family_val, *families)
-                    e_y_family.grid(row=6*ind+4,column=1,sticky=tk.W)
+                    e_y_family.grid(row=4,column=2*ind+1,sticky=tk.W)
                     y_families.append(y_family_val)
 
-                    y_style = tk.Label(change_y, text="FontStyle").grid(row=6*ind+5)
+                    y_style = tk.Label(change_y, text="FontStyle").grid(row=5,column=2*ind)
                     y_style_val = tk.StringVar(change_y)
                     y_style_val.set(ax.yaxis.label.get_fontstyle())
                     e_y_style = tk.OptionMenu(change_y, y_style_val, *styles)
-                    e_y_style.grid(row=6*ind+5,column=1,sticky=tk.W)
+                    e_y_style.grid(row=5,column=2*ind+1,sticky=tk.W)
                     y_styles.append(y_style_val)
 
-                quit_y=tk.Button(change_y, text='Quit',command=change_y.destroy).grid(row=6*len(axes), column=0, sticky=tk.W, pady=4)
-                apply_y = tk.Button(change_y,text='Apply', command=ylabel).grid(row=6*len(axes),column=1,sticky=tk.W, pady=4)
+                y_frame = tk.Frame(change_y)
+                y_frame.grid(row=6,column=0,columnspan=2*len(axes),pady=10)
+
+                quit_y=tk.Button(y_frame, text='Quit',command=change_y.destroy).grid(row=1, column=0,columnspan=2, pady=4,sticky=tk.NSEW)
+                apply_y = tk.Button(y_frame,text='Apply', command=ylabel).grid(row=1, column=2,columnspan=2, pady=4,sticky=tk.NSEW)
 
 
         def interact_grid():
@@ -977,60 +989,60 @@ def plot_choise(button):
                 for ind,ax in enumerate(axes):
 
                     gl=ax.get_xgridlines()[0]
-                    grid_title = tk.Label(change_grid, text="Y"+str(ind+1)+"-grid").grid(row=6*ind,columnspan=2)
+                    grid_title = tk.Label(change_grid, text="Y"+str(ind+1)+"-grid").grid(row=0,column=2*ind,columnspan=2)
 
-                    grid_on = tk.Label(change_grid, text="Y"+str(ind+1)+"-grid").grid(row=6*ind+1)
+                    grid_on = tk.Label(change_grid, text="Y"+str(ind+1)+"-grid").grid(row=1,column=2*ind)
                     grid_on_val=tk.StringVar(change_grid)
                     grid_on_val.set('Show')
                     e_grid_on = tk.OptionMenu(change_grid, grid_on_val, *on_off)
-                    e_grid_on.grid(row=6*ind+1,column=1)
+                    e_grid_on.grid(row=1,column=2*ind+1,sticky=tk.W)
                     grid_ons.append(grid_on_val)
 
-                    grid_which = tk.Label(change_grid, text="Ticks").grid(row=6*ind+2)
+                    grid_which = tk.Label(change_grid, text="Ticks").grid(row=2,column=2*ind)
                     grid_which_val = tk.StringVar(change_grid)
                     grid_which_val.set(which[0])
                     e_grid_which = tk.OptionMenu(change_grid, grid_which_val, *which)
-                    e_grid_which.grid(row=6*ind+2,column=1,sticky=tk.W)
+                    e_grid_which.grid(row=2,column=2*ind+1,sticky=tk.W)
                     grid_whichs.append(grid_which_val)
 
-                    grid_axis = tk.Label(change_grid, text="Axes").grid(row=6*ind+3)
+                    grid_axis = tk.Label(change_grid, text="Axes").grid(row=3,column=2*ind)
                     grid_axis_val = tk.StringVar(change_grid)
                     grid_axis_val.set(which_axis[0])
                     e_grid_axis = tk.OptionMenu(change_grid, grid_axis_val, *which_axis)
-                    e_grid_axis.grid(row=6*ind+3,column=1,sticky=tk.W)
+                    e_grid_axis.grid(row=3,column=2*ind+1,sticky=tk.W)
                     grid_axes.append(grid_axis_val)
 
-                    grid_style= tk.Label(change_grid,text="Line Style").grid(row=6*ind+4)
+                    grid_style= tk.Label(change_grid,text="Line Style").grid(row=4,column=2*ind)
                     grid_style_val=tk.StringVar(change_grid)
                     grid_style_val.set(gl.get_linestyle())
                     e_grid_style = tk.OptionMenu(change_grid, grid_style_val, *linestyles)
-                    e_grid_style.grid(row=6*ind+4,column=1)
+                    e_grid_style.grid(row=4,column=2*ind+1,sticky=tk.W)
                     grid_styles.append(grid_style_val)
 
-                    grid_width= tk.Label(change_grid,text="Line Width").grid(row=6*ind+5)
+                    grid_width= tk.Label(change_grid,text="Line Width").grid(row=5,column=2*ind)
                     grid_width_val=tk.StringVar(change_grid)
                     grid_width_val.set(gl.get_linewidth())
                     e_grid_width = tk.Spinbox(change_grid,from_=1, to=10,bd=5,width=5,textvariable=grid_width_val,increment=0.5)
-                    e_grid_width.grid(row=6*ind+5,column=1)
+                    e_grid_width.grid(row=5,column=2*ind+1,sticky=tk.W)
                     grid_widths.append(grid_width_val)
 
-                grid_color_label= tk.Label(change_grid,text="Color").grid(row=6*len(axes),columnspan=2)
-                grid_color_button= tk.Button(change_grid,text="          ",background =gl.get_c())
+                grid_color_frame = tk.Frame(change_grid)
+                grid_color_frame.grid(row=6,column=0,columnspan=2*len(axes),pady=10)
+
+                grid_color_label= tk.Label(grid_color_frame,text="Color").grid(row=0,column=0)
+                grid_color_button= tk.Button(grid_color_frame,text="          ",background =gl.get_c())
                 grid_color_button.config(command=grid_color)
                 grid_color_button.config(activebackground=grid_color_button.cget('background'))
-                grid_color_button.grid(row=6*len(axes)+1,columnspan=2)
+                grid_color_button.grid(row=0,column=1)
 
-                grid_alpha= tk.Label(change_grid,text="Opacity").grid(row=6*len(axes)+2,columnspan=2)
+                grid_alpha= tk.Label(grid_color_frame,text="Opacity").grid(row=0,column=2)
                 grid_alpha_val=tk.StringVar(change_grid)
                 grid_alpha_val.set(1)
-                e_grid_alpha = tk.Spinbox(change_grid,from_=0, to=1,bd=5,width=5,textvariable=grid_alpha_val,increment=0.05)
-                e_grid_alpha.grid(row=6*len(axes)+3,column=0,columnspan=2)
+                e_grid_alpha = tk.Spinbox(grid_color_frame,from_=0, to=1,bd=5,width=5,textvariable=grid_alpha_val,increment=0.05)
+                e_grid_alpha.grid(row=0,column=3)
 
-
-
-
-                quit_grid=tk.Button(change_grid, text='Quit',command=change_grid.destroy).grid(row=6*len(axes)+4, column=0, sticky=tk.W, pady=4)
-                apply_grid = tk.Button(change_grid,text='Apply',command=apply_grid).grid(row=6*len(axes)+4,column=1,sticky=tk.W, pady=4)
+                quit_grid=tk.Button(grid_color_frame, text='Quit',command=change_grid.destroy).grid(row=1, column=0,columnspan=2, pady=4,sticky=tk.NSEW)
+                apply_grid = tk.Button(grid_color_frame,text='Apply',command=apply_grid).grid(row=1,column=2,columnspan=2, pady=4,sticky=tk.NSEW)
 
         def interact_leg_label():
             def leglabel():
@@ -1133,7 +1145,10 @@ def plot_choise(button):
                     'color':  'black',
                     'weight': weight,
                     'size': size}
-                axes[0].set_xlabel(e_x_text.get(),fontdict=x_font)
+                if len(axes)>2:
+                    axes[-1].set_xlabel(e_x_text.get(),fontdict=x_font)
+                else:
+                    axes[0].set_xlabel(e_x_text.get(),fontdict=x_font)
                 fig.canvas.draw_idle()
                 change_x.destroy()
             try:
@@ -1146,8 +1161,11 @@ def plot_choise(button):
 
                 x_title = tk.Label(change_x, text="X-label").grid(row=0,columnspan=2)
                 x_text = tk.Label(change_x, text="Text").grid(row=1)
-                e_x_text = tk.Entry(change_x,bd=5,width=40)
-                e_x_text.insert(0,axes[0].get_xlabel())
+                e_x_text = tk.Entry(change_x,bd=5,width=25)
+                if axes[0].get_xlabel() != "":
+                    e_x_text.insert(0,axes[0].get_xlabel())
+                else:
+                    e_x_text.insert(0,axes[-1].get_xlabel())
                 e_x_text.grid(row=1,column=1)
 
                 var_x = tk.StringVar(change_x)
@@ -1233,10 +1251,9 @@ def plot_choise(button):
                 trace_color_buttons=[]
                 trace_deads=[]
 
-                i=0
                 for ind,line in enumerate(lines):
 
-                    trace_title= tk.Label(change_traces,text=line.get_label()).grid(row=6*ind,columnspan=2)
+                    trace_title= tk.Label(change_traces,text=line.get_label()).grid(row=0,column=2*ind,columnspan=2)
                     trace_index=ind
                     trace_entries.append(trace_index)
 
@@ -1246,46 +1263,47 @@ def plot_choise(button):
                         trace_color = lines[ind].get_color()
 
 
-                    trace_width= tk.Label(change_traces,text="Width").grid(row=6*ind+1)
+                    trace_width= tk.Label(change_traces,text="Width").grid(row=1,column=2*ind)
                     trace_width_val=tk.StringVar(change_traces)
                     trace_width_val.set(line.get_linewidth())
                     e_trace_width = tk.Spinbox(change_traces,from_=1, to=30,bd=5,width=5,textvariable=trace_width_val,increment=0.5)
-                    e_trace_width.grid(row=6*ind+1,column=1)
+                    e_trace_width.grid(row=1,column=2*ind+1,sticky=tk.W)
                     trace_widths.append(e_trace_width)
 
-                    trace_alpha= tk.Label(change_traces,text="Opacity").grid(row=6*ind+2)
+                    trace_alpha= tk.Label(change_traces,text="Opacity").grid(row=2,column=2*ind)
                     trace_alpha_val=tk.StringVar(change_traces)
                     trace_alpha_val.set(line.get_alpha())
                     e_trace_alpha = tk.Spinbox(change_traces,from_=0, to=1,bd=5,width=5,textvariable=trace_alpha_val,increment=0.05)
-                    e_trace_alpha.grid(row=6*ind+2,column=1)
+                    e_trace_alpha.grid(row=2,column=2*ind+1,sticky=tk.W)
                     trace_alphas.append(e_trace_alpha)
 
-                    trace_style= tk.Label(change_traces,text="Style").grid(row=6*ind+3)
+                    trace_style= tk.Label(change_traces,text="Style").grid(row=3,column=2*ind)
                     trace_style_val=tk.StringVar(change_traces)
                     trace_style_val.set(line.get_linestyle())
                     e_trace_style = tk.OptionMenu(change_traces, trace_style_val, *linestyles)
-                    e_trace_style.grid(row=6*ind+3,column=1)
+                    e_trace_style.grid(row=3,column=2*ind+1,sticky=tk.W)
                     trace_styles.append(trace_style_val)
 
-                    trace_color_label= tk.Label(change_traces,text="Color").grid(row=6*ind+4)
+                    trace_color_label= tk.Label(change_traces,text="Color").grid(row=4,column=2*ind)
                     trace_color_button= tk.Button(change_traces,text="          ",background =trace_color)
                     trace_color_button.config(activebackground=trace_color_button.cget('background'))
                     trace_color_button.config(command=lambda trace=trace_index: tr_color(trace))
-                    trace_color_button.grid(row=6*ind+4,column=1,sticky=tk.W)
+                    trace_color_button.grid(row=4,column=2*ind+1,sticky=tk.W)
                     trace_color_buttons.append(trace_color_button)
 
 
-                    trace_dead_label = tk.Label(change_traces,text='Deadband').grid(row=6*ind+5)
+                    trace_dead_label = tk.Label(change_traces,text='Deadband').grid(row=5,column=2*ind)
                     trace_dead_val = tk.StringVar(change_traces)
                     trace_dead_val.set(line_deads_val[ind])
                     e_trace_dead = tk.Spinbox(change_traces,from_=0, to=5000,bd=5,width=10,textvariable=trace_dead_val,increment=50)
-                    e_trace_dead.grid(row=6*ind+5,column=1)
+                    e_trace_dead.grid(row=5,column=2*ind+1,sticky=tk.W)
                     trace_deads.append(trace_dead_val)
 
-                    i+=1
+                but_frame = tk.Frame(change_traces)
+                but_frame.grid(row=6,column=0,columnspan=2*len(lines),pady=10)
 
-                quit_traces=tk.Button(change_traces, text='Quit',command=change_traces.destroy).grid(row=6*i, column=0, sticky=tk.W, pady=4)
-                apply_traces = tk.Button(change_traces,text='Apply', command=edit_traces).grid(row=6*i,column=1,sticky=tk.W, pady=4)
+                quit_traces=tk.Button(but_frame, text='Quit',command=change_traces.destroy).grid(row=1, column=0,columnspan=2, pady=4,sticky=tk.NSEW)
+                apply_traces = tk.Button(but_frame,text='Apply',command=edit_traces).grid(row=1,column=2,columnspan=2, pady=4,sticky=tk.NSEW)
 
         def interact_axes():
 
@@ -1577,7 +1595,7 @@ buttons_frame=tk.Frame(choose_plot,borderwidth=2,relief="groove")
 buttons_frame.grid(row=0,column=0,sticky=tk.NSEW)
 buttons_frame.grid_columnconfigure(0,weight=1)
 buttons_frame.grid_columnconfigure(1,weight=1)
-buttons_frame.config(background='#800000')
+buttons_frame.config(background='#000000')
 
 photos=[]
 for k,v, in plots.items():
@@ -1623,14 +1641,14 @@ for k,v, in plots.items():
         photos.append(photo)
 
     buttons_frame.grid_rowconfigure(int(np.floor(i/2)),weight=1)
-    b=tk.Button(buttons_frame,text=v,image= photos[i],relief='raised',bd=4)
+    b=tk.Button(buttons_frame,text=v,image= photos[i],relief='flat',bd=0)
     b.config(command= lambda btn=b: plot_choise(btn))
     b.grid(row=int(np.floor(i/2)),column=i%2,padx=10,pady=10,sticky=tk.NSEW)
     i=i+1
 if (i%2)==1:
     b.grid(row=int(np.floor(i/2)),column=0,columnspan=2,padx=10,pady=10,sticky=tk.NS)
 buttons_frame.grid_rowconfigure(int(np.floor(i/2))+1,weight=1)
-quit_button=tk.Button(buttons_frame,text='Quit',relief='raised',bd=4,command=destroyer)
+quit_button=tk.Button(buttons_frame,text='Quit',relief='flat',bd=2,command=destroyer)
 quit_button.grid(row=int(np.floor(i/2))+1,columnspan=2,pady=10,sticky=tk.NSEW)
 
 choose_plot.mainloop()
