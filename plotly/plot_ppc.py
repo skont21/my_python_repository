@@ -1388,7 +1388,10 @@ def plot_choise(button):
         def interact_x_ticks():
 
             def apply_xticks():
-                x_val = var_val.get()
+                try:
+                    x_val = float(e_x_tick.get())
+                except:
+                    x_val = 10
                 x_int = var_xtick.get()
                 if x_int == 'sec':
                     loc = mdates.SecondLocator(interval = int(x_val))
@@ -1424,11 +1427,12 @@ def plot_choise(button):
                 change_xticks.title("X-ticks")
                 xtick_label = tk.Label(change_xticks, text="Put X ticks every: ").grid(row=0,column=0)
 
-                xtick_val = ['1','2','5','10','15','30','45']
-                var_val = tk.StringVar(change_xticks)
-                var_val.set(xtick_val[0])
-                wval_xtick = tk.OptionMenu(change_xticks, var_val, *xtick_val)
-                wval_xtick.grid(row=0,column=1)
+
+                x_tick_val = tk.StringVar(change_xticks)
+                x_tick_val.set(1)
+                e_x_tick = tk.Spinbox(change_xticks,from_=1, to=60,bd=5,width=10,textvariable=x_tick_val,increment=1)
+                e_x_tick.grid(row=0,column=1)
+
 
                 xtick_int = ['sec','min','h']
                 var_xtick = tk.StringVar(change_xticks)
@@ -1438,6 +1442,72 @@ def plot_choise(button):
 
                 apply_xtick = tk.Button(change_xticks, text='Apply',command=apply_xticks).grid(row=1,column=0,pady=5)
                 reset_xtick = tk.Button(change_xticks, text='Reset',command=reset_xticks).grid(row=1,column=1,pady=5)
+
+        def interact_y_ticks():
+
+            def apply_yticks():
+                try:
+                    for ind,ax in enumerate(axes):
+                        int=y_ticks[ind].get()
+                        rot=y_rots[ind].get()
+                        ax.yaxis.set_major_locator(MultipleLocator(float(int)))
+                        for tick in ax.get_yticklabels():
+                            tick.set_rotation(float(rot))
+                except RuntimeError:
+                    messagebox.showwarning("Warning","Too many ticks-Zoom in",parent=change_xticks)
+                    for ax in axes:
+                        ax.yaxis.set_major_locator(MaxNLocator(nbins=20))
+                        ax.yaxis.set_minor_locator(AutoMinorLocator())
+                        for tick in ax.get_yticklabels():
+                            tick.set_rotation(0)
+                    fig.canvas.draw()
+                    change_yticks.destroy()
+
+                fig.canvas.draw_idle()
+                change_yticks.destroy()
+
+            def reset_yticks():
+                for ax in axes:
+                    ax.yaxis.set_major_locator(MaxNLocator(nbins=20))
+                    ax.yaxis.set_minor_locator(AutoMinorLocator())
+                    for tick in ax.get_yticklabels():
+                        tick.set_rotation(0)
+                fig.canvas.draw_idle()
+                change_yticks.destroy()
+
+            try:
+                if 'normal' == change_yticks().state():
+                    change_yticks.lift()
+            except:
+                change_yticks=tk.Toplevel(master)
+                change_yticks.resizable(width=False,height=False)
+                change_yticks.title("Y-ticks")
+                y_tick_entries=[]
+                y_ticks=[]
+                y_rots=[]
+                for ind,ax in enumerate(axes):
+
+                    y_title = tk.Label(change_yticks, text="Y"+str(ind+1)+"-label").grid(row=0,column=2*ind,columnspan=2)
+                    y_tick_entries.append(y_title)
+
+                    y_tick_val = tk.StringVar(change_yticks)
+                    y_tick_val.set(1)
+                    y_tick = tk.Label(change_yticks, text="Put ticks every:").grid(row=1,column=2*ind)
+                    e_y_tick = tk.Spinbox(change_yticks,from_=100, to=5000,bd=5,width=10,textvariable=y_tick_val,increment=1)
+                    e_y_tick.grid(row=1,column=2*ind+1,sticky=tk.W)
+                    y_ticks.append(e_y_tick)
+
+                    y_tick_rot = tk.StringVar(change_yticks)
+                    y_tick_rot.set(1)
+                    y_tick = tk.Label(change_yticks, text="Rotation:").grid(row=2,column=2*ind)
+                    e_y_tick_rot = tk.Spinbox(change_yticks,from_=0, to=360,bd=5,width=10,textvariable=y_tick_rot,increment=10)
+                    e_y_tick_rot.grid(row=2,column=2*ind+1,sticky=tk.W)
+                    y_rots.append(e_y_tick_rot)
+
+                ytick_frame = tk.Frame(change_yticks)
+                ytick_frame.grid(row=3,column=0,columnspan=2*len(axes),pady=10)
+                apply_ytick = tk.Button(ytick_frame, text='Apply',command=apply_yticks).grid(row=0,column=0,pady=5)
+                reset_ytick = tk.Button(ytick_frame, text='Reset',command=reset_yticks).grid(row=0,column=1,pady=5)
 
         global texts
         global vlines
@@ -1544,10 +1614,11 @@ def plot_choise(button):
         limits.add_command(label="Change Y limits",command = interact_y_limits)
         menubar.add_cascade(label="Limits",menu=limits)
 
+        ticks = tk.Menu(menubar,tearoff=0)
+        ticks.add_command(label="Change Y ticks",command = interact_y_ticks)
         if time_xaxis:
-            ticks_x=tk.Menu(menubar,tearoff=0)
-            ticks_x.add_command(label="Change X ticks",command = interact_x_ticks)
-            menubar.add_cascade(label="X ticks",menu=ticks_x)
+            ticks.add_command(label="Change X ticks",command = interact_x_ticks)
+        menubar.add_cascade(label="Ticks",menu=ticks)
 
         annotates=tk.Menu(menubar,tearoff=0)
         annotates.add_command(label="Text",command=add_text)

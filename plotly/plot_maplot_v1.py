@@ -4,7 +4,7 @@ import re
 import datetime
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-from matplotlib.ticker import AutoMinorLocator, FormatStrFormatter,LinearLocator,MaxNLocator
+from matplotlib.ticker import AutoMinorLocator, FormatStrFormatter,LinearLocator,MaxNLocator,MultipleLocator
 
 import matplotlib as mpl
 mpl.use('TkAgg')
@@ -25,7 +25,7 @@ Active_En = ['apc:En']
 Reactive_En = ['rpc:En']
 QV_En = ['rpc:VCEn']
 AVR_En = ['avr:En']
-Frequency_En = ['apc:FCEn','apc:FCAct']
+Frequency_En = ['apc:FCEn']
 PowerFactor_En = ['pfc:En']
 Expected_En=['apc:REn']
 
@@ -332,7 +332,7 @@ def plot_PF(TIME,PF,PFSP,PFEN):
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
     ax.xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
     ax.xaxis.set_minor_locator(AutoMinorLocator())
-    ax.yaxis.set_major_locator(MaxNLocator(nbins=20,integer=True))
+    ax.yaxis.set_major_locator(MaxNLocator(nbins=20))
     ax.yaxis.set_minor_locator(AutoMinorLocator())
     ax.set_ylabel('PF',fontdict=font)
     ax.set_xlabel('TIME',fontdict=font)
@@ -362,9 +362,9 @@ def plot_F_P(TIME,P,PSP,F,FSP,FEN):
     ax2=ax.twinx()
     #Plot Measurement
     l1=ax.plot(TIME,P_copy,label='P(kVAr)',color=measurement1,linewidth=2)
-    # l2=ax2.plot(TIME,F,label='F(Hz)',color=measurement2,linewidth=2)
+    l2=ax2.plot(TIME,F,label='F(Hz)',color=measurement2,linewidth=2)
     #Plot Setpoints
-    # l3=ax.plot(TIME,PSP_copy,label='P Setpoint',color=setpoint1,linewidth=0.5)
+    l3=ax.plot(TIME,PSP_copy,label='P Setpoint',color=setpoint1,linewidth=0.5)
     #
     l4=ax2.plot(TIME,FSP_copy,label='F Setpoint',color=setpoint2,linewidth=2)
     #Formatting axis
@@ -381,7 +381,7 @@ def plot_F_P(TIME,P,PSP,F,FSP,FEN):
     ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.yaxis.set_major_locator(MaxNLocator(nbins=20,integer=True))
     ax.yaxis.set_minor_locator(AutoMinorLocator())
-    ax2.yaxis.set_major_locator(MaxNLocator(nbins=20,integer=True))
+    ax2.yaxis.set_major_locator(MaxNLocator(nbins=20))
     ax2.yaxis.set_minor_locator(AutoMinorLocator())
 
     m,M=calc_minmax(P_copy,PSP_copy)
@@ -390,7 +390,7 @@ def plot_F_P(TIME,P,PSP,F,FSP,FEN):
     m,M=calc_minmax(FSP_copy)
     ax2.set_ylim(m,M)
 
-    lns = l1+l4
+    lns = l1+l2+l3+l4
     #l.set_zorder(0.1)
     for l in lns:
         l.set_picker(5)
@@ -406,7 +406,7 @@ def plot_F_P(TIME,P,PSP,F,FSP,FEN):
     ax.tick_params(labelsize=10)
     ax.set_title('Frequency Control',fontdict=font,x=0.5,y=1.1)
 
-    lines = [l1[0],l4[0]]
+    lines = [l1[0],l2[0],l3[0],l4[0]]
 
     return (fig,fig.axes,lines,leg)
 
