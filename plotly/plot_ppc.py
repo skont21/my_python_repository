@@ -764,10 +764,16 @@ def plot_choise(button):
 
 
         def reset():
-            fig.axes[0].xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
             fig.axes[0].set_xlim(xlim_0)
+            fig.axes[0].xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
+            for tick in axes[0].get_xticklabels():
+                tick.set_rotation(30)
             for ind,ax in enumerate(axes):
                 ax.set_ylim(ylims_0[ind])
+                ax.yaxis.set_major_locator(MaxNLocator(nbins=20))
+                ax.yaxis.set_minor_locator(AutoMinorLocator())
+                for tick in ax.get_yticklabels():
+                    tick.set_rotation(0)
             fig.canvas.draw()
 
         master.protocol("WM_DELETE_WINDOW")
@@ -1388,11 +1394,13 @@ def plot_choise(button):
         def interact_x_ticks():
 
             def apply_xticks():
+
                 try:
                     x_val = float(e_x_tick.get())
                 except:
                     x_val = 10
                 x_int = var_xtick.get()
+
                 if x_int == 'sec':
                     loc = mdates.SecondLocator(interval = int(x_val))
                     loc.MAXTICKS=20000
@@ -1404,17 +1412,25 @@ def plot_choise(button):
                 elif x_int == 'h':
                     fig.axes[0].xaxis.set_major_locator(mdates.HourLocator(interval = int(x_val)))
                 try:
+                    rot = e_x_tick_rot.get()
+                    for tick in axes[0].get_xticklabels():
+                        tick.set_rotation(float(rot))
                     fig.canvas.draw()
                     change_xticks.destroy()
+
                 except RuntimeError:
                     messagebox.showwarning("Warning","Too many ticks-Zoom in",parent=change_xticks)
                     fig.axes[0].xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
-                    fig.canvas.draw()
+                    for tick in axes[0].get_xticklabels():
+                        tick.set_rotation(30)
+                    fig.canvas.draw_idle()
                     change_xticks.destroy()
 
 
             def reset_xticks():
                 fig.axes[0].xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
+                for tick in axes[0].get_xticklabels():
+                    tick.set_rotation(30)
                 fig.canvas.draw_idle()
                 change_xticks.destroy()
 
@@ -1433,38 +1449,43 @@ def plot_choise(button):
                 e_x_tick = tk.Spinbox(change_xticks,from_=1, to=60,bd=5,width=10,textvariable=x_tick_val,increment=1)
                 e_x_tick.grid(row=0,column=1)
 
-
                 xtick_int = ['sec','min','h']
                 var_xtick = tk.StringVar(change_xticks)
                 var_xtick.set(xtick_int[0])
                 w_xtick = tk.OptionMenu(change_xticks, var_xtick, *xtick_int)
                 w_xtick.grid(row=0,column=2)
 
-                apply_xtick = tk.Button(change_xticks, text='Apply',command=apply_xticks).grid(row=1,column=0,pady=5)
-                reset_xtick = tk.Button(change_xticks, text='Reset',command=reset_xticks).grid(row=1,column=1,pady=5)
+                x_tick_rot = tk.StringVar(change_xticks)
+                x_tick_rot.set(axes[0].get_xticklabels()[0].get_rotation())
+                y_tick = tk.Label(change_xticks, text="Rotation:").grid(row=1,column=0)
+                e_x_tick_rot = tk.Spinbox(change_xticks,from_=0, to=360,bd=5,width=10,textvariable=x_tick_rot,increment=10)
+                e_x_tick_rot.grid(row=1,column=1,sticky=tk.W)
+
+                apply_xtick = tk.Button(change_xticks, text='Apply',command=apply_xticks).grid(row=2,column=0,pady=5)
+                reset_xtick = tk.Button(change_xticks, text='Reset',command=reset_xticks).grid(row=2,column=1,pady=5)
 
         def interact_y_ticks():
 
             def apply_yticks():
+                for ind,ax in enumerate(axes):
+                    rot=y_rots[ind].get()
+                    for tick in ax.get_yticklabels():
+                        tick.set_rotation(float(rot))
+                    int=y_ticks[ind].get()
+                    ax.yaxis.set_major_locator(MultipleLocator(float(int)))
+
                 try:
-                    for ind,ax in enumerate(axes):
-                        int=y_ticks[ind].get()
-                        rot=y_rots[ind].get()
-                        ax.yaxis.set_major_locator(MultipleLocator(float(int)))
-                        for tick in ax.get_yticklabels():
-                            tick.set_rotation(float(rot))
+                    fig.canvas.draw()
+                    change_yticks.destroy()
                 except RuntimeError:
-                    messagebox.showwarning("Warning","Too many ticks-Zoom in",parent=change_xticks)
+                    messagebox.showwarning("Warning","Too many ticks-Zoom in",parent=change_yticks)
                     for ax in axes:
                         ax.yaxis.set_major_locator(MaxNLocator(nbins=20))
                         ax.yaxis.set_minor_locator(AutoMinorLocator())
                         for tick in ax.get_yticklabels():
                             tick.set_rotation(0)
-                    fig.canvas.draw()
+                    fig.canvas.draw_idle()
                     change_yticks.destroy()
-
-                fig.canvas.draw_idle()
-                change_yticks.destroy()
 
             def reset_yticks():
                 for ax in axes:
@@ -1491,14 +1512,14 @@ def plot_choise(button):
                     y_tick_entries.append(y_title)
 
                     y_tick_val = tk.StringVar(change_yticks)
-                    y_tick_val.set(1)
+                    y_tick_val.set(ax.get_yticks()[1]-ax.get_yticks()[0])
                     y_tick = tk.Label(change_yticks, text="Put ticks every:").grid(row=1,column=2*ind)
-                    e_y_tick = tk.Spinbox(change_yticks,from_=100, to=5000,bd=5,width=10,textvariable=y_tick_val,increment=1)
+                    e_y_tick = tk.Spinbox(change_yticks,from_=10, to=20000,bd=5,width=10,textvariable=y_tick_val,increment=10)
                     e_y_tick.grid(row=1,column=2*ind+1,sticky=tk.W)
                     y_ticks.append(e_y_tick)
 
                     y_tick_rot = tk.StringVar(change_yticks)
-                    y_tick_rot.set(1)
+                    y_tick_rot.set(ax.get_yticklabels()[0].get_rotation())
                     y_tick = tk.Label(change_yticks, text="Rotation:").grid(row=2,column=2*ind)
                     e_y_tick_rot = tk.Spinbox(change_yticks,from_=0, to=360,bd=5,width=10,textvariable=y_tick_rot,increment=10)
                     e_y_tick_rot.grid(row=2,column=2*ind+1,sticky=tk.W)
