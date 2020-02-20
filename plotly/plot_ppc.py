@@ -21,6 +21,8 @@ grid_color=((11,11,11),'#b0b0b0')
 dead_flag = 0
 line_deads=[]
 line_deads_val=[]
+time_xaxis=True
+strace=1
 
 weights = ['normal','bold',]
 styles = ['normal', 'italic']
@@ -477,17 +479,14 @@ def plot_choise(button):
     global strace
     global line_deads_val
 
-
     def ask_trace(title,sets):
-        global strace
-        def destroyer():
-            input_trace.destroy()
 
         def get_strace():
             global strace
-            strace=vs.get()
+            trace=select_trace_val.get()
+            strace = traces.index(trace) +1
+            input_trace.destroy()
 
-        strace=""
         input_trace=tk.Toplevel(choose_plot)
         input_trace.geometry("+{}+{}".format(choose_plot.winfo_x(),choose_plot.winfo_y()))
         input_trace.resizable(width=False, height=False)
@@ -495,17 +494,17 @@ def plot_choise(button):
         input_trace.protocol("WM_DELETE_WINDOW")
         input_trace.title(title)
 
-        j=0
-        vs=tk.IntVar()
-        for s in sets.columns:
-            sb=tk.Radiobutton(input_trace,text=s,variable=vs,value=j+1)
-            sb.grid(row=j+1,column=0,columnspan=2)
-            sb.config(command= get_strace)
-            j=j+1
-
         tk.Label(input_trace,text="Please select trace for "+title).grid(row=0,column=0,columnspan=2)
-        quit_trace = tk.Button(input_trace,text='Apply',command=destroyer)
-        quit_trace.grid(row=j+1,columnspan=2)
+
+        traces = list(sets.columns)
+
+        select_trace_val = tk.StringVar(input_trace)
+        select_trace_val.set(traces[0])
+        e_select_trace = tk.OptionMenu(input_trace, select_trace_val, *traces)
+        e_select_trace.grid(row=1,column=0,columnspan=2,sticky=tk.NSEW)
+
+        quit_trace = tk.Button(input_trace,text='Apply',command=get_strace)
+        quit_trace.grid(row=2,columnspan=2)
         input_trace.deiconify()
         input_trace.grab_set()
         input_trace.wait_window(input_trace)
@@ -631,6 +630,7 @@ def plot_choise(button):
         except:
             return None
 
+    global time_xaxis
     time_xaxis=True
     if button_text=="P":
 
@@ -639,6 +639,7 @@ def plot_choise(button):
         else:
             strace=1
         try:
+            print(strace)
             fig,axes,lines,leg= plot_P(time,m['P'].iloc[:,0],s['P'].iloc[:,strace-1],en['P'].iloc[:,0])
         except TypeError:
             messagebox.showwarning("Warning","Select a trace",parent=choose_plot)
@@ -764,10 +765,17 @@ def plot_choise(button):
 
 
         def reset():
+            global time_xaxis
             fig.axes[0].set_xlim(xlim_0)
-            fig.axes[0].xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
+            if time_xaxis:
+                fig.axes[0].xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
+            else:
+                fig.axes[0].xaxis.set_major_locator(MaxNLocator(nbins=20))
+                fig.axes[0].xaxis.set_minor_locator(AutoMinorLocator())
+
             for tick in axes[0].get_xticklabels():
                 tick.set_rotation(30)
+
             for ind,ax in enumerate(axes):
                 ax.set_ylim(ylims_0[ind])
                 ax.yaxis.set_major_locator(MaxNLocator(nbins=20))
@@ -1390,8 +1398,59 @@ def plot_choise(button):
 
                 quit_y=tk.Button(change_ylim, text='Quit',command=change_ylim.destroy).grid(row=2*len(axes)+3, column=0, sticky=tk.W, pady=4)
                 apply_y = tk.Button(change_ylim,text='Apply', command=ylimits).grid(row=2*len(axes)+3,column=1,sticky=tk.W, pady=4)
-
         def interact_x_ticks():
+
+                def apply_xticks():
+                    int=e_x_tick.get()
+                    axes[0].xaxis.set_major_locator(MultipleLocator(float(int)))
+
+                    try:
+                        rot=  e_x_tick_rot.get()
+                        for tick in axes[0].get_xticklabels():
+                          tick.set_rotation(float(rot))
+                        fig.canvas.draw()
+                        change_xticks.destroy()
+                    except RuntimeError:
+                        messagebox.showwarning("Warning","Too many ticks-Zoom in",parent=change_xticks)
+                        axes[0].xaxis.set_major_locator(MaxNLocator(nbins=20))
+                        axes[0].xaxis.set_minor_locator(AutoMinorLocator())
+                        for tick in axes[0].get_xticklabels():
+                            tick.set_rotation(30)
+                        fig.canvas.draw_idle()
+                        change_xticks.destroy()
+
+                def reset_xticks():
+                    axes[0].xaxis.set_major_locator(MaxNLocator(nbins=20))
+                    axes[0].xaxis.set_minor_locator(AutoMinorLocator())
+                    for tick in axes[0].get_xticklabels():
+                        tick.set_rotation(30)
+                    fig.canvas.draw_idle()
+                    change_xticks.destroy()
+
+                try:
+                    if 'normal' == change_xticks().state():
+                        change_xticks.lift()
+                except:
+                    change_xticks=tk.Toplevel(master)
+                    change_xticks.resizable(width=False,height=False)
+                    change_xticks.title("X-ticks")
+
+                    x_tick_val = tk.StringVar(change_xticks)
+                    x_tick_val.set(axes[0].get_xticks()[1]-axes[0].get_xticks()[0])
+                    x_tick = tk.Label(change_xticks, text="Put ticks every:").grid(row=0,column=0)
+                    e_x_tick = tk.Spinbox(change_xticks,from_=10, to=20000,bd=5,width=10,textvariable=x_tick_val,increment=10)
+                    e_x_tick.grid(row=0,column=1,sticky=tk.W)
+
+                    x_tick_rot = tk.StringVar(change_xticks)
+                    x_tick_rot.set(axes[0].get_xticklabels()[0].get_rotation())
+                    x_tick = tk.Label(change_xticks, text="Rotation:").grid(row=1,column=0)
+                    e_x_tick_rot = tk.Spinbox(change_xticks,from_=0, to=360,bd=5,width=10,textvariable=x_tick_rot,increment=10)
+                    e_x_tick_rot.grid(row=1,column=1,sticky=tk.W)
+
+                    apply_xtick = tk.Button(change_xticks, text='Apply',command=apply_xticks).grid(row=2,column=0,pady=5)
+                    reset_xtick = tk.Button(change_xticks, text='Reset',command=reset_xticks).grid(row=2,column=1,pady=5)
+
+        def interact_x_ticks_time():
 
             def apply_xticks():
 
@@ -1445,13 +1504,13 @@ def plot_choise(button):
 
 
                 x_tick_val = tk.StringVar(change_xticks)
-                x_tick_val.set(1)
+                x_tick_val.set(10)
                 e_x_tick = tk.Spinbox(change_xticks,from_=1, to=60,bd=5,width=10,textvariable=x_tick_val,increment=1)
                 e_x_tick.grid(row=0,column=1)
 
                 xtick_int = ['sec','min','h']
                 var_xtick = tk.StringVar(change_xticks)
-                var_xtick.set(xtick_int[0])
+                var_xtick.set(xtick_int[1])
                 w_xtick = tk.OptionMenu(change_xticks, var_xtick, *xtick_int)
                 w_xtick.grid(row=0,column=2)
 
@@ -1638,6 +1697,8 @@ def plot_choise(button):
         ticks = tk.Menu(menubar,tearoff=0)
         ticks.add_command(label="Change Y ticks",command = interact_y_ticks)
         if time_xaxis:
+            ticks.add_command(label="Change X ticks",command = interact_x_ticks_time)
+        else:
             ticks.add_command(label="Change X ticks",command = interact_x_ticks)
         menubar.add_cascade(label="Ticks",menu=ticks)
 
