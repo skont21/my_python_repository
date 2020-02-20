@@ -1233,6 +1233,7 @@ def plot_choise(button):
                     try:
                         lines[ind].set_linewidth(trace_widths[ind].get())
                         leg.get_lines()[ind].set_linewidth(trace_widths[ind].get())
+                        leg.get_lines()[ind].set_linestyle(trace_styles[ind].get())
                         lines[ind].set_alpha(float(trace_alphas[ind].get()))
                         lines[ind].set_linestyle(trace_styles[ind].get())
                         if dead_flag !=0:
