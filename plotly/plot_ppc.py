@@ -775,6 +775,8 @@ def plot_choise(button):
 
             for tick in axes[0].get_xticklabels():
                 tick.set_rotation(30)
+                tick.set_fontsize(10)
+                tick.set_fontweight('normal')
 
             for ind,ax in enumerate(axes):
                 ax.set_ylim(ylims_0[ind])
@@ -782,6 +784,8 @@ def plot_choise(button):
                 ax.yaxis.set_minor_locator(AutoMinorLocator())
                 for tick in ax.get_yticklabels():
                     tick.set_rotation(0)
+                    tick.set_fontsize(10)
+                    tick.set_fontweight('normal')
             fig.canvas.draw()
 
         master.protocol("WM_DELETE_WINDOW")
@@ -1407,8 +1411,11 @@ def plot_choise(button):
 
                     try:
                         rot=  e_x_tick_rot.get()
+                        s = e_x_tick_size.get()
                         for tick in axes[0].get_xticklabels():
-                          tick.set_rotation(float(rot))
+                            tick.set_rotation(float(rot))
+                            tick.set_fontsize(float(s))
+                            tick.set_fontweight(var_weight_xtick.get())
                         fig.canvas.draw()
                         change_xticks.destroy()
                     except RuntimeError:
@@ -1417,6 +1424,8 @@ def plot_choise(button):
                         axes[0].xaxis.set_minor_locator(AutoMinorLocator())
                         for tick in axes[0].get_xticklabels():
                             tick.set_rotation(30)
+                            tick.set_fontsize(10)
+                            tick.set_fontweight('normal')
                         fig.canvas.draw_idle()
                         change_xticks.destroy()
 
@@ -1425,6 +1434,8 @@ def plot_choise(button):
                     axes[0].xaxis.set_minor_locator(AutoMinorLocator())
                     for tick in axes[0].get_xticklabels():
                         tick.set_rotation(30)
+                        tick.set_fontsize(10)
+                        tick.set_fontweight('normal')
                     fig.canvas.draw_idle()
                     change_xticks.destroy()
 
@@ -1448,11 +1459,24 @@ def plot_choise(button):
                     e_x_tick_rot = tk.Spinbox(change_xticks,from_=0, to=360,bd=5,width=10,textvariable=x_tick_rot,increment=10)
                     e_x_tick_rot.grid(row=1,column=1,sticky=tk.W)
 
-                    apply_xtick = tk.Button(change_xticks, text='Apply',command=apply_xticks).grid(row=2,column=0,pady=5)
-                    reset_xtick = tk.Button(change_xticks, text='Reset',command=reset_xticks).grid(row=2,column=1,pady=5)
+                    x_tick_size = tk.StringVar(change_xticks)
+                    x_tick_size.set(axes[0].get_xticklabels()[0].get_fontsize())
+                    x_tick = tk.Label(change_xticks, text="FontSize:").grid(row=2,column=0)
+                    e_x_tick_size = tk.Spinbox(change_xticks,from_=2, to=30,bd=5,width=10,textvariable=x_tick_size,increment=1)
+                    e_x_tick_size.grid(row=2,column=1,sticky=tk.W)
+
+                    x_tick_weight_label = tk.Label(change_xticks, text="FontWeight").grid(row=3)
+                    var_weight_xtick = tk.StringVar(change_xticks)
+                    var_weight_xtick.set(axes[0].get_xticklabels()[0].get_fontweight())
+                    x_tick_weight = tk.OptionMenu(change_xticks, var_weight_xtick, *weights)
+                    x_tick_weight.grid(row=3,column=1,sticky=tk.W)
+
+                    apply_xtick = tk.Button(change_xticks, text='Apply',command=apply_xticks).grid(row=4,column=0,pady=5)
+                    reset_xtick = tk.Button(change_xticks, text='Reset',command=reset_xticks).grid(row=4,column=1,pady=5)
 
         def interact_x_ticks_time():
 
+            global weights
             def apply_xticks():
 
                 try:
@@ -1473,8 +1497,11 @@ def plot_choise(button):
                     fig.axes[0].xaxis.set_major_locator(mdates.HourLocator(interval = int(x_val)))
                 try:
                     rot = e_x_tick_rot.get()
+                    s = e_x_tick_size.get()
                     for tick in axes[0].get_xticklabels():
                         tick.set_rotation(float(rot))
+                        tick.set_fontsize(float(s))
+                        tick.set_fontweight(var_weight_xtick.get())
                     fig.canvas.draw()
                     change_xticks.destroy()
 
@@ -1483,6 +1510,8 @@ def plot_choise(button):
                     fig.axes[0].xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
                     for tick in axes[0].get_xticklabels():
                         tick.set_rotation(30)
+                        tick.set_fontsize(10)
+                        tick.set_fontweight('normal')
                     fig.canvas.draw_idle()
                     change_xticks.destroy()
 
@@ -1491,6 +1520,8 @@ def plot_choise(button):
                 fig.axes[0].xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
                 for tick in axes[0].get_xticklabels():
                     tick.set_rotation(30)
+                    tick.set_fontsize(10)
+                    tick.set_fontweight('normal')
                 fig.canvas.draw_idle()
                 change_xticks.destroy()
 
@@ -1521,16 +1552,34 @@ def plot_choise(button):
                 e_x_tick_rot = tk.Spinbox(change_xticks,from_=0, to=360,bd=5,width=10,textvariable=x_tick_rot,increment=10)
                 e_x_tick_rot.grid(row=1,column=1,sticky=tk.W)
 
-                apply_xtick = tk.Button(change_xticks, text='Apply',command=apply_xticks).grid(row=2,column=0,pady=5)
-                reset_xtick = tk.Button(change_xticks, text='Reset',command=reset_xticks).grid(row=2,column=1,pady=5)
+                x_tick_size = tk.StringVar(change_xticks)
+                x_tick_size.set(axes[0].get_xticklabels()[0].get_fontsize())
+                x_tick = tk.Label(change_xticks, text="FontSize:").grid(row=2,column=0)
+                e_x_tick_size = tk.Spinbox(change_xticks,from_=2, to=30,bd=5,width=10,textvariable=x_tick_size,increment=1)
+                e_x_tick_size.grid(row=2,column=1,sticky=tk.W)
+
+                x_tick_weight_label = tk.Label(change_xticks, text="FontWeight").grid(row=3)
+                var_weight_xtick = tk.StringVar(change_xticks)
+                var_weight_xtick.set(axes[0].get_xticklabels()[0].get_fontweight())
+                x_tick_weight = tk.OptionMenu(change_xticks, var_weight_xtick, *weights)
+                x_tick_weight.grid(row=3,column=1,sticky=tk.W)
+
+                apply_xtick = tk.Button(change_xticks, text='Apply',command=apply_xticks).grid(row=4,column=0,pady=5)
+                reset_xtick = tk.Button(change_xticks, text='Reset',command=reset_xticks).grid(row=4,column=1,pady=5)
 
         def interact_y_ticks():
+
+            global weights
 
             def apply_yticks():
                 for ind,ax in enumerate(axes):
                     rot=y_rots[ind].get()
+                    s = y_sizes[ind].get()
+                    w = y_weights[ind].get()
                     for tick in ax.get_yticklabels():
                         tick.set_rotation(float(rot))
+                        tick.set_fontsize(float(s))
+                        tick.set_fontweight(w)
                     int=y_ticks[ind].get()
                     ax.yaxis.set_major_locator(MultipleLocator(float(int)))
 
@@ -1544,6 +1593,8 @@ def plot_choise(button):
                         ax.yaxis.set_minor_locator(AutoMinorLocator())
                         for tick in ax.get_yticklabels():
                             tick.set_rotation(0)
+                            tick.set_fontsize(10)
+                            tick.set_fontweight('normal')
                     fig.canvas.draw_idle()
                     change_yticks.destroy()
 
@@ -1553,6 +1604,8 @@ def plot_choise(button):
                     ax.yaxis.set_minor_locator(AutoMinorLocator())
                     for tick in ax.get_yticklabels():
                         tick.set_rotation(0)
+                        tick.set_fontsize(10)
+                        tick.set_fontweight('normal')
                 fig.canvas.draw_idle()
                 change_yticks.destroy()
 
@@ -1566,6 +1619,8 @@ def plot_choise(button):
                 y_tick_entries=[]
                 y_ticks=[]
                 y_rots=[]
+                y_sizes=[]
+                y_weights=[]
                 for ind,ax in enumerate(axes):
 
                     y_title = tk.Label(change_yticks, text="Y"+str(ind+1)+"-label").grid(row=0,column=2*ind,columnspan=2)
@@ -1585,8 +1640,22 @@ def plot_choise(button):
                     e_y_tick_rot.grid(row=2,column=2*ind+1,sticky=tk.W)
                     y_rots.append(e_y_tick_rot)
 
+                    y_tick_size = tk.StringVar(change_yticks)
+                    y_tick_size.set(ax.get_yticklabels()[0].get_fontsize())
+                    y_tick = tk.Label(change_yticks, text="FontSize:").grid(row=3,column=2*ind)
+                    e_y_tick_size = tk.Spinbox(change_yticks,from_=2, to=30,bd=5,width=10,textvariable=y_tick_size,increment=1)
+                    e_y_tick_size.grid(row=3,column=2*ind+1,sticky=tk.W)
+                    y_sizes.append(e_y_tick_size)
+
+                    y_tick_weight_label = tk.Label(change_yticks, text="FontWeight").grid(row=4,column=2*ind)
+                    var_weight_ytick = tk.StringVar(change_yticks)
+                    var_weight_ytick.set(ax.get_yticklabels()[0].get_fontweight())
+                    y_tick_weight = tk.OptionMenu(change_yticks, var_weight_ytick, *weights)
+                    y_tick_weight.grid(row=4,column=2*ind+1,sticky=tk.W)
+                    y_weights.append(var_weight_ytick)
+
                 ytick_frame = tk.Frame(change_yticks)
-                ytick_frame.grid(row=3,column=0,columnspan=2*len(axes),pady=10)
+                ytick_frame.grid(row=5,column=0,columnspan=2*len(axes),pady=10)
                 apply_ytick = tk.Button(ytick_frame, text='Apply',command=apply_yticks).grid(row=0,column=0,pady=5)
                 reset_ytick = tk.Button(ytick_frame, text='Reset',command=reset_yticks).grid(row=0,column=1,pady=5)
 
