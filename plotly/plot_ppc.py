@@ -639,7 +639,7 @@ def plot_choise(button):
         else:
             strace=1
         try:
-            print(strace)
+            # print(strace)
             fig,axes,lines,leg= plot_P(time,m['P'].iloc[:,0],s['P'].iloc[:,strace-1],en['P'].iloc[:,0])
         except TypeError:
             messagebox.showwarning("Warning","Select a trace",parent=choose_plot)
@@ -710,7 +710,7 @@ def plot_choise(button):
         xtrace = ask_xtrace(data,"X-axis trace")
         if xtrace != None:
             ytraces=ask_ytrace(data,"Y-axis traces")
-            print(ytraces)
+            # print(ytraces)
             if ytraces:
                 y1_traces=[]
                 for tr in ytraces:
@@ -1248,7 +1248,7 @@ def plot_choise(button):
                         line_deads_val[ind]=float(trace_deads[ind].get())
                         line_deads.insert(ind,lb)
                     except:
-                        print(trace_styles[ind].get())
+                        # print(trace_styles[ind].get())
                         lines[ind].set_linewidth(2)
                         lines[ind].set_alpha(1)
                         lines[ind].set_linestyle('-')
@@ -1715,31 +1715,37 @@ def plot_choise(button):
             dhs.append(dh)
 
         das=[]
+        arrow_lines=[]
         def add_arrow():
             def apply_arrow():
                 choise = variable.get()
                 x=fig.axes[0].get_xlim()[0]+(fig.axes[0].get_xlim()[1]-fig.axes[0].get_xlim()[0])/2
                 y=fig.axes[0].get_ylim()[0]+(fig.axes[0].get_ylim()[1]-fig.axes[0].get_ylim()[0])/10
                 xstart = fig.axes[0].get_xlim()[0]+(fig.axes[0].get_xlim()[1]-fig.axes[0].get_xlim()[0])/10
+                if axes[0].get_facecolor()<(0.5,0.5,0.5,1):
+                    c='#FFFFFF'
+                else:
+                    c='#000000'
                 if choise == "No Arrow":
-                    arrow_line = fig.axes[0].annotate(s="",xy=(x,y),xytext=(xstart,y), arrowprops=dict(lw=2,arrowstyle='-',color="#000000",ls='-',alpha=1),picker=5)
+                    arrow_line = fig.axes[0].annotate(s="",xy=(x,y),xytext=(xstart,y), arrowprops=dict(lw=2,arrowstyle='-',color=c,ls='-',alpha=1),picker=5)
                     fig.canvas.draw_idle()
                     da = move_obj(arrow_line,fig,"Arrow",master)
                     da.connect_obj()
                     das.append(da)
                 elif choise == "Single Arrow":
-                    arrow_line = fig.axes[0].annotate(s="",xy=(x,y),xytext=(xstart,y), arrowprops=dict(lw=2,arrowstyle='->',color="#000000",ls='-',alpha=1),picker=5)
+                    arrow_line = fig.axes[0].annotate(s="",xy=(x,y),xytext=(xstart,y), arrowprops=dict(lw=2,arrowstyle='->',color=c,ls='-',alpha=1),picker=5)
                     fig.canvas.draw_idle()
                     da = move_obj(arrow_line,fig,"Arrow",master)
                     da.connect_obj()
                     das.append(da)
 
                 elif choise == "Double Arrow":
-                    arrow_line = fig.axes[0].annotate(s="",xy=(x,y),xytext=(xstart,y), arrowprops=dict(lw=2,arrowstyle='<->',color="#000000",ls='-',alpha=1),picker=5)
+                    arrow_line = fig.axes[0].annotate(s="",xy=(x,y),xytext=(xstart,y), arrowprops=dict(lw=2,arrowstyle='<->',color=c,ls='-',alpha=1),picker=5)
                     fig.canvas.draw_idle()
                     da = move_obj(arrow_line,fig,"Arrow",master)
                     da.connect_obj()
                     das.append(da)
+                arrow_lines.append(arrow_line)
                 arrow_choice.destroy()
 
             arrow_choice=tk.Toplevel(master)
@@ -1825,10 +1831,21 @@ def plot_choise(button):
         def hover(event):
             if event.inaxes in axes:
                 for ax in axes:
+                    info = info_dic[ax]
+                    for text in ax.texts:
+                        if (text in arrow_lines)|(text in texts):
+                            cont, ind = text.contains(event)
+                            if cont:
+                                print(text)
+                                info.set_visible(True)
+                                fig.canvas.draw_idle()
+                            else:
+                                if info.get_visible():
+                                    info.set_visible(False)
+                                    fig.canvas.draw_idle()
                     for line in ax.lines:
                         cont, ind = line.contains(event)
                         annot = annot_dic[ax]
-                        info = info_dic[ax]
                         if cont:
                             if (line in hlines)|(line in vlines):
                                 info.set_visible(True)
