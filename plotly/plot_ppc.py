@@ -753,6 +753,7 @@ def plot_choise(button):
         master.grid_columnconfigure(0, weight=1)
         master.grid_rowconfigure(0, weight=1)
 
+
         def destroyer():
             global grid_color
             global dead_flag
@@ -1780,7 +1781,40 @@ def plot_choise(button):
         menubar.add_cascade(label="Annotate",menu=annotates)
 
 
+        annots = []
+        for ax in axes:
+            annot = ax.annotate("", xy=(0,0), xytext=(-20,20),textcoords="offset points",bbox=dict(boxstyle="round", fc="w"))
+            annot.set_visible(False)
+            annots.append(annot)
 
+
+        annot_dic = dict(zip(axes, annots))
+
+        def update_annot(l,annot,ind):
+            x,y = l.get_data()
+            xc = x[ind["ind"][0]]
+            yc = y[ind["ind"][0]]
+            annot.xy = (xc, yc)
+            text = "({},{})".format(str(xc).split("T")[1].split(".")[0],yc)
+            annot.set_text(text)
+
+        def hover(event):
+            if event.inaxes in axes:
+                for ax in axes:
+                    for line in ax.lines:
+                        cont, ind = line.contains(event)
+                        annot = annot_dic[ax]
+                        if cont:
+                            update_annot(line, annot, ind)
+                            annot.set_visible(True)
+                            fig.canvas.draw_idle()
+                            break
+                        else:
+                            if annot.get_visible():
+                                annot.set_visible(False)
+                                fig.canvas.draw_idle()
+
+        canvas.mpl_connect("motion_notify_event", hover)
         # we will set up a dict mapping legend line to orig line, and enable
         # picking on the legend line
 
@@ -1803,8 +1837,10 @@ def plot_choise(button):
                 # Change the alpha on the line in the legend so we can see what lines
                 # have been toggled
                 if vis:
+                    origline.set_pickradius(5)
                     legline.set_alpha(1.0)
                 else:
+                    origline.set_pickradius(0)
                     legline.set_alpha(0.2)
                 fig.canvas.draw_idle()
 

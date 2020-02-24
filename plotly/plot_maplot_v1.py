@@ -442,7 +442,7 @@ def plot_AVR(TIME,V,AVRSP,Q,AVREN):
     ax2.yaxis.set_major_locator(MaxNLocator(nbins=20,integer=True))
     ax2.yaxis.set_minor_locator(AutoMinorLocator())
 
-    m,M=calc_minmax(V)
+    m,M=calc_minmax(V,AVRSP_copy)
 
     ax.set_ylim(m,M)
 
