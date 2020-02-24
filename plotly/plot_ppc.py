@@ -1331,6 +1331,12 @@ def plot_choise(button):
                 fig.canvas.draw_idle()
                 change_axes.destroy()
 
+            def quit_axes():
+                ax.set_facecolor((0.9607843137254902, 0.9607843137254902, 0.9607843137254902, 1.0))
+                fig.set_facecolor((1.0, 1.0, 1.0, 1.0))
+                change_axes.destroy()
+
+
             def plot_bg_color():
                 bg_color=colorchooser.askcolor(title="Pick Color")
                 if  bg_color != (None,None):
@@ -1368,7 +1374,7 @@ def plot_choise(button):
                 axes_mg_color_button.config(activebackground=axes_mg_color_button.cget('background'))
                 axes_mg_color_button.grid(row=1,column=1)
 
-                quit_axes=tk.Button(change_axes, text='Quit',command=change_axes.destroy).grid(row=3, column=0, sticky=tk.W, pady=4)
+                quit_axes=tk.Button(change_axes, text='Quit',command=quit_axes).grid(row=3, column=0, sticky=tk.W, pady=4)
                 apply_axes = tk.Button(change_axes,text='Apply', command=edit_axes).grid(row=3,column=1,sticky=tk.W, pady=4)
 
         def interact_y_limits():
@@ -1682,7 +1688,11 @@ def plot_choise(button):
         vlines=[]
         def add_vertical():
             x=fig.axes[0].get_xlim()[0]+(fig.axes[0].get_xlim()[1]-fig.axes[0].get_xlim()[0])/2
-            v_line=fig.axes[0].axvline(x=x,linewidth=2,ls="--",c='#000000',alpha=1,picker=5)
+            if axes[0].get_facecolor()<(0.5,0.5,0.5,1):
+                c='#FFFFFF'
+            else:
+                c='#000000'
+            v_line=fig.axes[0].axvline(x=x,linewidth=2,ls="--",c=c,alpha=1,picker=5)
             vlines.append(v_line)
             fig.canvas.draw_idle()
             dv = move_obj(v_line,fig,"Vertical",master)
@@ -1693,7 +1703,11 @@ def plot_choise(button):
         hlines=[]
         def add_horizontal():
             y=fig.axes[0].get_ylim()[0]+(fig.axes[0].get_ylim()[1]-fig.axes[0].get_ylim()[0])/10
-            h_line=fig.axes[0].axhline(y=y,linewidth=2,ls="--",c='#000000',alpha=1,picker=5)
+            if axes[0].get_facecolor()<(0.5,0.5,0.5,1):
+                c='#FFFFFF'
+            else:
+                c='#000000'
+            h_line=fig.axes[0].axhline(y=y,linewidth=2,ls="--",c=c,alpha=1,picker=5)
             hlines.append(h_line)
             fig.canvas.draw_idle()
             dh = move_obj(h_line,fig,"Horizontal",master)
@@ -1782,21 +1796,31 @@ def plot_choise(button):
 
 
         annots = []
+        infos=[]
         for ax in axes:
             annot = ax.annotate("", xy=(0,0), xytext=(-20,20),textcoords="offset points",bbox=dict(boxstyle="round", fc="w"))
             annot.set_visible(False)
             annots.append(annot)
-
+            info=ax.annotate('Double Click to edit',
+            xy=(0.74,0.9),
+            xycoords=('axes fraction'),
+            size=12,bbox=dict(boxstyle="round", fc="w",alpha=0.5))
+            infos.append(info)
+            info.set_visible(False)
 
         annot_dic = dict(zip(axes, annots))
+        info_dic = dict(zip(axes, infos))
 
         def update_annot(l,annot,ind):
             x,y = l.get_data()
             xc = x[ind["ind"][0]]
             yc = y[ind["ind"][0]]
             annot.xy = (xc, yc)
-            text = "({},{})".format(str(xc).split("T")[1].split(".")[0],yc)
-            annot.set_text(text)
+            try:
+                text = "({},{})".format(str(xc).split("T")[1].split(".")[0],yc)
+                annot.set_text(text)
+                annot.get_bbox_patch().set_facecolor(l.get_color())
+            except:pass
 
         def hover(event):
             if event.inaxes in axes:
@@ -1804,17 +1828,25 @@ def plot_choise(button):
                     for line in ax.lines:
                         cont, ind = line.contains(event)
                         annot = annot_dic[ax]
+                        info = info_dic[ax]
                         if cont:
-                            update_annot(line, annot, ind)
-                            annot.set_visible(True)
-                            fig.canvas.draw_idle()
-                            break
+                            if (line in hlines)|(line in vlines):
+                                info.set_visible(True)
+                            else:
+                                update_annot(line, annot, ind)
+                                annot.set_visible(True)
+                                fig.canvas.draw_idle()
+                                break
                         else:
                             if annot.get_visible():
                                 annot.set_visible(False)
                                 fig.canvas.draw_idle()
+                            if info.get_visible():
+                                info.set_visible(False)
+                                fig.canvas.draw_idle()
 
         canvas.mpl_connect("motion_notify_event", hover)
+
         # we will set up a dict mapping legend line to orig line, and enable
         # picking on the legend line
 
