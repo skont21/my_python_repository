@@ -819,6 +819,14 @@ def plot_choise(button):
         resetbutton.config(command=reset)
         resetbutton.grid(row=0,columnspan=2,sticky=tk.NSEW)
 
+        # global texts
+        # global vlines
+        # global hlines
+
+        texts=[]
+        vlines=[]
+        hlines=[]
+        arrow_lines=[]
 
         def interact_title():
             def title():
@@ -1326,7 +1334,6 @@ def plot_choise(button):
                 apply_traces = tk.Button(but_frame,text='Apply',command=edit_traces).grid(row=1,column=2,columnspan=2, pady=4,sticky=tk.NSEW)
 
         def interact_axes():
-
             def edit_axes():
                 fig.canvas.draw_idle()
                 change_axes.destroy()
@@ -1344,7 +1351,18 @@ def plot_choise(button):
                         ax.set_facecolor(bg_color[1])
                     axes_bg_color_button.config(background=bg_color[1])
                     axes_bg_color_button.config(activebackground=axes_bg_color_button.cget('background'))
-
+                    if vlines:
+                        for v in vlines:
+                            if bg_color[1] < "#b0b0b0":
+                                v.set_color('#FFFFFF')
+                    if hlines:
+                        for h in hlines:
+                            if bg_color[1] < "#b0b0b0":
+                                h.set_color('#FFFFFF')
+                    if arrow_lines:
+                        for a in arrow_lines:
+                            if bg_color[1] < "#b0b0b0":
+                                a.arrow_patch.set_edgecolor("#FFFFFF")
 
             def plot_mg_color():
                 mg_color=colorchooser.askcolor(title="Pick Color")
@@ -1666,12 +1684,9 @@ def plot_choise(button):
                 apply_ytick = tk.Button(ytick_frame, text='Apply',command=apply_yticks).grid(row=0,column=0,pady=5)
                 reset_ytick = tk.Button(ytick_frame, text='Reset',command=reset_yticks).grid(row=0,column=1,pady=5)
 
-        global texts
-        global vlines
-        global hlines
 
         drs=[]
-        texts=[]
+
         def add_text():
             props = dict(boxstyle='round', facecolor='#F5DEB3', alpha=1)
             y=fig.axes[0].get_ylim()[0]+(fig.axes[0].get_ylim()[1]-fig.axes[0].get_ylim()[0])/10
@@ -1685,13 +1700,14 @@ def plot_choise(button):
             drs.append(dr)
 
         dvs=[]
-        vlines=[]
+
         def add_vertical():
             x=fig.axes[0].get_xlim()[0]+(fig.axes[0].get_xlim()[1]-fig.axes[0].get_xlim()[0])/2
             if axes[0].get_facecolor()<(0.5,0.5,0.5,1):
                 c='#FFFFFF'
             else:
                 c='#000000'
+            # print(axes[0].get_facecolor())
             v_line=fig.axes[0].axvline(x=x,linewidth=2,ls="--",c=c,alpha=1,picker=5)
             vlines.append(v_line)
             fig.canvas.draw_idle()
@@ -1700,7 +1716,7 @@ def plot_choise(button):
             dvs.append(dv)
 
         dhs=[]
-        hlines=[]
+
         def add_horizontal():
             y=fig.axes[0].get_ylim()[0]+(fig.axes[0].get_ylim()[1]-fig.axes[0].get_ylim()[0])/10
             if axes[0].get_facecolor()<(0.5,0.5,0.5,1):
@@ -1715,7 +1731,7 @@ def plot_choise(button):
             dhs.append(dh)
 
         das=[]
-        arrow_lines=[]
+
         def add_arrow():
             def apply_arrow():
                 choise = variable.get()
@@ -1804,7 +1820,7 @@ def plot_choise(button):
         annots = []
         infos=[]
         for ax in axes:
-            annot = ax.annotate("", xy=(0,0), xytext=(-20,20),textcoords="offset points",bbox=dict(boxstyle="round", fc="w"))
+            annot = ax.annotate("", xy=(0,0), xytext=(-20,-20),textcoords="offset points",bbox=dict(boxstyle="round", fc="w"))
             annot.set_visible(False)
             annots.append(annot)
             info=ax.annotate('Double Click to edit',
@@ -1823,32 +1839,50 @@ def plot_choise(button):
             yc = y[ind["ind"][0]]
             annot.xy = (xc, yc)
             try:
+                if isinstance(l.get_color(),str):
+                    cc = "#b0b0b0"
+                else:
+                    cc = (0.5,0.5,0.5,1)
+                if l.get_color()< cc:
+                    c='#FFFFFF'
+                else:
+                    c='#000000'
                 text = "({},{})".format(str(xc).split("T")[1].split(".")[0],yc)
                 annot.set_text(text)
+                annot.set_color(c)
                 annot.get_bbox_patch().set_facecolor(l.get_color())
-            except:pass
+            except:
+                print(l.get_color())
+                pass
 
         def hover(event):
+            vis=False
             if event.inaxes in axes:
                 for ax in axes:
                     info = info_dic[ax]
+                    annot = annot_dic[ax]
+
                     for text in ax.texts:
                         if (text in arrow_lines)|(text in texts):
                             cont, ind = text.contains(event)
                             if cont:
-                                print(text)
                                 info.set_visible(True)
                                 fig.canvas.draw_idle()
+                                vis=True
+                                break
                             else:
                                 if info.get_visible():
                                     info.set_visible(False)
                                     fig.canvas.draw_idle()
+                    if vis:
+                        break
                     for line in ax.lines:
                         cont, ind = line.contains(event)
-                        annot = annot_dic[ax]
                         if cont:
                             if (line in hlines)|(line in vlines):
                                 info.set_visible(True)
+                                fig.canvas.draw_idle()
+                                break
                             else:
                                 update_annot(line, annot, ind)
                                 annot.set_visible(True)
