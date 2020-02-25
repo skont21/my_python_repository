@@ -507,10 +507,10 @@ def plot_QV(TIME,V,QVSP,Q,QSP,QVEN):
     ax2.yaxis.set_minor_locator(AutoMinorLocator())
 
     m,M=calc_minmax(V,QVSP)
-    ax.set_ylim((min(V.max(),QVSP.min()))-1000,max(V.max(),QVSP.max())+1000)
+    ax.set_ylim(m,M)
 
     m,M=calc_minmax(Q,QSP)
-    ax2.set_ylim(min(Q.min(),QSP.min())*2,max(Q.max(),QSP.max())*2)
+    ax2.set_ylim(m,M)
 
     lns = l1+l2+l3+l4
     for l in lns:

@@ -83,26 +83,28 @@ class move_obj:
                 if self.align=="Arrow":
                     if self.obj.xy[0]>self.obj.xyann[0]:
                         if (x0>bb_datacoords.xmin+(bb_datacoords.xmax-bb_datacoords.xmin)/2):
-                            if (x0>bb_datacoords.xmax)|(y0>bb_datacoords.ymax)|(y0<bb_datacoords.ymin):
+                            if (x0>bb_datacoords.xmax)|(y0>bb_datacoords.ymax*1.01)|(y0<bb_datacoords.ymin*0.99):
                                 return
+                            print("Ending")
                             self.ending = True
                             self.pick = True
                         else:
-                            if (x0<bb_datacoords.xmin)|(y0>bb_datacoords.ymax)|(y0<bb_datacoords.ymin):
+                            if (x0<bb_datacoords.xmin)|(y0>bb_datacoords.ymax*1.01)|(y0<bb_datacoords.ymin*0.99):
                                 return
+                            print("Beginning")
                             self.pick = True
                     else:
                         if (x0<bb_datacoords.xmin+(bb_datacoords.xmax-bb_datacoords.xmin)/2):
-                            if (x0<bb_datacoords.xmin)|(y0>bb_datacoords.ymax)|(y0<bb_datacoords.ymin):
+                            if (x0<bb_datacoords.xmin)|(y0>bb_datacoords.ymax*1.01)|(y0<bb_datacoords.ymin*0.99):
                                 return
                             self.ending = True
                             self.pick = True
                         else:
-                            if (x0<bb_datacoords.xmin)|(y0>bb_datacoords.ymax)|(y0<bb_datacoords.ymin):
+                            if (x0<bb_datacoords.xmin)|(y0>bb_datacoords.ymax*1.01)|(y0<bb_datacoords.ymin*0.99):
                                 return
                             self.pick = True
                 elif self.align==None:
-                    if (x0>bb_datacoords.xmax)|(x0<bb_datacoords.xmin)|(y0>bb_datacoords.ymax)|(y0<bb_datacoords.ymin):
+                    if (x0>bb_datacoords.xmax)|(x0<bb_datacoords.xmin)|(y0>bb_datacoords.ymax*1.01)|(y0<bb_datacoords.ymin*0.99):
                         return
                     self.pick = True
         elif isinstance(event.artist, Line2D):
@@ -653,7 +655,7 @@ def plot_choise(button):
         else:
             strace=1
         try:
-            fig,axes,lines,leg= plot_Pexp(time,m['P'].iloc[:,0],s['P'].iloc[:,strace-1],en['P'].iloc[:,0],m['Pexp'])
+            fig,axes,lines,leg= plot_Pexp(time,m['P'].iloc[:,0],s['P'].iloc[:,strace-1],en['P'].iloc[:,0],m['Pexp'].iloc[:,0])
         except TypeError:
             messagebox.showwarning("Warning","Select a trace",parent=choose_plot)
 
@@ -678,7 +680,7 @@ def plot_choise(button):
         else:
             strace=1
         try:
-            fig,axes,lines,leg= plot_QV(time,m['V'].iloc[:,0],s['QV'].iloc[:,0],m['Q'].iloc[:,0],s['Q'][:,strace-1],en['QV'].iloc[:,0])
+            fig,axes,lines,leg= plot_QV(time,m['V'].iloc[:,0],s['QV'].iloc[:,0],m['Q'].iloc[:,0],s['Q'].iloc[:,strace-1],en['QV'].iloc[:,0])
         except TypeError:
             messagebox.showwarning("Warning","Select a trace",parent=choose_plot)
 
@@ -1366,9 +1368,10 @@ def plot_choise(button):
 
                     if arrow_lines:
                         for a in arrow_lines:
-                            if ( (bg_color[1] < "#b0b0b0")&(Color(a.arrow_patch.get_edgecolor()[0:3]).hex < "#b0b0b0") ) | ( ( bg_color[1] > "#b0b0b0")&(Color(a.arrow_patch.get_edgecolor()[0:3]).hex> "#b0b0b0" ) ):
-                                print("yes")
-                                c = ( Color(hex="#b0b0b0") + Color(hex='#FFFFFF') - Color(hex=Color(a.arrow_patch.get_edgecolor()[0:3]).hex) ).hex
+                            if ( (bg_color[1] < "#b0b0b0") & (a.arrow_patch.get_edgecolor() < (0.69,0.69,0.69,1)) ) | ( ( bg_color[1] > "#b0b0b0")&(a.arrow_patch.get_edgecolor()> (0.69,0.69,0.69,1) ) ):
+                                a_c = a.arrow_patch.get_edgecolor()
+                                a_c_mod  = (255*a_c[0],255*a_c[1],255*a_c[2])
+                                c = c = ( Color(hex="#b0b0b0") + Color(hex='#FFFFFF') - Color(a_c_mod)).hex
                                 a.arrow_patch.set_edgecolor(c)
 
             def plot_mg_color():
@@ -1566,15 +1569,29 @@ def plot_choise(button):
                 change_xticks.title("X-ticks")
                 xtick_label = tk.Label(change_xticks, text="Put X ticks every: ").grid(row=0,column=0)
 
+                hd=int(axes[0].get_xticklabels()[1].get_text().split(':')[0])-int(axes[0].get_xticklabels()[0].get_text().split(':')[0])
+                md=int(axes[0].get_xticklabels()[1].get_text().split(':')[1])-int(axes[0].get_xticklabels()[0].get_text().split(':')[1])
+                sd=int(axes[0].get_xticklabels()[1].get_text().split(':')[2])-int(axes[0].get_xticklabels()[0].get_text().split(':')[2])
+
+                td = hd*3600+md*60+sd
+
+                if td/60>=1:
+                    td = td/60
+                    tv = "min"
+                elif td/3600>=1:
+                    td = td/3600
+                    tv = "h"
+                else:
+                    tv = "sec"
 
                 x_tick_val = tk.StringVar(change_xticks)
-                x_tick_val.set(10)
+                x_tick_val.set(td)
                 e_x_tick = tk.Spinbox(change_xticks,from_=1, to=60,bd=5,width=10,textvariable=x_tick_val,increment=1)
                 e_x_tick.grid(row=0,column=1)
 
                 xtick_int = ['sec','min','h']
                 var_xtick = tk.StringVar(change_xticks)
-                var_xtick.set(xtick_int[1])
+                var_xtick.set(tv)
                 w_xtick = tk.OptionMenu(change_xticks, var_xtick, *xtick_int)
                 w_xtick.grid(row=0,column=2)
 
@@ -1970,6 +1987,11 @@ for k,v, in plots.items():
         photos.append(photo)
     elif v == "PF":
         f = io.BytesIO(base64.b64decode(PFim))
+        image = Image.open(f)
+        photo = ImageTk.PhotoImage(image,master=choose_plot)
+        photos.append(photo)
+    elif v == "QV":
+        f = io.BytesIO(base64.b64decode(Qvim))
         image = Image.open(f)
         photo = ImageTk.PhotoImage(image,master=choose_plot)
         photos.append(photo)
