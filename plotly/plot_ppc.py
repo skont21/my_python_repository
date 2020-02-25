@@ -14,7 +14,9 @@ import sys
 import re
 import numpy as np
 import matplotlib.dates as mdates
+from colorutils import Color
 mpl.use('TkAgg')
+
 num_tr=0
 sel_traces=[]
 grid_color=((11,11,11),'#b0b0b0')
@@ -1353,16 +1355,21 @@ def plot_choise(button):
                     axes_bg_color_button.config(activebackground=axes_bg_color_button.cget('background'))
                     if vlines:
                         for v in vlines:
-                            if bg_color[1] < "#b0b0b0":
-                                v.set_color('#FFFFFF')
+                            if ( (bg_color[1] < "#b0b0b0")&(v.get_color() < "#b0b0b0") ) | ( ( bg_color[1] > "#b0b0b0")&(v.get_color() > "#b0b0b0" ) ) :
+                                c = ( Color(hex="#b0b0b0") + Color(hex='#FFFFFF') - Color(hex=v.get_color()) ).hex
+                                v.set_color(c)
                     if hlines:
                         for h in hlines:
-                            if bg_color[1] < "#b0b0b0":
-                                h.set_color('#FFFFFF')
+                            if  ( (bg_color[1] < "#b0b0b0")&(h.get_color() < "#b0b0b0") ) | ( ( bg_color[1] > "#b0b0b0")&(h.get_color() > "#b0b0b0" ) ):
+                                c = ( Color(hex="#b0b0b0") + Color(hex='#FFFFFF') - Color(hex=h.get_color()) ).hex
+                                h.set_color(c)
+
                     if arrow_lines:
                         for a in arrow_lines:
-                            if bg_color[1] < "#b0b0b0":
-                                a.arrow_patch.set_edgecolor("#FFFFFF")
+                            if ( (bg_color[1] < "#b0b0b0")&(Color(a.arrow_patch.get_edgecolor()[0:3]).hex < "#b0b0b0") ) | ( ( bg_color[1] > "#b0b0b0")&(Color(a.arrow_patch.get_edgecolor()[0:3]).hex> "#b0b0b0" ) ):
+                                print("yes")
+                                c = ( Color(hex="#b0b0b0") + Color(hex='#FFFFFF') - Color(hex=Color(a.arrow_patch.get_edgecolor()[0:3]).hex) ).hex
+                                a.arrow_patch.set_edgecolor(c)
 
             def plot_mg_color():
                 mg_color=colorchooser.askcolor(title="Pick Color")
