@@ -57,10 +57,12 @@ def get_data_from_csv(data_csv):
         data=pd.read_csv(data_csv,delimiter=" ")
         if data.columns[0]!='TIME':
             data=pd.read_csv(data_csv,delimiter=",")
-        if data.columns[0]!='TIME':
-            data=pd.read_csv(data_csv,delimiter=";")
-        if "." in data['TIME'][0]:
-            data['TIME']= data['TIME'].str.split(".",n=1,expand=True)[0]
+        # if data.columns[0]!='TIME':
+        #     data=pd.read_csv(data_csv,delimiter=";")
+        if data.columns[0]=='TIME':
+            if "." in data['TIME'][0]:
+                data['TIME']= data['TIME'].str.split(".",n=1,expand=True)[0]
+            data['TIME']=data['TIME'].apply(lambda x : datetime.datetime.strptime(x, '%H:%M:%S'))
         data.replace("---",np.NaN,inplace=True)
         for col in data.select_dtypes('object').columns:
             try:
@@ -68,7 +70,6 @@ def get_data_from_csv(data_csv):
             except ValueError:
                 continue
         data = data.round(3)
-        data['TIME']=data['TIME'].apply(lambda x : datetime.datetime.strptime(x, '%H:%M:%S'))
         return data
     except FileNotFoundError as e:
         print(e)
@@ -76,12 +77,15 @@ def get_data_from_csv(data_csv):
 
 def get_traces(data):
 
-    time =data['TIME']
-    if pd.Timestamp(1900,1,1,0,0,0) in time.to_list():
-        new_day = time.index[time == pd.Timestamp(1900,1,1,0,0,0)].tolist()
-        time_new = time.copy()
-        time_new[time_new.index>=new_day[0]]=time[time.index>8070]+datetime.timedelta(days=1)
-        time=time_new
+    try:
+        time =data['TIME']
+        if pd.Timestamp(1900,1,1,0,0,0) in time.to_list():
+            new_day = time.index[time == pd.Timestamp(1900,1,1,0,0,0)].tolist()
+            time_new = time.copy()
+            time_new[time_new.index>=new_day[0]]=time[time.index>8070]+datetime.timedelta(days=1)
+            time=time_new
+    except:
+        time = pd.Series()
 
     P = [l for k in Active for l in data.columns if re.match(k,l)]
     Q = [l for k in Reactive for l in data.columns if re.match(k,l)]
