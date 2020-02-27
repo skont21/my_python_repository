@@ -85,13 +85,13 @@ class move_obj:
                         if (x0>bb_datacoords.xmin+(bb_datacoords.xmax-bb_datacoords.xmin)/2):
                             if (x0>bb_datacoords.xmax)|(y0>bb_datacoords.ymax*1.01)|(y0<bb_datacoords.ymin*0.99):
                                 return
-                            print("Ending")
+                            # print("Ending")
                             self.ending = True
                             self.pick = True
                         else:
                             if (x0<bb_datacoords.xmin)|(y0>bb_datacoords.ymax*1.01)|(y0<bb_datacoords.ymin*0.99):
                                 return
-                            print("Beginning")
+                            # print("Beginning")
                             self.pick = True
                     else:
                         if (x0<bb_datacoords.xmin+(bb_datacoords.xmax-bb_datacoords.xmin)/2):
@@ -1019,12 +1019,16 @@ def plot_choise(button):
 
                 for ind,ax in enumerate(axes):
 
-                    gl=ax.get_xgridlines()[0]
+                    glx=ax.get_xgridlines()[0]
+                    gly=ax.get_ygridlines()[0]
                     grid_title = tk.Label(change_grid, text="Y"+str(ind+1)+"-grid").grid(row=0,column=2*ind,columnspan=2)
 
                     grid_on = tk.Label(change_grid, text="Y"+str(ind+1)+"-grid").grid(row=1,column=2*ind)
                     grid_on_val=tk.StringVar(change_grid)
-                    grid_on_val.set('Show')
+                    if glx.get_visible() | gly.get_visible():
+                        grid_on_val.set('Show')
+                    else:
+                        grid_on_val.set('Hide')
                     e_grid_on = tk.OptionMenu(change_grid, grid_on_val, *on_off)
                     e_grid_on.grid(row=1,column=2*ind+1,sticky=tk.W)
                     grid_ons.append(grid_on_val)
@@ -1038,22 +1042,27 @@ def plot_choise(button):
 
                     grid_axis = tk.Label(change_grid, text="Axes").grid(row=3,column=2*ind)
                     grid_axis_val = tk.StringVar(change_grid)
-                    grid_axis_val.set(which_axis[0])
+                    if glx.get_visible() & gly.get_visible():
+                        grid_axis_val.set(which_axis[0])
+                    elif (glx.get_visible()) & (not gly.get_visible()):
+                        grid_axis_val.set(which_axis[2])
+                    else:
+                        grid_axis_val.set(which_axis[1])
                     e_grid_axis = tk.OptionMenu(change_grid, grid_axis_val, *which_axis)
                     e_grid_axis.grid(row=3,column=2*ind+1,sticky=tk.W)
                     grid_axes.append(grid_axis_val)
 
                     grid_style= tk.Label(change_grid,text="Line Style").grid(row=4,column=2*ind)
                     grid_style_val=tk.StringVar(change_grid)
-                    grid_style_val.set(gl.get_linestyle())
+                    grid_style_val.set(glx.get_linestyle())
                     e_grid_style = tk.OptionMenu(change_grid, grid_style_val, *linestyles)
                     e_grid_style.grid(row=4,column=2*ind+1,sticky=tk.W)
                     grid_styles.append(grid_style_val)
 
                     grid_width= tk.Label(change_grid,text="Line Width").grid(row=5,column=2*ind)
                     grid_width_val=tk.StringVar(change_grid)
-                    grid_width_val.set(gl.get_linewidth())
-                    e_grid_width = tk.Spinbox(change_grid,from_=1, to=10,bd=5,width=5,textvariable=grid_width_val,increment=0.5)
+                    grid_width_val.set(glx.get_linewidth())
+                    e_grid_width = tk.Spinbox(change_grid,from_=0, to=10,bd=5,width=5,textvariable=grid_width_val,increment=0.5)
                     e_grid_width.grid(row=5,column=2*ind+1,sticky=tk.W)
                     grid_widths.append(grid_width_val)
 
@@ -1061,7 +1070,7 @@ def plot_choise(button):
                 grid_color_frame.grid(row=6,column=0,columnspan=2*len(axes),pady=10)
 
                 grid_color_label= tk.Label(grid_color_frame,text="Color").grid(row=0,column=0)
-                grid_color_button= tk.Button(grid_color_frame,text="          ",background =gl.get_c())
+                grid_color_button= tk.Button(grid_color_frame,text="          ",background =glx.get_c())
                 grid_color_button.config(command=grid_color)
                 grid_color_button.config(activebackground=grid_color_button.cget('background'))
                 grid_color_button.grid(row=0,column=1)
@@ -1409,7 +1418,6 @@ def plot_choise(button):
             def ylimits():
                 for ind,l_y in enumerate(ymin_lims):
                     axes[ind].set_ylim(float(l_y.get()),float(ymax_lims[ind].get()))
-                    # ax.yaxis.set_minor_locator(AutoMinorLocator())
                 fig.canvas.draw_idle()
                 change_ylim.destroy()
 
@@ -1482,10 +1490,11 @@ def plot_choise(button):
                     change_xticks.resizable(width=False,height=False)
                     change_xticks.title("X-ticks")
 
+                    x_tick_current_int = ax.get_xticks()[1]-ax.get_xticks()[0]
                     x_tick_val = tk.StringVar(change_xticks)
-                    x_tick_val.set(axes[0].get_xticks()[1]-axes[0].get_xticks()[0])
+                    x_tick_val.set(x_tick_current_int)
                     x_tick = tk.Label(change_xticks, text="Put ticks every:").grid(row=0,column=0)
-                    e_x_tick = tk.Spinbox(change_xticks,from_=10, to=20000,bd=5,width=10,textvariable=x_tick_val,increment=10)
+                    e_x_tick = tk.Spinbox(change_xticks,from_=0, to=x_tick_current_int*100,bd=5,width=10,textvariable=x_tick_val,increment=x_tick_current_int/10)
                     e_x_tick.grid(row=0,column=1,sticky=tk.W)
 
                     x_tick_rot = tk.StringVar(change_xticks)
@@ -1676,9 +1685,10 @@ def plot_choise(button):
                     y_tick_entries.append(y_title)
 
                     y_tick_val = tk.StringVar(change_yticks)
-                    y_tick_val.set(ax.get_yticks()[1]-ax.get_yticks()[0])
+                    y_tick_current_int = ax.get_yticks()[1]-ax.get_yticks()[0]
+                    y_tick_val.set(y_tick_current_int)
                     y_tick = tk.Label(change_yticks, text="Put ticks every:").grid(row=1,column=2*ind)
-                    e_y_tick = tk.Spinbox(change_yticks,from_=10, to=20000,bd=5,width=10,textvariable=y_tick_val,increment=10)
+                    e_y_tick = tk.Spinbox(change_yticks,from_=0, to=y_tick_current_int*100,bd=5,width=10,textvariable=y_tick_val,increment=y_tick_current_int/10)
                     e_y_tick.grid(row=1,column=2*ind+1,sticky=tk.W)
                     y_ticks.append(e_y_tick)
 
@@ -1862,22 +1872,23 @@ def plot_choise(button):
             xc = x[ind["ind"][0]]
             yc = y[ind["ind"][0]]
             annot.xy = (xc, yc)
-            try:
-                if isinstance(l.get_color(),str):
-                    cc = "#b0b0b0"
-                else:
-                    cc = (0.5,0.5,0.5,1)
-                if l.get_color()< cc:
-                    c='#FFFFFF'
-                else:
-                    c='#000000'
-                text = "({},{})".format(str(xc).split("T")[1].split(".")[0],yc)
-                annot.set_text(text)
-                annot.set_color(c)
-                annot.get_bbox_patch().set_facecolor(l.get_color())
-            except:
-                print(l.get_color())
-                pass
+            # try:
+            print(l.get_color())
+            if isinstance(l.get_color(),str):
+                cc = "#b0b0b0"
+            else:
+                cc = (0.5,0.5,0.5,1)
+            if l.get_color()< cc:
+                c='#FFFFFF'
+            else:
+                c='#000000'
+            text = "({},{})".format(str(xc).split("T")[1].split(".")[0],yc)
+            annot.set_text(text)
+            annot.set_color(c)
+            annot.get_bbox_patch().set_facecolor(l.get_color())
+            # except:
+            #     print(l.get_color())
+            #     pass
 
         def hover(event):
             vis=False
@@ -1908,6 +1919,7 @@ def plot_choise(button):
                                 fig.canvas.draw_idle()
                                 break
                             else:
+                                # print(line)
                                 update_annot(line, annot, ind)
                                 annot.set_visible(True)
                                 fig.canvas.draw_idle()

@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import re
 import datetime
+from colorutils import *
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from matplotlib.ticker import AutoMinorLocator, FormatStrFormatter,LinearLocator,MaxNLocator,MultipleLocator
@@ -189,7 +190,7 @@ def plot_P(TIME,P,PSP,PEN):
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.set_facecolor('whitesmoke')
-    ax.grid(which='major',ls='--',lw=1,c='#b0b0b0',alpha=0.5)
+    ax.grid(which='both',ls='--',lw=1,c='#b0b0b0',alpha=0.5)
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
     ax.xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
     ax.xaxis.set_minor_locator(AutoMinorLocator())
@@ -666,6 +667,14 @@ def plot_meas(TIME,meas):
     return (fig,fig.axes,lines,leg)
 
 def custom_plot(x,ys):
+    import random
+    import string
+
+    def randstring(n):
+      alphabet = string.ascii_letters[0:6] + string.digits
+      hexc = ''.join(random.choice(alphabet) for i in range(n))
+      return '#'+hexc
+
     lines=[]
     axes=[]
     fig, ax = plt.subplots(figsize=(10,5))
@@ -680,11 +689,15 @@ def custom_plot(x,ys):
     j=1
     for arg in ys:
         if arg["ax2"]==False:
-            l,=ax.plot(x,arg["tr"],label="Y1,"+str(i),color=np.random.rand(3,),linewidth=2)
+            l,=ax.plot(x,arg["tr"],label="Y1,"+str(i),color=randstring(6),linewidth=2)
+            # color = tuple(l.get_color())
+            # l.set_color(Color(color).hex)
             lines.append(l)
             i+=1
         else:
-            l,=ax2.plot(x,arg["tr"],label="Y2,"+str(j),color=np.random.rand(3,),linewidth=2)
+            l,=ax2.plot(x,arg["tr"],label="Y2,"+str(j),color=randstring(6),linewidth=2)
+            # color = tuple(l.get_color())
+            # l.set_color(Color(color).hex)
             lines.append(l)
             j+=1
 
