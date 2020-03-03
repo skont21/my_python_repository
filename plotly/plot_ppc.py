@@ -15,6 +15,7 @@ import re
 import numpy as np
 import matplotlib.dates as mdates
 from colorutils import Color
+import pickle
 mpl.use('TkAgg')
 
 num_tr=0
@@ -439,7 +440,7 @@ class move_obj:
         self.figure.canvas.mpl_disconnect(self.cidmotion)
 
 csv=''
-# while not csv:
+
 input_csv = tk.Tk()
 input_csv.withdraw()
 csv = filedialog.askopenfilename(initialdir = "/home",title = "Select csv file",filetypes = (("csv files","*.csv"),),parent=input_csv)
@@ -768,6 +769,12 @@ def plot_choise(button):
 
             master.destroy()
 
+        def save():
+            file = filedialog.asksaveasfilename(initialdir = ".",title = "Select file",filetypes = (("pickle files","*.pickle"),("all files","*.*")),parent=master)
+            with open(file, 'wb') as f: # should be 'wb' rather than 'w'
+                pickle.dump(fig, f) 
+            master.destroy()
+
 
         def reset():
             global time_xaxis
@@ -778,19 +785,19 @@ def plot_choise(button):
                 fig.axes[0].xaxis.set_major_locator(MaxNLocator(nbins=20))
                 fig.axes[0].xaxis.set_minor_locator(AutoMinorLocator())
 
-            for tick in axes[0].get_xticklabels():
-                tick.set_rotation(30)
-                tick.set_fontsize(10)
-                tick.set_fontweight('normal')
+            # for tick in axes[0].get_xticklabels():
+            #     tick.set_rotation(30)
+            #     tick.set_fontsize(10)
+            #     tick.set_fontweight('normal')
 
             for ind,ax in enumerate(axes):
                 ax.set_ylim(ylims_0[ind])
                 ax.yaxis.set_major_locator(MaxNLocator(nbins=20))
                 ax.yaxis.set_minor_locator(AutoMinorLocator())
-                for tick in ax.get_yticklabels():
-                    tick.set_rotation(0)
-                    tick.set_fontsize(10)
-                    tick.set_fontweight('normal')
+                # for tick in ax.get_yticklabels():
+                #     tick.set_rotation(0)
+                #     tick.set_fontsize(10)
+                #     tick.set_fontweight('normal')
             fig.canvas.draw()
 
         master.protocol("WM_DELETE_WINDOW")
@@ -814,14 +821,23 @@ def plot_choise(button):
         buttons_frame=tk.Frame(master)
         buttons_frame.grid(row=2,columnspan=2,sticky=tk.NSEW)
         buttons_frame.grid_columnconfigure(0,weight=1)
+        buttons_frame.grid_columnconfigure(1,weight=1)
+        buttons_frame.grid_rowconfigure(0,weight=1)
+        buttons_frame.grid_rowconfigure(1,weight=1)
 
+        resetbutton=HoverButton(buttons_frame, text="Reset Axes",activebackground='red',background = "white",borderwidth=2,relief="raised")
+        resetbutton.config(command=reset)
+        resetbutton.grid(row=0,column=0,sticky=tk.NSEW)
+
+        savebutton=HoverButton(buttons_frame, text="Save Interactive",activebackground='red',background="white",borderwidth=2,relief="raised")
+        savebutton.config(command=save)
+        savebutton.grid(row=0,column=1,sticky=tk.NSEW)
 
         quitbutton=HoverButton(buttons_frame,text="Quit",activebackground='red')
         quitbutton.config(command=destroyer)
-        quitbutton.grid(row=1,column=0)
-        resetbutton=HoverButton(buttons_frame, text="Reset",activebackground='red',background = "white",borderwidth=2,relief="raised")
-        resetbutton.config(command=reset)
-        resetbutton.grid(row=0,columnspan=2,sticky=tk.NSEW)
+        quitbutton.grid(row=1,columnspan=2,sticky=tk.NSEW)
+
+
 
         # global texts
         # global vlines
@@ -1873,7 +1889,7 @@ def plot_choise(button):
             yc = y[ind["ind"][0]]
             annot.xy = (xc, yc)
             # try:
-            print(l.get_color())
+            # print(l.get_color())
             if isinstance(l.get_color(),str):
                 cc = "#b0b0b0"
             else:
@@ -1882,6 +1898,7 @@ def plot_choise(button):
                 c='#FFFFFF'
             else:
                 c='#000000'
+            print(xc)
             text = "({},{})".format(str(xc).split("T")[1].split(".")[0],yc)
             annot.set_text(text)
             annot.set_color(c)

@@ -689,13 +689,13 @@ def custom_plot(x,ys):
     j=1
     for arg in ys:
         if arg["ax2"]==False:
-            l,=ax.plot(x,arg["tr"],label="Y1,"+str(i),color=randstring(6),linewidth=2)
+            l,=ax.plot(x,arg["tr"],label="Y1,"+str(i),color=randstring(6),linewidth=1)
             # color = tuple(l.get_color())
             # l.set_color(Color(color).hex)
             lines.append(l)
             i+=1
         else:
-            l,=ax2.plot(x,arg["tr"],label="Y2,"+str(j),color=randstring(6),linewidth=2)
+            l,=ax2.plot(x,arg["tr"],label="Y2,"+str(j),color=randstring(6),linewidth=1)
             # color = tuple(l.get_color())
             # l.set_color(Color(color).hex)
             lines.append(l)
@@ -703,7 +703,7 @@ def custom_plot(x,ys):
 
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
-    ax.set_facecolor('whitesmoke')
+    ax.set_facecolor('#000000')
     ax.grid(which='major',ls='--',lw=1,c='#b0b0b0',alpha=0.5)
     ax.xaxis.set_minor_locator(AutoMinorLocator())
     if isinstance(x[0],pd._libs.tslibs.timestamps.Timestamp):
