@@ -165,6 +165,91 @@ def calc_minmax(*args):
     M = b+(b-a)/10
     return(m,M)
 
+def plot_existing(figure):
+    import random
+    import string
+
+    def randstring(n):
+      alphabet = string.ascii_letters[0:6] + string.digits
+      hexc = ''.join(random.choice(alphabet) for i in range(n))
+      return '#'+hexc
+
+    fig, ax = plt.subplots(figsize=(10,5))
+    x = figure.axes[0].lines[0].get_data()[0]
+    if isinstance(x[0],np.datetime64):
+        x = [str(el).split("T")[1].split(".")[0] for el in x]
+        time = pd.Series(x)
+        time= time.apply(lambda y : datetime.datetime.strptime(str(y), '%H:%M:%S'))
+        x=pd.Series(time)
+
+    num_a=0
+    lines=[]
+    i=1
+    j=1
+    if len(figure.axes)>1:
+        ax2=ax.twinx()
+
+    for a in figure.axes:
+        for l in a.lines:
+            y = l.get_data()[1]
+            if num_a==0:
+                line,=ax.plot(x,y,color=randstring(6),linewidth=1)
+                line.set_label(figure.axes[num_a].lines[i-1].get_label())
+                i+=1
+            else:
+                line,=ax2.plot(x,y,color=randstring(6),linewidth=1)
+                line.set_label(figure.axes[num_a].lines[j-1].get_label())
+                j+=1
+            l.set_picker(5)
+            l.set_alpha(1)
+            lines.append(line)
+
+        num_a+=1
+
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.set_facecolor('#000000')
+    ax.grid(which='major',ls='--',lw=0.5,c='#b0b0b0',alpha=0.5)
+    ax.xaxis.set_minor_locator(AutoMinorLocator())
+    if isinstance(x[0],pd._libs.tslibs.timestamps.Timestamp):
+        ax.xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
+        ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
+    else:
+        ax.xaxis.set_major_locator(MaxNLocator(nbins=20,integer=True))
+        ax.xaxis.set_minor_locator(AutoMinorLocator())
+
+    ax.yaxis.set_major_locator(MaxNLocator(nbins=20,integer=True))
+    ax.yaxis.set_minor_locator(AutoMinorLocator())
+    ax.set_xlabel(figure.axes[0].get_xlabel(),fontdict=font)
+    ax.set_xlabel(figure.axes[0].get_ylabel(),fontdict=font)
+    ax.set_title(figure.axes[0].get_title(),fontdict=font,x=0.5,y=1.1)
+
+    labs = [l.get_label() for l in lines]
+    leg = ax.legend(lines,labs,bbox_to_anchor=(0.5, 1.1),loc='upper center',ncol=len(lines),prop=legend_font,
+                   fancybox=True, shadow=True)
+    fig.autofmt_xdate()
+
+    if j > 1:
+        ax2.spines["top"].set_visible(False)
+        ax2.yaxis.set_major_locator(MaxNLocator(nbins=20,integer=True))
+        ax2.yaxis.set_minor_locator(AutoMinorLocator())
+        ax.set_xlabel(figure.axes[1].get_xlabel(),fontdict=font)
+
+    try:
+        m = min([min(calc_minmax(l.get_data()[1])) for l in ax2.lines])
+        M = max([max(calc_minmax(l.get_data()[1])) for l in ax2.lines])
+        ax2.set_ylim(m,M)
+    except:pass
+
+    try:
+        m = min([min(calc_minmax(l.get_data()[1])) for l in ax.lines])
+        M = max([max(calc_minmax(l.get_data()[1])) for l in ax.lines])
+        ax.set_ylim(m,M)
+    except:pass
+
+    return (fig,fig.axes,lines,leg)
+
+
 def plot_P(TIME,P,PSP,PEN):
 
     #Setpoint only when control is enabled
