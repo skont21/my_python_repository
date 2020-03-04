@@ -440,7 +440,8 @@ class move_obj:
         self.figure.canvas.mpl_disconnect(self.cidmotion)
 
 def plot(fig,axes,lines,leg,from_):
-    line_deads_val=[]
+    global line_deads_val
+    # line_deads_val=[]
     for l in lines:
         line_deads_val.append(0)
     axes[0].set_zorder(0.1)
@@ -1974,7 +1975,10 @@ if 'csv' in csv:
                             y2_traces.append({"tr":data[tr],"ax2":True})
                     else:
                         y2_traces=[]
-                    fig,axes,lines,leg=custom_plot(data[xtrace],y1_traces+y2_traces)
+                    if not isinstance(data[xtrace][0],pd._libs.tslibs.timestamps.Timestamp):
+                        fig,axes,lines,leg=custom_plot(data[xtrace],y1_traces+y2_traces)
+                    else:
+                        fig,axes,lines,leg=custom_plot(time,y1_traces+y2_traces)
 
                     if not isinstance(data[xtrace][0],pd._libs.tslibs.timestamps.Timestamp):
                         time_xaxis=False

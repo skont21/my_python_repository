@@ -83,7 +83,7 @@ def get_traces(data):
         if pd.Timestamp(1900,1,1,0,0,0) in time.to_list():
             new_day = time.index[time == pd.Timestamp(1900,1,1,0,0,0)].tolist()
             time_new = time.copy()
-            time_new[time_new.index>=new_day[0]]=time[time.index>8070]+datetime.timedelta(days=1)
+            time_new[time_new.index>=new_day[0]]=time[time.index>=new_day[0]]+datetime.timedelta(days=1)
             time=time_new
     except:
         time = pd.Series()
@@ -193,11 +193,13 @@ def plot_existing(figure):
         for l in a.lines:
             y = l.get_data()[1]
             if num_a==0:
-                line,=ax.plot(x,y,color=randstring(6),linewidth=1)
+                line,=ax.plot(x,y)
+                line.set_color(figure.axes[num_a].lines[i-1].get_color())
                 line.set_label(figure.axes[num_a].lines[i-1].get_label())
                 i+=1
             else:
-                line,=ax2.plot(x,y,color=randstring(6),linewidth=1)
+                line,=ax2.plot(x,y)
+                line.set_color(figure.axes[num_a].lines[j-1].get_color())
                 line.set_label(figure.axes[num_a].lines[j-1].get_label())
                 j+=1
             l.set_picker(5)
@@ -208,7 +210,7 @@ def plot_existing(figure):
 
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
-    ax.set_facecolor('#000000')
+    ax.set_facecolor(figure.axes[0].get_facecolor())
     ax.grid(which='major',ls='--',lw=0.5,c='#b0b0b0',alpha=0.5)
     ax.xaxis.set_minor_locator(AutoMinorLocator())
     if isinstance(x[0],pd._libs.tslibs.timestamps.Timestamp):
@@ -236,14 +238,14 @@ def plot_existing(figure):
         ax.set_xlabel(figure.axes[1].get_xlabel(),fontdict=font)
 
     try:
-        m = min([min(calc_minmax(l.get_data()[1])) for l in ax2.lines])
-        M = max([max(calc_minmax(l.get_data()[1])) for l in ax2.lines])
+        m = min([min(calc_minmax(l.get_data()[1])) for l in figure.axes[1].lines])
+        M = max([max(calc_minmax(l.get_data()[1])) for l in figure.axes[1].lines])
         ax2.set_ylim(m,M)
     except:pass
 
     try:
-        m = min([min(calc_minmax(l.get_data()[1])) for l in ax.lines])
-        M = max([max(calc_minmax(l.get_data()[1])) for l in ax.lines])
+        m = min([calc_minmax(l.get_data()[1]) for l in figure.axes[0].lines])
+        M = max([calc_minmax(l.get_data()[1]) for l in figure.axes[0].lines])
         ax.set_ylim(m,M)
     except:pass
 
@@ -775,14 +777,10 @@ def custom_plot(x,ys):
     for arg in ys:
         if arg["ax2"]==False:
             l,=ax.plot(x,arg["tr"],label="Y1,"+str(i),color=randstring(6),linewidth=1)
-            # color = tuple(l.get_color())
-            # l.set_color(Color(color).hex)
             lines.append(l)
             i+=1
         else:
             l,=ax2.plot(x,arg["tr"],label="Y2,"+str(j),color=randstring(6),linewidth=1)
-            # color = tuple(l.get_color())
-            # l.set_color(Color(color).hex)
             lines.append(l)
             j+=1
 
