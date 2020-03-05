@@ -1,0 +1,174 @@
+Plant,Manufacturer,Model
+Chile_Biosar_Bolero_147MW,ABB,ULTRA-TL1400
+Egnatia_UK_ROSKROW_9MWp,ABB,PVS800-57-0630KW-B_Qmode
+Namibia_AEEPower_RoshPinah_5MWp,ABB,PRO-33.0-TL-OUTD-SX400
+ZA_JUWI_Droogfontein_86.248MWp_3374,ABB,PVS980_PPC
+South_Africa_STERLING_and_WILSON_90MWp,AEG Power Solutions,Protect PV880
+US_Biosar_ENEL_Aurora_Albany_15.23MWp,BONFIGLIOLI VECTRON GmbH,RPS TL-UL 213
+US_Biosar_ENEL_Aurora_Annandale_9.14MWp,BONFIGLIOLI VECTRON GmbH,RPS TL-UL 213
+US_Biosar_ENEL_Aurora_Atwater_5.89MWp,BONFIGLIOLI VECTRON GmbH,RPS TL-UL 213
+US_Biosar_ENEL_Aurora_Chisago_11.1MWp,BONFIGLIOLI VECTRON GmbH,RPS TL-UL 213
+US_Biosar_ENEL_Aurora_DodgeCenter_9.43MWp,BONFIGLIOLI VECTRON GmbH,RPS TL-UL 213
+US_Biosar_ENEL_Aurora_Eastwood_8.19MWp,BONFIGLIOLI VECTRON GmbH,RPS TL-UL 213
+US_Biosar_ENEL_Aurora_Hastings_6.78MWp,BONFIGLIOLI VECTRON GmbH,RPS TL-UL 213
+US_Biosar_ENEL_Aurora_LakeEmily_6.55MWp,BONFIGLIOLI VECTRON GmbH,RPS TL-UL 213
+US_Biosar_ENEL_Aurora_LakePulaski_10.92MWp,BONFIGLIOLI VECTRON GmbH,RPS TL-UL 213
+US_Biosar_ENEL_Aurora_LawrenceCreek_5.92MWp_,BONFIGLIOLI VECTRON GmbH,RPS TL-UL 213
+US_Biosar_ENEL_Aurora_Montrose_4.5MWp,BONFIGLIOLI VECTRON GmbH,RPS TL-UL 213
+US_Biosar_ENEL_Aurora_Paynesville_15.23MWp,BONFIGLIOLI VECTRON GmbH,RPS TL-UL 213
+US_Biosar_ENEL_Aurora_PineIsland_6.5MWp,BONFIGLIOLI VECTRON GmbH,RPS TL-UL 213
+US_Biosar_ENEL_Aurora_WestFaribault_7.92MWp,BONFIGLIOLI VECTRON GmbH,RPS TL-UL 213
+US_Biosar_ENEL_Aurora_WestWaconia_12.24MWp,BONFIGLIOLI VECTRON GmbH,RPS TL-UL 213
+US_EnterSolar_Ameresco_Westerlo-A_2.757MWp_3422,Chint Solar,CPS-SCA36KTL
+IT_Biosar_Porto_Torres_I_17MWp_3346,FIMER S.p.A,14015 TL
+IT_Biosar_Porto_Torres_I_17MWp_3346,SMA Hellas S.A.,SMA SC2200
+BRA_Biosar_Guimarania_40.99MWp_Subplant_1,General Electric Digital Energy,LV5-1MW
+BRA_Biosar_Guimarania_41.53MWp_Subplant_2,General Electric Digital Energy,LV5-1MW
+BRA_Biosar_JesusdaLapaBJL04_25MWp,General Electric Digital Energy,LV5-1MW
+BRA_Biosar_JesusdaLapaBJL11_25MWp,General Electric Digital Energy,LV5-1MW
+BRA_Biosar_PiraporaPhase1_37MWp_Subplant_10,General Electric Digital Energy,LV5-1MW
+BRA_Biosar_PiraporaPhase1_37MWp_Subplant_5,General Electric Digital Energy,LV5-1MW
+BRA_Biosar_PiraporaPhase1_37MWp_Subplant_6,General Electric Digital Energy,LV5-1MW
+BRA_Biosar_PiraporaPhase1_37MWp_Subplant_7,General Electric Digital Energy,LV5-1MW
+BRA_Biosar_PiraporaPhase1_37MWp_Subplant_9,General Electric Digital Energy,LV5-1MW
+BRA_Biosar_PiraporaPhase2_38MWp_Subplant_2,General Electric Digital Energy,LV5-1MW
+BRA_Biosar_PiraporaPhase2_38MWp_Subplant_3,General Electric Digital Energy,LV5-1MW
+BRA_Biosar_PiraporaPhase2_38MWp_Subplant_4,General Electric Digital Energy,LV5-1MW
+BRA_Biosar_PiraporaPhase3_31MWp_Subplant_1,General Electric Digital Energy,LV5-1MW
+BRA_Biosar_PiraporaPhase3_31MWp_Subplant_11,General Electric Digital Energy,LV5-1MW
+BRA_Biosar_PiraporaPhase3_31MWp_Subplant_8,General Electric Digital Energy,LV5-1MW
+BRA_GE_Apodi_162MWp,General Electric Digital Energy,LV5-PLC_Lite
+BRA_GE_Quebec_14.3MWp,General Electric Digital Energy,LV5-PLC-PPC
+ARG_SterlinWilson_JinkoSolar_CordilleraSolar_93.3MW,"Huawei Technologies CO., LTD.",SUN2000 42KTL
+CL_GroupoSEMI_Jaururo_3MWp_3067,"Huawei Technologies CO., LTD.",SUN2000 95KTL
+CL_GroupoSEMI_San_Isidro_3MWp_3068,"Huawei Technologies CO., LTD.",SUN2000 95KTL
+CY_Sunel_Vassiliko_8MWp_3629,"Huawei Technologies CO., LTD.",SUN2000 95KTL
+ES_Grupotec_Almansol_49.995MWp_3479,"Huawei Technologies CO., LTD.",SUN2000 95KTL
+ES_Grupotec_Tabernas_41.58MWp_3358,"Huawei Technologies CO., LTD.",SUN2000 100KTL
+Test_Huawei_PPC_Slave_PPC_1,"Huawei Technologies CO., LTD.",SmartLogger
+Test_Huawei_PPC_Slave_PPC_2,"Huawei Technologies CO., LTD.",SmartLogger
+Test_Huawei_PPC_Slave_PPC_3,"Huawei Technologies CO., LTD.",SmartLogger
+UK_BF_Retrofit_Salhouse_4.99MWp,"Huawei Technologies CO., LTD.",SUN2000-20KTL-V2
+UK_BF_Retrofit_Trethosa_4.77MWp,"Huawei Technologies CO., LTD.",SUN2000-20KTL-V2
+UK_EGN_LS_Finvoy_5.94MWp,"Huawei Technologies CO., LTD.",SUN2000 36KTL
+UK_EGN_LS_Gibson_6.48MWp,"Huawei Technologies CO., LTD.",SUN2000 36KTL
+UK_EGN_LS_Henllys_5MW,"Huawei Technologies CO., LTD.","SUN2000 33KTL', 'SUN2000-20KTL-V2"
+UK_EGN_LS_Maghaberry_27.2MWp,"Huawei Technologies CO., LTD.",SUN2000 55KTL_SPP
+UK_Grupotec_Pilkington_2.29MWp_3223,"Huawei Technologies CO., LTD.",SUN2000 60KTL-HV-D1-001
+UK_SC_Isle_of_Sheppey_1.5MWp,"Huawei Technologies CO., LTD.","SUN2000 33KTL PPC-BROADCAST-NOSEND', 'SUN2000 36KTL PPC-BROADCAST-NOSEND', 'SUN2000 36KTL PPC-BROADCAST"
+UK_SC_NewtonDownsFarm_5MWp,"Huawei Technologies CO., LTD.",SUN2000 36KTL
+CL_Eiffage_Marchihue_3.5MWp_3069,Ingeteam Inc.,SUN PowerMax B Series
+CL_Grenergy_Renovables_La_Estancia_3MWp_3252,Ingeteam Inc.,SUN PowerMax B Series
+CL_Grenergy_Renovables_Placilla_10.8MWp_3251,Ingeteam Inc.,SUN PowerMax B Series
+Philippines_STERLING_and_WILSON_Digos_28.9MWp,Ingeteam Inc.,Ingecon Sun
+UAE_SW_ADWEA_Simultation,Ingeteam Inc.,SUN PowerMax B Series SIMULATION
+UAE_Sterling_and_Wilson_Adwea_1177MWp,Ingeteam Inc.,SUN PowerMax B Series
+Honduras_Sybac_LasLajas_10MWp,KACO new energy GmbH,POWADOR 72.0 TL3
+Pacific_Solar_Honduras_24MWp,KACO new energy GmbH,POWADOR 72.0 TL3
+UK_ETS_SeatonRoad_4.2MWp,KACO new energy GmbH,BLUEPLANET 50.0 TL3
+VN_VPW_HAM_KIEM_49MWp_3106,Nari_RTU,Nari_Ham_Kiem_Sineng_PPC
+BRA_Biosar_BomJesusdaLapaHV_BJL,None,None
+BRA_Biosar_Guimarania_82.52MWp_HV_SS,None,None
+BRA_Biosar_PiraporaPhase1_185MWp_HV_SS,None,None
+BR_Biosar_Dracena_HV_81MWp_3110,None,None
+IN_SolaireDirect_Kadapa_HV_Master_PPC_350MWp_2954,None,None
+PK_Sungrow_Pakistan_50MWp_3324,None,None
+SA_Mahindra_Sakaka_300MWp_3038,None,None
+Test_Huawei_PPC_Master_PPC,None,None
+VN_Sungrow_Fuji_40MWp_2864,None,None
+Barbados_Grupotec_StLucy_12MW,PowerElectronics,FREESUN HE PPC_PF100
+CL_Biosar_ElRoble_10.2MWp,PowerElectronics,HEC Plus 1500VDC 2G PPC#_DaleFarm
+CL_Biosar_La_Talca_10.4MWp_3323,PowerElectronics,HEC Plus 1500VDC 2G PPC#_DaleFarm
+CL_METKA_EGN_Eclipse_10.43MWp_3322,PowerElectronics,HEC Plus 1500VDC 2G PPC#_DaleFarm
+CL_METKA_EGN_La_Manga_2.98MWp_3229,PowerElectronics,HEC Plus 1500VDC 2G PPC#_DaleFarm
+CL_METKA_EGN_RLA_2.98MWp_3116,PowerElectronics,HEC Plus 1500VDC 2G PPC#_DaleFarm
+Chile_Biosar_ElLaurel_8.3MWp,PowerElectronics,HEC Plus 1500VDC 2G PPC#_DaleFarm
+Chile_Biosar_ElSauce_3.5MWp,PowerElectronics,HEC Plus 1500VDC 2G PPC#_DaleFarm
+Chile_Biosar_LaAcacia_9.5MWp,PowerElectronics,HEC Plus 1500VDC 2G PPC#_DaleFarm
+EG_Voltalia_RASolar_33MWp_3225,PowerElectronics,HEMK FS 3225K
+UK_Biosar_LS_MeadowFarm_4.99MWp,PowerElectronics,FREESUN HE PPC
+UK_Biosar_LS_MorfaFarm_2MWp,PowerElectronics,FREESUN HE PPC
+UK_Biosar_LS_Sharland_2.77MWp,PowerElectronics,FREESUN HE PPC
+UK_EGN_CS_CockettValley_4.9MWp,PowerElectronics,FREESUN HE PPC
+UK_EGN_LS_Bolsovermoor_5MW,PowerElectronics,FREESUN HE PPC
+UK_EGN_LS_GreenLaneFarm_4.2MWp,PowerElectronics,FREESUN HE PPC
+UK_EGN_LS_NorthTenement_4.9MWp,PowerElectronics,FREESUN HE PPC
+UK_Grupotec_HoltWood_5MW,PowerElectronics,FREESUN HE PPC_PF100
+UK_Grupotec_LawnLane_5MW,PowerElectronics,FREESUN HE PPC
+UK_RetrofittedbyLS_StFrancis,PowerElectronics,FREESUN HE PPC
+UK_Voltalia_DaleFarm_4.99MWp,PowerElectronics,HEC Plus 1500VDC 2G PPC#_DaleFarm
+US_Biosar_ENEL_Aurora_Waseca_15.9MWp,BONFIGLIOLI VECTRON GmbH,RPS TL-UL 213
+US_Biosar_ENEL_Aurora_Waseca_15.9MWp,Santerno Elettronica,Sunway TG760 1000V TL-NA PPC
+UK_EGN_CS_GreateHounbeare_4.9MWp,Schneider Electric,XC680
+VN_Sineng_Electric_Phan_Thiet_39MWp_3227,Sineng Electric,EP_Phan_Thiet
+AUS_BNRG_Cedarbrook_75KWp,SMA,SMA STP20000TL_PPC
+AU_Biosar_Kiamal_RTU_Test_244.5MWp_3640,SMA Hellas S.A.,SMA SC2200
+Italy_Biosar_Assemini_18MWp,SMA Hellas S.A.,SMA SC2200
+LC_Grupotec_Lucelec_7AB,SMA Hellas S.A.,Sunny Central 1000CP XT
+LC_Grupotec_Lucelec_7C,SMA Hellas S.A.,Sunny Central 1000CP XT
+Philippines_STERLING_and_WILSON_Clarks_23MWp,SMA Hellas S.A.,Sunny Central 1000CP XT
+TN_METKA_ADAM_Simulation_5MWp_3702,SMA Hellas S.A.,SMA SC2200_SIM
+UK_ArunConstruction_Westhampnett_7.5MWp,SMA Hellas S.A.,SMA SC2200
+UK_BIOSAR_LS_CROOKEDSTONE_4.9MW,SMA Hellas S.A.,SMA SC2200
+UK_Biosar_LS_BrickKlin_5MW,SMA Hellas S.A.,"SMA SC2200', 'SMA SC850CP"
+UK_Biosar_LS_Millar_7.2MWp,SMA Hellas S.A.,"SMA SC2200#_MILLAR', 'SMA SC850CP"
+UK_Biosar_LS_NICluster_21.6MWp,SMA Hellas S.A.,SMA SC2200
+UK_Biosar_LS_Stragglethorpe_5MW,SMA Hellas S.A.,SMA SC2200
+UK_LSRetrofit_Dunsfold,Solarmax - Sputnik Engineering International AG,"Solarmax_15MT3_APC', 'Solarmax_15MT2_APC"
+US_IKEA_Columbus_1.2MWp,Solectria Renewables,YASKAWA PVI-36TL
+ARG_Biosar_CaldenesDelOeste_30MWp,SunGrow,SG2500HV-MV-V21 (2M)
+AR_CS_Elmya_Cafayate_100MW_3192,SunGrow,SG3125HV (3M)
+BR_Biosar_Dracena_Subplant1_27MWp_3129,SunGrow,SG3125HV (3M)
+BR_Biosar_Dracena_Subplant2_27MWp_3130,SunGrow,SG3125HV (3M)
+BR_Biosar_Dracena_Subplant4_27MWp_3131,SunGrow,SG3125HV (3M)
+CL_CarbonFree_Solek_VillaSeca_3MW_3667,SunGrow,SG2500 (4M) Rev1
+CL_PenaBlanca_Antonia_3.17MWp_3628,SunGrow,SG125HV
+CL_PenaBlanca_Villa_Cruz_3.17MWp_3627,SunGrow,SG125HV
+CN_Sungrow_HIL_PPC_Testing_3.125MWp_3385,SunGrow,SG2500HV-MV-V21 (2M)
+Chile_Belectric_Encon_9.4MWp,SunGrow,SG60KTL
+Chile_Belectric_Montt_3.3MWp,SunGrow,SG125HV
+Chile_Belectric_Pedreros_3.6MWp,SunGrow,SG60KTL
+Chile_Sungrow_DiegoDeAlmagro_9.5MW,SunGrow,SG2000-MV (4M)
+China_Sungrow_testPlant_PPC,SunGrow,SG2500 (4M)
+India_LS_SterlinWilson_Waghdari_50MW,SunGrow,SG2500 (4M)
+KSA_Sungrow_Layla_13MWp,SunGrow,SG2500 (4M) Rev1
+KZ_METKA_EGN_M_KAT_100MWp_3376,SunGrow,SG3125HV-V20 (2M)
+KZ_METKA_EGN_NOMAD_28MWp_3377,SunGrow,SG2500HV-MV-V21 (2M)
+Malaysia_Ditrolic_Jelebu_3.5MWp,SunGrow,SG60KTL
+Malaysia_Sungrow_Gading_35MWp,SunGrow,SG2500 (4M)-Janakuasa
+Malaysia_Sungrow_Janakuasa_10MWp,SunGrow,SG2500 (4M)-Janakuasa
+Malaysia_Sungrow_MIE_Terengganu_23MWp,SunGrow,"SG2500 (2M)', 'SG2500 (4M)-Janakuasa"
+Malaysia_Sungrow_Mattan_55MWp,SunGrow,SG2500 (4M)-Janakuasa
+Malaysia_Sungrow_Samaiden_20MWp,SunGrow,SG2500 (4M)-Janakuasa
+Malaysia_Sungrow_UITM_50MWp,SunGrow,SG2500 (4M)-Janakuasa
+NG_MetkaEGN_KanoBayero_3.5MW_2975,SunGrow,SG60KTL
+NG_MetkaEGN_KanoBayero_Simulation_3.5MW_3352,SunGrow,SG60KTL SIMULATION
+NG_MetkaEGN_Nnamdi_2.5MW_3095,SunGrow,SG60KTL_FailSave
+NG_MetkaEGN_Usman_2.5MW_3093,SunGrow,SG60KTL_FailSave
+Namibia_CanadianSolar_Keetmanshoop_6MWp,SunGrow,SG60KTL
+Namibia_ItaliaEnergiaSRL_UUTAPI_5MWp,SunGrow,SG60KTL
+UK_British_Renewables_Blackminster_SolarFarm_300KWp,SunGrow,SG60KTL
+UK_EGN_LS_ParkFarmWest_4MW,SunGrow,SG1000MX
+UK_EGN_LS_PenRhiw_5MW,SunGrow,"SG1000MX', 'SG2500 (4M)"
+US_i1Energy_LSBP-Bluewater_3.104MWp_3413,SunGrow,SG125HV
+US_i1Energy_LSBP-Grants_5.634MWp_3414,SunGrow,SG125HV
+VN_Sungrow_Bach_Khoa_A_Chau1_30MWp_3196,SunGrow,SG3125HV (3M)
+VN_Sungrow_Bach_Khoa_A_Chau2_30MWp_3197,SunGrow,SG3125HV (3M)
+VN_Sungrow_ERS_30MWp_2956,SunGrow,SG3125HV (3M)
+VN_Sungrow_ERS_50MWp_2955,SunGrow,SG2500HV-MV-V21 (2M)
+VN_Sungrow_GCL_50MWp_2902,SunGrow,SG3125HV (3M)
+VN_Sungrow_JSC_50MWp_3070,SunGrow,SG3125HV (3M)
+VN_Sungrow_KimII_50MWp_2866,SunGrow,SG2500HV-MV-V21 (2M)
+VN_Sungrow_KimI_50MWp_2865,SunGrow,SG2500HV-MV-V21 (2M)
+VN_Sungrow_MY_40MWp_3115,SunGrow,SG2500HV-MV-V21 (2M)
+VN_Sungrow_PNP_50MWp_3037,SunGrow,SG2500HV-MV-V21 (2M)
+VN_Sungrow_Quang_Minh_50MWp_3351,SunGrow,SG2500HV-MV-V21 (2M)
+VN_Sungrow_WAN_HONG_2_40MWp_3153,SunGrow,SG3125HV (3M)
+VN_Sungrow_WAN_HONG_40MWp_3127,SunGrow,SG3125HV (3M)
+Vietnam_Sungrow_Ayala_168MWp,SunGrow,SG3125HV (3M)
+Vietnam_Sungrow_DAI_100MWp,SunGrow,"SG2500HV-MV-V21 (2M)', 'SG2500 (2M)"
+Vietnam_Sungrow_JUWI_30MWp,SunGrow,SG3125HV (3M)
+Vietnam_Sungrow_JUWI_50MWp,SunGrow,SG3125HV (3M)
+Vietnam_Sungrow_TTCL_40MWp,SunGrow,SG2500HV-MV-V21 (2M)
+VN_TBEA_Binh_Thuan2_33.1MWp_3226,TBEA,TBEA_IEC104
+VN_Sterling_and_Wilson_Saomai_104MWp_3072,TMEIC,PVH-L2550E_PPC rev D
