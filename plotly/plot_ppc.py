@@ -34,6 +34,93 @@ linestyles = ['-', '--', '-.', ':']
 which = ['major','minor','both']
 which_axis = ['both','y','x']
 
+COLORS = ['#000000',
+'#ffffff',
+'#ff0000',
+'#00ff00',
+'#0000ff',
+'#ffff00',
+'#ff00ff',
+'#00ffff',
+'#800000',
+'#008000',
+'#000080',
+'#808000',
+'#800080',
+'#008080',
+'#c0c0c0',
+'#808080',
+'#9999ff',
+'#993366',
+'#ffffcc',
+'#ccffff',
+'#660066',
+'#ff8080',
+'#0066cc',
+'#ccccff',
+'#000080',
+'#ff00ff',
+'#ffff00',
+'#00ffff',
+'#800080',
+'#800000',
+'#008080',
+'#0000ff',
+'#00ccff',
+'#ccffff',
+'#ccffcc',
+'#ffff99',
+'#99ccff',
+'#ff99cc',
+'#cc99ff',
+'#ffcc99',
+'#3366ff',
+'#33cccc',
+'#99cc00',
+'#ffcc00',
+'#ff9900',
+'#ff6600',
+'#666699',
+'#969696',
+'#003366',
+'#339966',
+'#003300',
+'#333300',
+'#993300',
+'#993366',
+'#333399',
+'#333333'
+]
+
+
+class ColorChart(tk.Frame):
+
+    MAX_ROWS = 7
+    FONT_SIZE = 12
+
+    def __init__(self, root):
+        tk.Frame.__init__(self, root)
+        r = 0
+        c = 0
+        self.color=None
+
+        def choose_color(b):
+            self.color=b['text']
+            # print(self.color)
+            root.destroy()
+
+        self.grid(row=0, column=0,sticky=tk.NSEW)
+
+        for color in COLORS:
+
+            button = tk.Button(self, text=color, bg=color,font=("Times", self.FONT_SIZE, "bold"))
+            button.grid(row=r,column=c, sticky=tk.NSEW,padx=2,pady=2)
+            button.config(command= lambda btn=button: choose_color(btn))
+            r += 1
+
+            if r > self.MAX_ROWS:
+                r = 0
+                c += 1
 
 class NavigationToolbar(NavigationToolbar2Tk):
     # only display the buttons we need
@@ -959,12 +1046,21 @@ def plot(fig,axes,lines,leg,from_):
         global line_deads_val
 
         def tr_color(trace):
-            color=colorchooser.askcolor(title="Pick Color")
-            if  color != (None,None):
-                lines[trace].set_color(color[1])
-                trace_color_buttons[trace].config(background=color[1])
+            # color=colorchooser.askcolor(title="Pick Color")
+            c_ch = tk.Toplevel(change_traces)
+            c_ch.resizable(width=False, height=False)
+            c_ch.withdraw()
+            c_ch.protocol("WM_DELETE_WINDOW")
+            app = ColorChart(c_ch)
+            c_ch.deiconify()
+            c_ch.grab_set()
+            c_ch.wait_window(c_ch)
+            color = app.color
+            if  color != None:
+                lines[trace].set_color(color)
+                trace_color_buttons[trace].config(background=color)
                 trace_color_buttons[trace].config(activebackground=trace_color_buttons[trace].cget('background'))
-                leg.get_lines()[trace].set_c(color[1])
+                leg.get_lines()[trace].set_c(color)
 
         def edit_traces():
             global dead_flag
@@ -1066,13 +1162,15 @@ def plot(fig,axes,lines,leg,from_):
             fig.canvas.draw_idle()
             change_axes.destroy()
 
-        def quit_axes():
-            ax.set_facecolor((0.9607843137254902, 0.9607843137254902, 0.9607843137254902, 1.0))
-            fig.set_facecolor((1.0, 1.0, 1.0, 1.0))
-            change_axes.destroy()
+        # def quit_axes():
+        #     # ax.set_facecolor((0.9607843137254902, 0.9607843137254902, 0.9607843137254902, 1.0))
+        #     # fig.set_facecolor((1.0, 1.0, 1.0, 1.0))
+        #     change_axes.destroy()
 
 
         def plot_bg_color():
+
+
             bg_color=colorchooser.askcolor(title="Pick Color")
             if  bg_color != (None,None):
                 for ax in axes:
@@ -1081,13 +1179,17 @@ def plot(fig,axes,lines,leg,from_):
                 axes_bg_color_button.config(activebackground=axes_bg_color_button.cget('background'))
                 if vlines:
                     for v in vlines:
+                        print(v.get_color())
+                        print(bg_color[1])
                         if ( (bg_color[1] < "#b0b0b0")&(v.get_color() < "#b0b0b0") ) | ( ( bg_color[1] > "#b0b0b0")&(v.get_color() > "#b0b0b0" ) ) :
-                            c = ( Color(hex="#b0b0b0") + Color(hex='#FFFFFF') - Color(hex=v.get_color()) ).hex
+                            print(v.get_color())
+                            c = ( Color(hex="#b0b0b0") + Color(hex='#ffffff') - Color(hex=v.get_color()) ).hex
                             v.set_color(c)
+                            print(v.get_color())
                 if hlines:
                     for h in hlines:
                         if  ( (bg_color[1] < "#b0b0b0")&(h.get_color() < "#b0b0b0") ) | ( ( bg_color[1] > "#b0b0b0")&(h.get_color() > "#b0b0b0" ) ):
-                            c = ( Color(hex="#b0b0b0") + Color(hex='#FFFFFF') - Color(hex=h.get_color()) ).hex
+                            c = ( Color(hex="#b0b0b0") + Color(hex='#ffffff') - Color(hex=h.get_color()) ).hex
                             h.set_color(c)
 
                 if arrow_lines:
@@ -1095,7 +1197,7 @@ def plot(fig,axes,lines,leg,from_):
                         if ( (bg_color[1] < "#b0b0b0") & (a.arrow_patch.get_edgecolor() < (0.69,0.69,0.69,1)) ) | ( ( bg_color[1] > "#b0b0b0")&(a.arrow_patch.get_edgecolor()> (0.69,0.69,0.69,1) ) ):
                             a_c = a.arrow_patch.get_edgecolor()
                             a_c_mod  = (255*a_c[0],255*a_c[1],255*a_c[2])
-                            c = c = ( Color(hex="#b0b0b0") + Color(hex='#FFFFFF') - Color(a_c_mod)).hex
+                            c = c = ( Color(hex="#b0b0b0") + Color(hex='#ffffff') - Color(a_c_mod)).hex
                             a.arrow_patch.set_edgecolor(c)
 
         def plot_mg_color():
@@ -1126,8 +1228,8 @@ def plot(fig,axes,lines,leg,from_):
             axes_mg_color_button.config(activebackground=axes_mg_color_button.cget('background'))
             axes_mg_color_button.grid(row=1,column=1)
 
-            quit_axes=tk.Button(change_axes, text='Quit',command=quit_axes).grid(row=3, column=0, sticky=tk.W, pady=4)
-            apply_axes = tk.Button(change_axes,text='Apply', command=edit_axes).grid(row=3,column=1,sticky=tk.W, pady=4)
+            # quit_axes=tk.Button(change_axes, text='Quit',command=quit_axes).grid(row=3, column=0, sticky=tk.W, pady=4)
+            apply_axes = tk.Button(change_axes,text='Apply', command=edit_axes).grid(row=3,columnspan=2,sticky=tk.NSEW, pady=4)
 
     def interact_y_limits():
         def ylimits():
@@ -1452,8 +1554,12 @@ def plot(fig,axes,lines,leg,from_):
 
     def add_vertical():
         x=fig.axes[0].get_xlim()[0]+(fig.axes[0].get_xlim()[1]-fig.axes[0].get_xlim()[0])/2
-        if axes[0].get_facecolor()<(0.5,0.5,0.5,1):
-            c='#FFFFFF'
+        if len(axes)==1:
+            i=0
+        else:
+            i=1
+        if axes[i].get_facecolor()<(0.5,0.5,0.5,1):
+            c='#ffffff'
         else:
             c='#000000'
         # print(axes[0].get_facecolor())
@@ -1468,8 +1574,12 @@ def plot(fig,axes,lines,leg,from_):
 
     def add_horizontal():
         y=fig.axes[0].get_ylim()[0]+(fig.axes[0].get_ylim()[1]-fig.axes[0].get_ylim()[0])/10
-        if axes[0].get_facecolor()<(0.5,0.5,0.5,1):
-            c='#FFFFFF'
+        if len(axes)==1:
+            i=0
+        else:
+            i=1
+        if axes[i].get_facecolor()<(0.5,0.5,0.5,1):
+            c='#ffffff'
         else:
             c='#000000'
         h_line=fig.axes[0].axhline(y=y,linewidth=2,ls="--",c=c,alpha=1,picker=5)
@@ -1487,8 +1597,12 @@ def plot(fig,axes,lines,leg,from_):
             x=fig.axes[0].get_xlim()[0]+(fig.axes[0].get_xlim()[1]-fig.axes[0].get_xlim()[0])/2
             y=fig.axes[0].get_ylim()[0]+(fig.axes[0].get_ylim()[1]-fig.axes[0].get_ylim()[0])/10
             xstart = fig.axes[0].get_xlim()[0]+(fig.axes[0].get_xlim()[1]-fig.axes[0].get_xlim()[0])/10
-            if axes[0].get_facecolor()<(0.5,0.5,0.5,1):
-                c='#FFFFFF'
+            if len(axes)==1:
+                i=0
+            else:
+                i=1
+            if axes[i].get_facecolor()<(0.5,0.5,0.5,1):
+                c='#ffffff'
             else:
                 c='#000000'
             if choise == "No Arrow":
@@ -1594,10 +1708,10 @@ def plot(fig,axes,lines,leg,from_):
         else:
             cc = (0.5,0.5,0.5,1)
         if l.get_color()< cc:
-            c='#FFFFFF'
+            c='#ffffff'
         else:
             c='#000000'
-        print(xc)
+        # print(xc)
         try:
             text = "({},{})".format(str(xc).split("T")[1].split(".")[0],yc)
         except:

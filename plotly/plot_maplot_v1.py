@@ -188,6 +188,7 @@ def plot_existing(figure):
     j=1
     if len(figure.axes)>1:
         ax2=ax.twinx()
+        ax2.set_facecolor(figure.axes[1].get_facecolor())
 
     for a in figure.axes:
         for l in a.lines:
@@ -276,8 +277,8 @@ def plot_P(TIME,P,PSP,PEN):
 
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
-    ax.set_facecolor('whitesmoke')
-    ax.grid(which='both',ls='--',lw=1,c='#b0b0b0',alpha=0.5)
+    ax.set_facecolor('#000000')
+    ax.grid(which='major',ls='--',lw=0.5,c='#b0b0b0',alpha=0.5)
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
     ax.xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
     ax.xaxis.set_minor_locator(AutoMinorLocator())
@@ -325,8 +326,8 @@ def plot_Pexp(TIME,P,PSP,PEN,PEXP):
 
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
-    ax.set_facecolor('whitesmoke')
-    ax.grid(which='major',ls='--',lw=1,c='#b0b0b0',alpha=0.5)
+    ax.set_facecolor('#000000')
+    ax.grid(which='major',ls='--',lw=0.5,c='#b0b0b0',alpha=0.5)
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
     ax.xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
     ax.xaxis.set_minor_locator(AutoMinorLocator())
@@ -374,8 +375,8 @@ def plot_Q(TIME,Q,QSP,QEN):
     ax.set_ylim(m,M)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
-    ax.set_facecolor('whitesmoke')
-    ax.grid(which='major',ls='--',lw=1,c='#b0b0b0',alpha=0.5)
+    ax.set_facecolor('#000000')
+    ax.grid(which='major',ls='--',lw=0.5,c='#b0b0b0',alpha=0.5)
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
     ax.xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
     ax.xaxis.set_minor_locator(AutoMinorLocator())
@@ -419,8 +420,8 @@ def plot_PF(TIME,PF,PFSP,PFEN):
     ax.set_ylim(m,M)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
-    ax.set_facecolor('whitesmoke')
-    ax.grid(which='major',ls='--',lw=1,c='#b0b0b0',alpha=0.5)
+    ax.set_facecolor('#000000')
+    ax.grid(which='major',ls='--',lw=0.5,c='#b0b0b0',alpha=0.5)
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
     ax.xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
     ax.xaxis.set_minor_locator(AutoMinorLocator())
@@ -465,8 +466,8 @@ def plot_F_P(TIME,P,PSP,F,FSP,FEN):
     ax.spines["right"].set_visible(False)
     ax2.spines["top"].set_visible(False)
 
-    ax.set_facecolor('whitesmoke')
-    ax.grid(which='major',ls='--',lw=1,c='#b0b0b0',alpha=0.5)
+    ax.set_facecolor('#000000')
+    ax.grid(which='major',ls='--',lw=0.5,c='#b0b0b0',alpha=0.5)
     # ax.xaxis.set_major_locator(MaxNLocator(min_n_ticks=10,nbins=30))
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
     ax.xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
@@ -524,8 +525,8 @@ def plot_AVR(TIME,V,AVRSP,Q,AVREN):
     ax.spines["right"].set_visible(False)
     ax2.spines["top"].set_visible(False)
 
-    ax.set_facecolor('whitesmoke')
-    ax.grid(which='major',ls='--',lw=1,c='#b0b0b0',alpha=0.5)
+    ax.set_facecolor('#000000')
+    ax.grid(which='major',ls='--',lw=0.5,c='#b0b0b0',alpha=0.5)
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
     ax.xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
     ax.xaxis.set_minor_locator(AutoMinorLocator())
@@ -588,8 +589,8 @@ def plot_QV(TIME,V,QVSP,Q,QSP,QVEN):
     ax.spines["right"].set_visible(False)
     ax2.spines["top"].set_visible(False)
 
-    ax.set_facecolor('whitesmoke')
-    ax.grid(which='major',ls='--',lw=1,c='#b0b0b0',alpha=0.5)
+    ax.set_facecolor('#000000')
+    ax.grid(which='major',ls='--',lw=0.5,c='#b0b0b0',alpha=0.5)
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
     ax.xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
     ax.xaxis.set_minor_locator(AutoMinorLocator())
@@ -647,8 +648,8 @@ def plot_PQ(TIME,P,Q,QSP,QEN):
     ax.spines["right"].set_visible(False)
     ax2.spines["top"].set_visible(False)
 
-    ax.set_facecolor('whitesmoke')
-    ax.grid(which='major',ls='--',lw=1,c='#b0b0b0',alpha=0.5)
+    ax.set_facecolor('#000000')
+    ax.grid(which='major',ls='--',lw=0.5,c='#b0b0b0',alpha=0.5)
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
     ax.xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
     ax.xaxis.set_minor_locator(AutoMinorLocator())
@@ -704,7 +705,7 @@ def plot_meas(TIME,meas):
     i=0
     if len(meas)>1:
         for y in axes:
-            y.set_facecolor('whitesmoke')
+            y.set_facecolor('#000000')
             y.grid(which='major',ls='--',lw=1,c='#b0b0b0',alpha=0.5)
             y.xaxis.set_minor_locator(AutoMinorLocator())
             y.yaxis.set_minor_locator(AutoMinorLocator())
@@ -718,7 +719,7 @@ def plot_meas(TIME,meas):
             i+=1
     else:
         i=0
-        axes.set_facecolor('whitesmoke')
+        axes.set_facecolor('#000000')
         axes.grid(which='major',ls='--',lw=1,c='#b0b0b0',alpha=0.5)
         axes.xaxis.set_minor_locator(AutoMinorLocator())
         axes.yaxis.set_minor_locator(AutoMinorLocator())
@@ -787,7 +788,7 @@ def custom_plot(x,ys):
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.set_facecolor('#000000')
-    ax.grid(which='major',ls='--',lw=1,c='#b0b0b0',alpha=0.5)
+    ax.grid(which='major',ls='--',lw=0.5,c='#b0b0b0',alpha=0.5)
     ax.xaxis.set_minor_locator(AutoMinorLocator())
     if isinstance(x[0],pd._libs.tslibs.timestamps.Timestamp):
         ax.xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
