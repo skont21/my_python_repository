@@ -31,8 +31,12 @@ def parse_ods(plant,path):
     print(CRED + plant + CEND + '\n')
 
     plant_ods = plant+'_InstallationData.ods'
-    path = path+'/'+plant+'/'
-    files = os.listdir(path)
+    path = path+'/'+plant+'/trunk/Provisioning/'
+
+    try:
+        files = os.listdir(path)
+    except FileNotFoundError:
+        return("Error")
 
     try:
         s=odsparser_3.Spreadsheet(path+plant_ods)

@@ -2,10 +2,9 @@ import os
 import fnmatch
 import json
 import re
-import odsparser
-from pyexcel_odsr import get_data
-import odsparser
+import odsparser_3
 import ooolib
+from usefull_funcs import *
 
 CBLACK  = '\33[30m'
 CRED    = '\33[31m'
@@ -25,35 +24,6 @@ CEND = '\33[0m'
 
 def main(arg1,arg2,arg3):
 
-    def find_country(data):
-        try:
-            country = data['Plant']['Country'].encode('utf-8')
-            if country == 'Viet Nam':
-                country = 'Vietnam'
-            elif country == 'UK':
-                country = 'United Kingdom'
-            elif country == 'SOUTH AFRICA':
-                country = 'South Africa'
-            elif country == "Hellas":
-                country = "Greece"
-            elif country == "GREECE":
-                country = "Greece"
-            elif country == "United States":
-                country = "USA"
-            elif country == "KE":
-                country = "Kenya"
-            elif country == "INDIA":
-                country = "India"
-            elif country == "NL":
-                country = "Netherlands"
-        except AttributeError:
-            country='Undefined'
-        except IndexError:
-            country='None'
-        except KeyError:
-            country='None'
-        return country
-
     directories = list(os.walk(arg1))[0][1]
     for directory in directories:
         if directory[0]=='.':
@@ -71,24 +41,18 @@ def main(arg1,arg2,arg3):
     i=0
     pvplants_dicts=[]
     for pvplant in directories:
+
         entry= {'name':'','ncontrollers':'','controllers':'','country':''}
         entry['name']=pvplant
-        print(CRED +entry['name'] + CEND + '\n')
+        # print(CRED +entry['name'] + CEND + '\n')
 
         country_ods = entry['name']+'_InstallationData.ods$'
-        path = arg1+'/'+entry['name']+'/'
-        files = os.listdir(path)
+        path = arg1
 
-        for f in files:
-            if re.search(country_ods,f):
-                ods = f
-        try:
-            s = odsparser.Spreadsheet(path+ods)
-        except (UnboundLocalError,IOError) as e :
-            continue
-        try:
-            data = s.parse()
-        except:
+
+        data = parse_ods(pvplant,path)
+        if data =="Error":
+            i+=1
             continue
 
         country = find_country(data)
@@ -101,6 +65,7 @@ def main(arg1,arg2,arg3):
         controllers=[]
         # print(found)
 
+        files = os.listdir(path+'/'+pvplant+'/trunk/Provisioning/')
         for f in files:
             if re.search(site_it_json,f):
                 site = f
@@ -179,7 +144,7 @@ def main(arg1,arg2,arg3):
                         pass
         # print("ind="+str(ind))
         ncontrollers =len(controllers)
-        print ncontrollers
+        print(ncontrollers)
         entry['ncontrollers'] = ncontrollers
         l=[]
 

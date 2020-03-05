@@ -69,7 +69,7 @@ ppc_ips=[]
 for ip in ppc_ip:
     ppc_ips.append(ip[0])
 
-path_to_files = raw_input('Please insert the path to the pvplants folders:')
+path_to_files = input('Please insert the path to the pvplants folders:')
 controller_ips = find_controller_ips.main(path_to_files,plants,ppc_ips)
 
 for entry in controller_ips:
