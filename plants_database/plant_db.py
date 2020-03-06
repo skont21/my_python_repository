@@ -3,6 +3,7 @@ import csv
 import sys
 import json
 import find_controller_ips
+import pickle
 
 
 CBLACK  = '\33[30m'
@@ -71,7 +72,9 @@ for ip in ppc_ip:
 
 path_to_files = input('Please insert the path to the pvplants folders:')
 controller_ips = find_controller_ips.main(path_to_files,plants,ppc_ips)
-
+with open("data.pickle", 'wb') as f:
+    pickle.dump(controller_ips, f)
+# print(controller_ips)
 for entry in controller_ips:
 
     ip_id="-"
@@ -80,7 +83,10 @@ for entry in controller_ips:
     cur.execute('''INSERT OR IGNORE INTO COUNTRIES (name)
                VALUES (?)''', (entry['country'],))
 
-    cur.execute('''SELECT id FROM COUNTRIES WHERE name = ?''',(entry['country'],))
+    if entry['country']:
+        cur.execute('''SELECT id FROM COUNTRIES WHERE name = ?''',(entry['country'],))
+    else:
+        cur.execute('''SELECT id FROM COUNTRIES WHERE name = ?''',('Undefined',))
     country_id = cur.fetchone()[0]
 
     cur.execute('''INSERT OR IGNORE INTO PLANTS (name,country_id)

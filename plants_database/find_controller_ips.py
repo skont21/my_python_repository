@@ -44,11 +44,8 @@ def main(arg1,arg2,arg3):
 
         entry= {'name':'','ncontrollers':'','controllers':'','country':''}
         entry['name']=pvplant
-        # print(CRED +entry['name'] + CEND + '\n')
 
-        country_ods = entry['name']+'_InstallationData.ods$'
         path = arg1
-
 
         data = parse_ods(pvplant,path)
         if data =="Error":
@@ -63,19 +60,15 @@ def main(arg1,arg2,arg3):
 
         found = False
         controllers=[]
-        # print(found)
 
-        files = os.listdir(path+'/'+pvplant+'/trunk/Provisioning/')
+        files = os.listdir(path+'/'+pvplant+'/')
         for f in files:
             if re.search(site_it_json,f):
                 site = f
-                # print(site)
-
         try:
-            with open(path+site) as json_file:
+            with open(path+'/'+pvplant+'/'+site) as json_file:
                 data=json.load(json_file)
         except IOError:
-            # print('Error')
             continue
 
         for service in services:
@@ -88,7 +81,6 @@ def main(arg1,arg2,arg3):
                 except KeyError:
                     pass
 
-        # print(found)
         if not found:
             it=[]
             for f in files:
@@ -98,8 +90,7 @@ def main(arg1,arg2,arg3):
             if it:
                 for f in it:
                     error=True
-                    with open(path+f) as json_file:
-                        #print(CBOLD + path+f +CEND)
+                    with open(path+'/'+pvplant+'/'+f) as json_file:
                         data=json.load(json_file)
                         for lan in lans:
                             if not error:
@@ -107,7 +98,6 @@ def main(arg1,arg2,arg3):
                             else:
                                 try:
                                     controllers.append({'address': data['ethernet'][lan]['addresses'][0].split('/')[0]})
-                                    # print("FROM CONTROLLER_IT")
                                     error=False
                                     break
                                 except (IndexError,KeyError):
@@ -116,8 +106,6 @@ def main(arg1,arg2,arg3):
                 error=True
 
             if error:
-                print(CBOLD + "No such  key" + CEND + '\n')
-                # print('/home/skont/Desktop/Implementation/'+pvplants_dicts[i]['name']+'/trunk/Provisioning/'+f)
                 plants_err.append(entry['name'])
 
         json_files=[]
@@ -125,16 +113,14 @@ def main(arg1,arg2,arg3):
             if re.search(controller_json,f):
                     json_files.append(f)
         json_files.sort()
-        # print(len(json_files))
         ind=-10
         if json_files:
             for f in json_files:
-                # print(f)
-                with open(path+f) as json_file:
+                with open(path+'/'+pvplant+'/'+f) as json_file:
                     try:
                         data=json.load(json_file)
                     except:
-                        ind = 0
+                        ind = -10
                         break
                     try :
                         dump= data['application']['iobs']['ppc:P']
@@ -142,22 +128,17 @@ def main(arg1,arg2,arg3):
                             ind = int(f.split('_')[1].split('.')[0])
                     except KeyError:
                         pass
-        # print("ind="+str(ind))
         ncontrollers =len(controllers)
-        print(ncontrollers)
         entry['ncontrollers'] = ncontrollers
         l=[]
 
         for n in range(0,ncontrollers):
             if len(json_files) == 0:
                 l.append({'index':n, 'address':controllers[n]['address'],"ppc_ip":'UNDEFINED'})
-                # print("UNDEFINED")
             elif n != ind :
                l.append({'index':n, 'address':controllers[n]['address'],"ppc_ip":'NO'})
-               # print("NO")
             else:
                l.append({'index':n, 'address':controllers[n]['address'],"ppc_ip":'YES'})
-               # print("YES")
         entry['controllers']=l
         pvplants_dicts.append(entry)
         i=i+1
