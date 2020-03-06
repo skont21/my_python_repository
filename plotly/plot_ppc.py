@@ -20,7 +20,7 @@ mpl.use('TkAgg')
 
 num_tr=0
 sel_traces=[]
-grid_color=((11,11,11),'#b0b0b0')
+grid_color='#b0b0b0'
 dead_flag = 0
 line_deads=[]
 line_deads_val=[]
@@ -289,24 +289,50 @@ class move_obj:
                             change_text.destroy()
 
                         def text_t_color():
-                            color=colorchooser.askcolor(title="Pick Color")
-                            if color != (None,None):
-                                self.obj.set_color(color[1])
-                                text_c_button.config(background=color[1])
+                            # color=colorchooser.askcolor(title="Pick Color")
+                            c_ch = tk.Toplevel(change_text)
+                            c_ch.resizable(width=False, height=False)
+                            c_ch.withdraw()
+                            c_ch.protocol("WM_DELETE_WINDOW")
+                            app = ColorChart(c_ch)
+                            c_ch.deiconify()
+                            c_ch.grab_set()
+                            c_ch.wait_window(c_ch)
+                            color=app.color
+                            if color != None:
+                                self.obj.set_color(color)
+                                text_c_button.config(background=color)
                                 text_c_button.config(activebackground=text_c_button.cget('background'))
 
                         def text_bg_color():
-                            color=colorchooser.askcolor(title="Pick Color")
-                            if color != (None,None):
-                                self.obj.get_bbox_patch().set_facecolor(color[1])
-                                text_bc_button.config(background=color[1])
+                            c_ch = tk.Toplevel(change_text)
+                            c_ch.resizable(width=False, height=False)
+                            c_ch.withdraw()
+                            c_ch.protocol("WM_DELETE_WINDOW")
+                            app = ColorChart(c_ch)
+                            c_ch.deiconify()
+                            c_ch.grab_set()
+                            c_ch.wait_window(c_ch)
+                            color=app.color
+                            if color != None:
+                                self.obj.get_bbox_patch().set_facecolor(color)
+                                text_bc_button.config(background=color)
                                 text_bc_button.config(activebackground=text_bc_button.cget('background'))
 
                         def text_eg_color():
-                            color=colorchooser.askcolor(title="Pick Color")
+                            # color=colorchooser.askcolor(title="Pick Color")
+                            c_ch = tk.Toplevel(change_text)
+                            c_ch.resizable(width=False, height=False)
+                            c_ch.withdraw()
+                            c_ch.protocol("WM_DELETE_WINDOW")
+                            app = ColorChart(c_ch)
+                            c_ch.deiconify()
+                            c_ch.grab_set()
+                            c_ch.wait_window(c_ch)
+                            color=app.color
                             if color != (None,None):
-                                self.obj.get_bbox_patch().set_edgecolor(color[1])
-                                text_ec_button.config(background=color[1])
+                                self.obj.get_bbox_patch().set_edgecolor(color)
+                                text_ec_button.config(background=color)
                                 text_ec_button.config(activebackground=text_ec_button.cget('background'))
 
                         try:
@@ -557,7 +583,7 @@ def plot(fig,axes,lines,leg,from_):
         global grid_color
         global dead_flag
         global line_deads
-        grid_color=((11,11,11),'#b0b0b0')
+        grid_color='#b0b0b0'
         line_deads=[]
         dead_flag=0
 
@@ -788,15 +814,23 @@ def plot(fig,axes,lines,leg,from_):
             for ind,ax in enumerate(axes):
                 ax.grid(False,which='both')
                 if grid_ons[ind].get()=='Show':
-                    ax.grid(which=grid_whichs[ind].get(),axis=grid_axes[ind].get(),linestyle=grid_styles[ind].get(),linewidth=float(grid_widths[ind].get()),c=grid_color[1],alpha=float(grid_alpha_val.get()))
+                    ax.grid(which=grid_whichs[ind].get(),axis=grid_axes[ind].get(),linestyle=grid_styles[ind].get(),linewidth=float(grid_widths[ind].get()),c=grid_color,alpha=float(grid_alpha_val.get()))
             fig.canvas.draw_idle()
             change_grid.destroy()
 
-        def grid_color():
+        def set_grid_color():
             global grid_color
-            grid_color=colorchooser.askcolor(title="Pick Color")
-            if  grid_color != (None,None):
-                grid_color_button.config(background=grid_color[1])
+            c_ch = tk.Toplevel(change_grid)
+            c_ch.resizable(width=False, height=False)
+            c_ch.withdraw()
+            c_ch.protocol("WM_DELETE_WINDOW")
+            app = ColorChart(c_ch)
+            c_ch.deiconify()
+            c_ch.grab_set()
+            c_ch.wait_window(c_ch)
+            grid_color= app.color
+            if  grid_color != None:
+                grid_color_button.config(background=grid_color)
                 grid_color_button.config(activebackground=grid_color_button.cget('background'))
 
         try:
@@ -872,8 +906,9 @@ def plot(fig,axes,lines,leg,from_):
             grid_color_frame.grid(row=6,column=0,columnspan=2*len(axes),pady=10)
 
             grid_color_label= tk.Label(grid_color_frame,text="Color").grid(row=0,column=0)
-            grid_color_button= tk.Button(grid_color_frame,text="          ",background =glx.get_c())
-            grid_color_button.config(command=grid_color)
+            print(grid_color)
+            grid_color_button= tk.Button(grid_color_frame,text="          ",background =grid_color)
+            grid_color_button.config(command=set_grid_color)
             grid_color_button.config(activebackground=grid_color_button.cget('background'))
             grid_color_button.grid(row=0,column=1)
 
@@ -907,17 +942,33 @@ def plot(fig,axes,lines,leg,from_):
             change_leg.destroy()
 
         def leg_bg_color():
-            bg_color=colorchooser.askcolor(title="Pick Color")
-            if  bg_color != (None,None):
-                leg.get_frame().set_facecolor(bg_color[1])
-                leg_bc_button.config(background=bg_color[1])
+            c_ch = tk.Toplevel(change_leg)
+            c_ch.resizable(width=False, height=False)
+            c_ch.withdraw()
+            c_ch.protocol("WM_DELETE_WINDOW")
+            app = ColorChart(c_ch)
+            c_ch.deiconify()
+            c_ch.grab_set()
+            c_ch.wait_window(c_ch)
+            bg_color = app.color
+            if  bg_color != None:
+                leg.get_frame().set_facecolor(bg_color)
+                leg_bc_button.config(background=bg_color)
                 leg_bc_button.config(activebackground=leg_bc_button.cget('background'))
 
         def leg_eg_color():
-            eg_color=colorchooser.askcolor(title="Pick Color")
+            c_ch = tk.Toplevel(change_leg)
+            c_ch.resizable(width=False, height=False)
+            c_ch.withdraw()
+            c_ch.protocol("WM_DELETE_WINDOW")
+            app = ColorChart(c_ch)
+            c_ch.deiconify()
+            c_ch.grab_set()
+            c_ch.wait_window(c_ch)
+            eg_color = app.color
             if  eg_color != (None,None):
-                leg.get_frame().set_edgecolor(eg_color[1])
-                leg_ec_button.config(background=eg_color[1])
+                leg.get_frame().set_edgecolor(eg_color)
+                leg_ec_button.config(background=eg_color)
                 leg_ec_button.config(activebackground=leg_ec_button.cget('background'))
 
         try:
@@ -1046,7 +1097,6 @@ def plot(fig,axes,lines,leg,from_):
         global line_deads_val
 
         def tr_color(trace):
-            # color=colorchooser.askcolor(title="Pick Color")
             c_ch = tk.Toplevel(change_traces)
             c_ch.resizable(width=False, height=False)
             c_ch.withdraw()
@@ -1169,42 +1219,56 @@ def plot(fig,axes,lines,leg,from_):
 
 
         def plot_bg_color():
-
-
-            bg_color=colorchooser.askcolor(title="Pick Color")
-            if  bg_color != (None,None):
+            c_ch = tk.Toplevel(change_axes)
+            c_ch.resizable(width=False, height=False)
+            c_ch.withdraw()
+            c_ch.protocol("WM_DELETE_WINDOW")
+            app = ColorChart(c_ch)
+            c_ch.deiconify()
+            c_ch.grab_set()
+            c_ch.wait_window(c_ch)
+            color = app.color
+            if  color != None:
                 for ax in axes:
-                    ax.set_facecolor(bg_color[1])
-                axes_bg_color_button.config(background=bg_color[1])
+                    ax.set_facecolor(color)
+                axes_bg_color_button.config(background=color)
                 axes_bg_color_button.config(activebackground=axes_bg_color_button.cget('background'))
                 if vlines:
                     for v in vlines:
                         print(v.get_color())
-                        print(bg_color[1])
-                        if ( (bg_color[1] < "#b0b0b0")&(v.get_color() < "#b0b0b0") ) | ( ( bg_color[1] > "#b0b0b0")&(v.get_color() > "#b0b0b0" ) ) :
+                        print(color)
+                        if ( (color < "#b0b0b0")&(v.get_color() < "#b0b0b0") ) | ( ( color > "#b0b0b0")&(v.get_color() > "#b0b0b0" ) ) :
                             print(v.get_color())
                             c = ( Color(hex="#b0b0b0") + Color(hex='#ffffff') - Color(hex=v.get_color()) ).hex
                             v.set_color(c)
                             print(v.get_color())
                 if hlines:
                     for h in hlines:
-                        if  ( (bg_color[1] < "#b0b0b0")&(h.get_color() < "#b0b0b0") ) | ( ( bg_color[1] > "#b0b0b0")&(h.get_color() > "#b0b0b0" ) ):
+                        if  ( (color < "#b0b0b0")&(h.get_color() < "#b0b0b0") ) | ( ( color > "#b0b0b0")&(h.get_color() > "#b0b0b0" ) ):
                             c = ( Color(hex="#b0b0b0") + Color(hex='#ffffff') - Color(hex=h.get_color()) ).hex
                             h.set_color(c)
 
                 if arrow_lines:
                     for a in arrow_lines:
-                        if ( (bg_color[1] < "#b0b0b0") & (a.arrow_patch.get_edgecolor() < (0.69,0.69,0.69,1)) ) | ( ( bg_color[1] > "#b0b0b0")&(a.arrow_patch.get_edgecolor()> (0.69,0.69,0.69,1) ) ):
+                        if ( (color < "#b0b0b0") & (a.arrow_patch.get_edgecolor() < (0.69,0.69,0.69,1)) ) | ( ( color > "#b0b0b0")&(a.arrow_patch.get_edgecolor()> (0.69,0.69,0.69,1) ) ):
                             a_c = a.arrow_patch.get_edgecolor()
                             a_c_mod  = (255*a_c[0],255*a_c[1],255*a_c[2])
                             c = c = ( Color(hex="#b0b0b0") + Color(hex='#ffffff') - Color(a_c_mod)).hex
                             a.arrow_patch.set_edgecolor(c)
 
         def plot_mg_color():
-            mg_color=colorchooser.askcolor(title="Pick Color")
-            if  mg_color != (None,None):
-                fig.set_facecolor(mg_color[1])
-                axes_mg_color_button.config(background=mg_color[1])
+            c_ch = tk.Toplevel(change_axes)
+            c_ch.resizable(width=False, height=False)
+            c_ch.withdraw()
+            c_ch.protocol("WM_DELETE_WINDOW")
+            app = ColorChart(c_ch)
+            c_ch.deiconify()
+            c_ch.grab_set()
+            c_ch.wait_window(c_ch)
+            mg_color= app.color
+            if  mg_color != None:
+                fig.set_facecolor(mg_color)
+                axes_mg_color_button.config(background=mg_color)
                 axes_mg_color_button.config(activebackground=axes_mg_color_button.cget('background'))
 
         try:
