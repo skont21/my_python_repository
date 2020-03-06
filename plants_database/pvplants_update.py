@@ -50,7 +50,7 @@ for pvplants_url in pvplants_urls:
         print("Checkout:",pvplants[i])
         _=subprocess.Popen(ci.split(),stdout=subprocess.PIPE).communicate()
     else:
-        print("Updating:",pvplants[i])
-        _=subprocess.Popen(up.split(),stdout=subprocess.PIPE).communicate()
+        print("Already Existing:",pvplants[i])
+        # _=subprocess.Popen(up.split(),stdout=subprocess.PIPE).communicate()
     i+=1
     os.chdir(path)

@@ -31,7 +31,7 @@ def parse_ods(plant,path):
     print(CRED + plant + CEND + '\n')
 
     plant_ods = plant+'_InstallationData.ods'
-    path = path+'/'+plant+'/trunk/Provisioning/'
+    path = path+'/'+plant+'/'
 
     try:
         files = os.listdir(path)
@@ -41,11 +41,11 @@ def parse_ods(plant,path):
     try:
         s=odsparser_3.Spreadsheet(path+plant_ods)
     except (UnboundLocalError,IOError,NameError) as e :
-        try:
-            s=odsparser_3.Spreadsheet(path+plant_ods)
-        except (UnboundLocalError,IOError,NameError) as e :
-            print(CRED + CBOLD + "ODS FILE NOT FOUND" + CEND + '\n')
-            return("Error")
+        # try:
+        #     s=odsparser_3.Spreadsheet(path+plant_ods)
+        # except (UnboundLocalError,IOError,NameError) as e :
+        print(CRED + CBOLD + "ODS FILE NOT FOUND" + CEND + '\n')
+        return("Error")
 
     try:
         data= s._Spreadsheet__parse_spreadsheet()
@@ -170,6 +170,8 @@ def find_country(data):
             country = "India"
         elif country == "NL":
             country = "Netherlands"
+        elif not country:
+            country='Undefined'
     except AttributeError:
         country='Undefined'
     except IndexError:
