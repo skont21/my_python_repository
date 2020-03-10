@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Keep Plotting
+Exec=/home/spiros/my_git/plotly/plot_ppc.py
+Icon=/home/spiros/my_git/plotly/keep_plotting.png
+Terminal=true
+Type=Application

@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from matplotlib.ticker import AutoMinorLocator, FormatStrFormatter,LinearLocator,MaxNLocator,MultipleLocator
 
+
 import matplotlib as mpl
 mpl.use('TkAgg')
 
@@ -165,7 +166,7 @@ def calc_minmax(*args):
     M = b+(b-a)/10
     return(m,M)
 
-def plot_existing(figure):
+def plot_existing(figure,texts,verticals,horizontals,arrows):
     import random
     import string
 
@@ -194,20 +195,65 @@ def plot_existing(figure):
         for l in a.lines:
             y = l.get_data()[1]
             if num_a==0:
-                line,=ax.plot(x,y)
-                line.set_color(figure.axes[num_a].lines[i-1].get_color())
-                line.set_label(figure.axes[num_a].lines[i-1].get_label())
-                i+=1
+                if len(x)==len(y):
+                    line,=ax.plot(x,y)
+                    line.set_color(figure.axes[num_a].lines[i-1].get_color())
+                    line.set_label(figure.axes[num_a].lines[i-1].get_label())
+                    lines.append(line)
+                    i+=1
             else:
                 line,=ax2.plot(x,y)
                 line.set_color(figure.axes[num_a].lines[j-1].get_color())
                 line.set_label(figure.axes[num_a].lines[j-1].get_label())
+                lines.append(line)
                 j+=1
             l.set_picker(5)
             l.set_alpha(1)
-            lines.append(line)
-
         num_a+=1
+
+    tss=[]
+    for t in texts:
+        rot=t.get_rotation()
+        text=t.get_text()
+        fs=t.get_fontsize()
+        fst=t.get_fontstyle()
+        fw=t.get_fontweight()
+        lw=t.get_bbox_patch().get_linewidth()
+        ec_rgb=t.get_bbox_patch().get_edgecolor()
+        bc_rgb=t.get_bbox_patch().get_facecolor()
+        ec='#%02x%02x%02x' %  (int(ec_rgb[0]*255),int(ec_rgb[1]*255),int(ec_rgb[2]*255))
+        bc='#%02x%02x%02x' %  (int(bc_rgb[0]*255),int(bc_rgb[1]*255),int(bc_rgb[2]*255))
+        tx=t.get_position()[0]
+        ty=t.get_position()[1]
+        props = dict(boxstyle='round', facecolor=bc, alpha=1)
+        ts=fig.axes[0].text(tx,ty,text,rotation=rot,c=ec,fontdict={'size':fs,'weight':fw},bbox=props,picker=5)
+        tss.append(ts)
+
+    ars=[]
+    for a in arrows:
+        xstart=a.get_position()[0]
+        ystart=a.get_position()[1]
+        arx=a.xy[0]
+        ary=a.xy[1]
+        lw=a.arrow_patch.get_linewidth()
+        lst=a.arrow_patch.get_linestyle()
+        la = a.arrow_patch.get_alpha()
+        ast = a.arrowprops['arrowstyle']
+        ac_rgb = a.arrow_patch.get_edgecolor()
+        ac='#%02x%02x%02x' %  (int(ac_rgb[0]*255),int(ac_rgb[1]*255),int(ac_rgb[2]*255))
+        ar=fig.axes[0].annotate(s="",xy=(arx,ary),xytext=(xstart,ystart), arrowprops=dict(lw=lw,arrowstyle=ast,color=ac,ls=lst,alpha=la),picker=5)
+        ars.append(ar)
+
+
+    hss=[]
+    for h in horizontals:
+        hs=fig.axes[0].axhline(y=h.get_data()[1][0],xmin=0,xmax=1,linewidth=h.get_linewidth(),ls=h.get_linestyle(),c=h.get_color(),picker=5)
+        hss.append(hs)
+
+    vss=[]
+    for v in verticals:
+        vs=fig.axes[0].axvline(x=v.get_data()[0][0],ymin=0,ymax=1,linewidth=v.get_linewidth(),ls=v.get_linestyle(),c=v.get_color(),picker=5)
+        vss.append(vs)
 
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
@@ -226,6 +272,8 @@ def plot_existing(figure):
     ax.set_xlabel(figure.axes[0].get_xlabel(),fontdict=font)
     ax.set_xlabel(figure.axes[0].get_ylabel(),fontdict=font)
     ax.set_title(figure.axes[0].get_title(),fontdict=font,x=0.5,y=1.1)
+    ax.set_ylim(figure.axes[0].get_ylim())
+    ax.set_xlim(figure.axes[0].get_xlim())
 
     labs = [l.get_label() for l in lines]
     leg = ax.legend(lines,labs,bbox_to_anchor=(0.5, 1.1),loc='upper center',ncol=len(lines),prop=legend_font,
@@ -236,21 +284,23 @@ def plot_existing(figure):
         ax2.spines["top"].set_visible(False)
         ax2.yaxis.set_major_locator(MaxNLocator(nbins=20,integer=True))
         ax2.yaxis.set_minor_locator(AutoMinorLocator())
-        ax.set_xlabel(figure.axes[1].get_xlabel(),fontdict=font)
+        a2.set_xlabel(figure.axes[1].get_xlabel(),fontdict=font)
+        a2.set_ylim(figure.axes[2].get_ylim())
 
-    try:
-        m = min([min(calc_minmax(l.get_data()[1])) for l in figure.axes[1].lines])
-        M = max([max(calc_minmax(l.get_data()[1])) for l in figure.axes[1].lines])
-        ax2.set_ylim(m,M)
-    except:pass
 
-    try:
-        m = min([calc_minmax(l.get_data()[1]) for l in figure.axes[0].lines])
-        M = max([calc_minmax(l.get_data()[1]) for l in figure.axes[0].lines])
-        ax.set_ylim(m,M)
-    except:pass
+    # try:
+    #     m = min([min(calc_minmax(l.get_data()[1])) for l in lines])
+    #     M = max([max(calc_minmax(l.get_data()[1])) for l in lines])
+    #     ax2.set_ylim(m,M)
+    # except:pass
+    #
+    # try:
+    #     m = min(min([calc_minmax(l.get_data()[1]) for l in lines]))
+    #     M = max(max([calc_minmax(l.get_data()[1]) for l in lines]))
+    #     ax.set_ylim(m,M)
+    # except:pass
 
-    return (fig,fig.axes,lines,leg)
+    return (fig,fig.axes,lines,leg,tss,vss,hss,ars)
 
 
 def plot_P(TIME,P,PSP,PEN):
