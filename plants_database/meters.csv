@@ -1,0 +1,172 @@
+,plant,model,manufacturer
+0,ARG_Biosar_CaldenesDelOeste_30MWp,UMG509,Janitza electronics GmbH
+1,ARG_SterlinWilson_JinkoSolar_CordilleraSolar_93.3MW,ION8650HV3_noOOR,Schneider Electric
+2,AR_CS_Elmya_Cafayate_100MW_3192,ION8650HV3_noOOR,Schneider Electric
+3,AUS_BNRG_Cedarbrook_75KWp,InteliPro,ComAp a.s.
+4,AU_Biosar_Kiamal_RTU_Test_244.5MWp_3640,UMG604_PPC,Janitza electronics GmbH
+5,BRA_Biosar_BomJesusdaLapaHV_BJL,ION7650,Schneider Electric
+6,BRA_Biosar_Guimarania_40.99MWp_Subplant_1,PM556X,Schneider Electric
+7,BRA_Biosar_Guimarania_41.53MWp_Subplant_2,PM556X,Schneider Electric
+8,BRA_Biosar_Guimarania_82.52MWp_HV_SS,SEL-411L_IEC,"Schweitzer Engineering Laboratories, Inc."
+9,BRA_Biosar_JesusdaLapaBJL04_25MWp,ION7650,Schneider Electric
+10,BRA_Biosar_JesusdaLapaBJL11_25MWp,ION7650,Schneider Electric
+11,BRA_Biosar_PiraporaPhase1_185MWp_HV_SS,SEL-411L_IEC,"Schweitzer Engineering Laboratories, Inc."
+12,BRA_Biosar_PiraporaPhase1_37MWp_Subplant_10,PM556X,Schneider Electric
+13,BRA_Biosar_PiraporaPhase1_37MWp_Subplant_5,PM556X,Schneider Electric
+14,BRA_Biosar_PiraporaPhase1_37MWp_Subplant_6,PM556X,Schneider Electric
+15,BRA_Biosar_PiraporaPhase1_37MWp_Subplant_7,PM556X,Schneider Electric
+16,BRA_Biosar_PiraporaPhase1_37MWp_Subplant_9,PM556X,Schneider Electric
+17,BRA_Biosar_PiraporaPhase2_38MWp_Subplant_2,PM556X,Schneider Electric
+18,BRA_Biosar_PiraporaPhase2_38MWp_Subplant_3,PM556X,Schneider Electric
+19,BRA_Biosar_PiraporaPhase2_38MWp_Subplant_4,PM556X,Schneider Electric
+20,BRA_Biosar_PiraporaPhase3_31MWp_Subplant_1,PM556X,Schneider Electric
+21,BRA_Biosar_PiraporaPhase3_31MWp_Subplant_11,PM556X,Schneider Electric
+22,BRA_Biosar_PiraporaPhase3_31MWp_Subplant_8,PM556X,Schneider Electric
+23,BRA_GE_Apodi_162MWp,ION7400v2,Schneider Electric
+24,BRA_GE_Quebec_14.3MWp,PM820,Schneider Electric
+25,BR_Biosar_Dracena_HV_81MWp_3110,SEL-411L_IEC_Dracena,"Schweitzer Engineering Laboratories, Inc."
+26,BR_Biosar_Dracena_Subplant1_27MWp_3129,PM556X,Schneider Electric
+27,BR_Biosar_Dracena_Subplant2_27MWp_3130,PM556X,Schneider Electric
+28,BR_Biosar_Dracena_Subplant4_27MWp_3131,PM556X,Schneider Electric
+29,Barbados_Grupotec_StLucy_12MW,ION7650,Schneider Electric
+30,CL_Biosar_ElRoble_10.2MWp,PM556X,Schneider Electric
+31,CL_Biosar_La_Talca_10.4MWp_3323,M2M,ABB
+32,CL_CarbonFree_Solek_VillaSeca_3MW_3667,ION7400,Schneider Electric
+33,CL_Eiffage_Marchihue_3.5MWp_3069,ION8650HV2,Schneider Electric
+34,CL_Grenergy_Renovables_La_Estancia_3MWp_3252,ION7400,Schneider Electric
+35,CL_Grenergy_Renovables_Placilla_10.8MWp_3251,ION8650HV2,Schneider Electric
+36,CL_GroupoSEMI_Jaururo_3MWp_3067,ION7400v2,Schneider Electric
+37,CL_GroupoSEMI_San_Isidro_3MWp_3068,ION7400v2,Schneider Electric
+38,CL_METKA_EGN_Eclipse_10.43MWp_3322,ION8650HV2,Schneider Electric
+39,CL_METKA_EGN_La_Manga_2.98MWp_3229,ION8650HV2,Schneider Electric
+40,CL_METKA_EGN_RLA_2.98MWp_3116,ION8650HV2,Schneider Electric
+41,CL_PenaBlanca_Antonia_3.17MWp_3628,ION7400v2,Schneider Electric
+42,CL_PenaBlanca_Villa_Cruz_3.17MWp_3627,ION7400v2,Schneider Electric
+43,CN_Sungrow_HIL_PPC_Testing_3.125MWp_3385,HIL_PPC_METER_SIMULATION,inAccess Networks
+44,CY_Sunel_Vassiliko_8MWp_3629,SICAM Q200 7KG97,Siemens
+45,Chile_Belectric_Encon_9.4MWp,ION8650HV2,Schneider Electric
+46,Chile_Belectric_Montt_3.3MWp,ION8650HV2,Schneider Electric
+47,Chile_Belectric_Pedreros_3.6MWp,ION8650HV2,Schneider Electric
+48,Chile_Biosar_Bolero_147MW,ION8650_IEC61850,Schneider Electric
+49,Chile_Biosar_ElLaurel_8.3MWp,PM556X,Schneider Electric
+50,Chile_Biosar_ElSauce_3.5MWp,PM556X,Schneider Electric
+51,Chile_Biosar_LaAcacia_9.5MWp,PM556X,Schneider Electric
+52,Chile_Sungrow_DiegoDeAlmagro_9.5MW,ION7400,Schneider Electric
+53,China_Sungrow_testPlant_PPC,EM6400,Conzerv
+54,EG_Voltalia_RASolar_33MWp_3225,SICAM P 7KG85xx,Siemens
+55,ES_Grupotec_Almansol_49.995MWp_3479,Satel Grupotec PPC meter,Custom/Unknown manufacturer
+56,ES_Grupotec_Tabernas_41.58MWp_3358,Satel Grupotec PPC meter,Custom/Unknown manufacturer
+57,Egnatia_UK_ROSKROW_9MWp,UMG604,Janitza electronics GmbH
+58,Honduras_Sybac_LasLajas_10MWp,ION8650_DNP3,Schneider Electric
+59,IN_SolaireDirect_Kadapa_HV_Master_PPC_350MWp_2954,SICAM T 7KG966,Siemens
+60,IT_Biosar_Porto_Torres_I_17MWp_3346,PM556X,Schneider Electric
+61,India_LS_SterlinWilson_Waghdari_50MW,Secure Elite 440,Secure Meters Ltd
+62,Italy_Biosar_Assemini_18MWp,PM556X,Schneider Electric
+63,KSA_Sungrow_Layla_13MWp,UMG511,Janitza electronics GmbH
+64,KZ_METKA_EGN_M_KAT_100MWp_3376,IEC104 multimeter,inAccess Networks
+65,KZ_METKA_EGN_NOMAD_28MWp_3377,SIMEAS P,Siemens
+66,LC_Grupotec_Lucelec_7AB,ION8650HV3,Schneider Electric
+67,LC_Grupotec_Lucelec_7C,ION8650HV3,Schneider Electric
+68,Malaysia_Ditrolic_Jelebu_3.5MWp,UMG604,Janitza electronics GmbH
+69,Malaysia_Sungrow_Gading_35MWp,UMG604,Janitza electronics GmbH
+70,Malaysia_Sungrow_Janakuasa_10MWp,ION7650,Schneider Electric
+71,Malaysia_Sungrow_MIE_Terengganu_23MWp,UMG604,Janitza electronics GmbH
+72,Malaysia_Sungrow_Mattan_55MWp,UMG604,Janitza electronics GmbH
+73,Malaysia_Sungrow_Samaiden_20MWp,ION7650,Schneider Electric
+74,Malaysia_Sungrow_UITM_50MWp,UMG604,Janitza electronics GmbH
+75,NG_MetkaEGN_KanoBayero_3.5MW_2975,UMG604,Janitza electronics GmbH
+76,NG_MetkaEGN_KanoBayero_Simulation_3.5MW_3352,PCC_METER_SUNGROW_SIM,inAccess Networks
+77,NG_MetkaEGN_Nnamdi_2.5MW_3095,UMG604_PPC,Janitza electronics GmbH
+78,NG_MetkaEGN_Usman_2.5MW_3093,UMG604_PPC,Janitza electronics GmbH
+79,Namibia_AEEPower_RoshPinah_5MWp,SEL 411_Namibia_RTU,"Schweitzer Engineering Laboratories, Inc."
+80,Namibia_CanadianSolar_Keetmanshoop_6MWp,UMG604,Janitza electronics GmbH
+81,Namibia_ItaliaEnergiaSRL_UUTAPI_5MWp,UMG604,Janitza electronics GmbH
+82,PK_Sungrow_Pakistan_50MWp_3324,PAC4200,Siemens
+83,Pacific_Solar_Honduras_24MWp,ION8650HV2,Schneider Electric
+84,Philippines_STERLING_and_WILSON_Clarks_23MWp,EM6400IE-DM,Conzerv
+85,Philippines_STERLING_and_WILSON_Digos_28.9MWp,EPM 6000,GE Multilin
+86,SA_Mahindra_Sakaka_300MWp_3038,PM556X,Schneider Electric
+87,South_Africa_STERLING_and_WILSON_90MWp,UMG604,Janitza electronics GmbH
+88,TN_METKA_ADAM_Simulation_5MWp_3702,UMG604_SIM,Janitza electronics GmbH
+89,Test_Huawei_PPC_Master_PPC,Smart Logger 2000 Meter,"Huawei Technologies CO., LTD."
+90,Test_Huawei_PPC_Slave_PPC_1,Smart Logger 2000 Meter,"Huawei Technologies CO., LTD."
+91,Test_Huawei_PPC_Slave_PPC_2,Smart Logger 2000 Meter,"Huawei Technologies CO., LTD."
+92,Test_Huawei_PPC_Slave_PPC_3,Smart Logger 2000 Meter,"Huawei Technologies CO., LTD."
+93,UAE_SW_ADWEA_Simultation,PPC meter simulation PV,inAccess Networks
+94,UAE_Sterling_and_Wilson_Adwea_1177MWp,UMG604_PPC,Janitza electronics GmbH
+95,UK_ArunConstruction_Westhampnett_7.5MWp,UMG604,Janitza electronics GmbH
+96,UK_BF_Retrofit_Salhouse_4.99MWp,A44/B44,ABB
+97,UK_BF_Retrofit_Trethosa_4.77MWp,A44/B44,ABB
+98,UK_BIOSAR_LS_CROOKEDSTONE_4.9MW,iSTAT i500,Alstom
+99,UK_Biosar_LS_BrickKlin_5MW,PM556X,Schneider Electric
+100,UK_Biosar_LS_MeadowFarm_4.99MWp,PM556X,Schneider Electric
+101,UK_Biosar_LS_Millar_7.2MWp,UMG604,Janitza electronics GmbH
+102,UK_Biosar_LS_MorfaFarm_2MWp,PM556X,Schneider Electric
+103,UK_Biosar_LS_NICluster_21.6MWp,ELSTER A1700,Elster Metering Systems
+104,UK_Biosar_LS_Sharland_2.77MWp,PM556X,Schneider Electric
+105,UK_Biosar_LS_Stragglethorpe_5MW,PM556X,Schneider Electric
+106,UK_British_Renewables_Blackminster_SolarFarm_300KWp,M2M,ABB
+107,UK_EGN_CS_CockettValley_4.9MWp,PM556X,Schneider Electric
+108,UK_EGN_CS_GreateHounbeare_4.9MWp,UMG604,Janitza electronics GmbH
+109,UK_EGN_LS_Bolsovermoor_5MW,PM556X,Schneider Electric
+110,UK_EGN_LS_Finvoy_5.94MWp,UMG604_PPC,Janitza electronics GmbH
+111,UK_EGN_LS_Gibson_6.48MWp,UMG604,Janitza electronics GmbH
+112,UK_EGN_LS_GreenLaneFarm_4.2MWp,PM556X,Schneider Electric
+113,UK_EGN_LS_Henllys_5MW,PM556X,Schneider Electric
+114,UK_EGN_LS_Maghaberry_27.2MWp,UMG604_PPC,Janitza electronics GmbH
+115,UK_EGN_LS_NorthTenement_4.9MWp,ION7350HV,Schneider Electric
+116,UK_EGN_LS_ParkFarmWest_4MW,PM556X,Schneider Electric
+117,UK_EGN_LS_PenRhiw_5MW,PM556X,Schneider Electric
+118,UK_ETS_SeatonRoad_4.2MWp,PM556X,Schneider Electric
+119,UK_Grupotec_HoltWood_5MW,PM556X,Schneider Electric
+120,UK_Grupotec_LawnLane_5MW,PM556X,Schneider Electric
+121,UK_Grupotec_Pilkington_2.29MWp_3223,PM5100,Schneider Electric
+122,UK_LSRetrofit_Dunsfold,376213111S#_FEN,Cewe Instrument AB
+123,UK_RetrofittedbyLS_StFrancis,ION7350HV,Schneider Electric
+124,UK_SC_Isle_of_Sheppey_1.5MWp,A44/B44,ABB
+125,UK_SC_NewtonDownsFarm_5MWp,UMG604,Janitza electronics GmbH
+126,UK_Voltalia_DaleFarm_4.99MWp,PM5300,Schneider Electric
+127,US_Biosar_ENEL_Aurora_Albany_15.23MWp,ION8650HV2#_Aurora,Schneider Electric
+128,US_Biosar_ENEL_Aurora_Annandale_9.14MWp,ION8650HV2#_Aurora,Schneider Electric
+129,US_Biosar_ENEL_Aurora_Atwater_5.89MWp,ION8650HV2#_Aurora,Schneider Electric
+130,US_Biosar_ENEL_Aurora_Chisago_11.1MWp,ION8650HV2#_Aurora,Schneider Electric
+131,US_Biosar_ENEL_Aurora_DodgeCenter_9.43MWp,ION8650HV2#_Aurora,Schneider Electric
+132,US_Biosar_ENEL_Aurora_Eastwood_8.19MWp,ION8650HV2#_Aurora,Schneider Electric
+133,US_Biosar_ENEL_Aurora_Hastings_6.78MWp,ION8650HV2#_Aurora,Schneider Electric
+134,US_Biosar_ENEL_Aurora_LakeEmily_6.55MWp,ION8650HV2#_Aurora,Schneider Electric
+135,US_Biosar_ENEL_Aurora_LakePulaski_10.92MWp,ION8650HV2#_Aurora,Schneider Electric
+136,US_Biosar_ENEL_Aurora_LawrenceCreek_5.92MWp_,ION8650HV2#_Aurora,Schneider Electric
+137,US_Biosar_ENEL_Aurora_Montrose_4.5MWp,ION8650HV2#_Aurora,Schneider Electric
+138,US_Biosar_ENEL_Aurora_Paynesville_15.23MWp,ION8650HV2#_Aurora,Schneider Electric
+139,US_Biosar_ENEL_Aurora_PineIsland_6.5MWp,ION8650HV2#_Aurora,Schneider Electric
+140,US_Biosar_ENEL_Aurora_Waseca_15.9MWp,ION8650HV2#_Aurora,Schneider Electric
+141,US_Biosar_ENEL_Aurora_WestFaribault_7.92MWp,ION8650HV2#_Aurora,Schneider Electric
+142,US_Biosar_ENEL_Aurora_WestWaconia_12.24MWp,ION8650HV2#_Aurora,Schneider Electric
+143,US_EnterSolar_Ameresco_Westerlo-A_2.757MWp_3422,Shark 100 Modbus,Electro Industries
+144,US_IKEA_Columbus_1.2MWp,Shark 100 Modbus,Electro Industries
+145,US_i1Energy_LSBP-Bluewater_3.104MWp_3413,SEL-735,"Schweitzer Engineering Laboratories, Inc."
+146,US_i1Energy_LSBP-Grants_5.634MWp_3414,SEL-735,"Schweitzer Engineering Laboratories, Inc."
+147,VN_Sineng_Electric_Phan_Thiet_39MWp_3227,UMG604_PPC,Janitza electronics GmbH
+148,VN_Sterling_and_Wilson_Saomai_104MWp_3072,PM2120,Schneider Electric
+149,VN_Sungrow_Bach_Khoa_A_Chau1_30MWp_3196,UMG604,Janitza electronics GmbH
+150,VN_Sungrow_Bach_Khoa_A_Chau2_30MWp_3197,UMG604,Janitza electronics GmbH
+151,VN_Sungrow_ERS_30MWp_2956,UMG604,Janitza electronics GmbH
+152,VN_Sungrow_ERS_50MWp_2955,UMG604,Janitza electronics GmbH
+153,VN_Sungrow_Fuji_40MWp_2864,UMG604,Janitza electronics GmbH
+154,VN_Sungrow_GCL_50MWp_2902,UMG604,Janitza electronics GmbH
+155,VN_Sungrow_JSC_50MWp_3070,UMG604,Janitza electronics GmbH
+156,VN_Sungrow_KimII_50MWp_2866,UMG604,Janitza electronics GmbH
+157,VN_Sungrow_KimI_50MWp_2865,UMG604,Janitza electronics GmbH
+158,VN_Sungrow_MY_40MWp_3115,UMG604_PPC,Janitza electronics GmbH
+159,VN_Sungrow_PNP_50MWp_3037,UMG604,Janitza electronics GmbH
+160,VN_Sungrow_Quang_Minh_50MWp_3351,UMG604,Janitza electronics GmbH
+161,VN_Sungrow_WAN_HONG_2_40MWp_3153,UMG604_PPC,Janitza electronics GmbH
+162,VN_Sungrow_WAN_HONG_40MWp_3127,UMG604_PPC,Janitza electronics GmbH
+163,VN_TBEA_Binh_Thuan2_33.1MWp_3226,UMG604,Janitza electronics GmbH
+164,VN_VPW_HAM_KIEM_49MWp_3106,PM5300,Schneider Electric
+165,Vietnam_Sungrow_Ayala_168MWp,UMG604,Janitza electronics GmbH
+166,Vietnam_Sungrow_DAI_100MWp,UMG604,Janitza electronics GmbH
+167,Vietnam_Sungrow_JUWI_30MWp,UMG604,Janitza electronics GmbH
+168,Vietnam_Sungrow_JUWI_50MWp,UMG604,Janitza electronics GmbH
+169,Vietnam_Sungrow_TTCL_40MWp,PM5300,Schneider Electric
+170,ZA_JUWI_Droogfontein_86.248MWp_3374,SEL-751_JUWI_SA,"Schweitzer Engineering Laboratories, Inc."
