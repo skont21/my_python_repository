@@ -80,12 +80,19 @@ def get_data_from_csv(data_csv):
 def get_traces(data):
 
     try:
-        time =data['TIME']
-        if pd.Timestamp(1900,1,1,0,0,0) in time.to_list():
-            new_day = time.index[time == pd.Timestamp(1900,1,1,0,0,0)].tolist()
-            time_new = time.copy()
-            time_new[time_new.index>=new_day[0]]=time[time.index>=new_day[0]]+datetime.timedelta(days=1)
-            time=time_new
+        data_cp = data.set_index('TIME')
+        time=data['TIME']
+        new_days_ind = None
+        try:
+            new_days_ind = data_cp.index.get_loc("1900-01-01 00:00:00")
+        except:
+            pass
+        time_new = time.copy()
+        if new_days_ind:
+            for i in range(len(new_days_ind)-1):
+                time_new[(time_new.index>=new_days_ind[i])&(time_new.index<new_days_ind[i+1])]=time[(time.index>=new_days_ind[i])&(time.index<new_days_ind[i+1])]+datetime.timedelta(days=i+1)
+            time_new[(time_new.index>=new_days_ind[i+1])]=time[(time.index>=new_days_ind[i+1])]+datetime.timedelta(days=i+2)
+        time=time_new
     except:
         time = pd.Series()
 
@@ -178,10 +185,9 @@ def plot_existing(figure,texts,verticals,horizontals,arrows):
     fig, ax = plt.subplots(figsize=(10,5))
     x = figure.axes[0].lines[0].get_data()[0]
     if isinstance(x[0],np.datetime64):
-        x = [str(el).split("T")[1].split(".")[0] for el in x]
+        x = [str(el).split("T")[0]+" "+str(el).split("T")[1].split(".")[0] for el in x]
         time = pd.Series(x)
-        time= time.apply(lambda y : datetime.datetime.strptime(str(y), '%H:%M:%S'))
-        x=pd.Series(time)
+        x=pd.to_datetime(time)
 
     num_a=0
     lines=[]

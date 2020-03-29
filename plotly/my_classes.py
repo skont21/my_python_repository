@@ -1,7 +1,9 @@
 import tkinter as tk
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg,NavigationToolbar2Tk
+from matplotlib.backends.backend_tkagg import NavigationToolbar2Tk
 from matplotlib.text import Text
 from matplotlib.lines import Line2D
+import locale
+locale.setlocale(locale.LC_ALL, '')
 
 weights = ['normal','bold',]
 styles = ['normal', 'italic']

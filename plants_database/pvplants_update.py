@@ -51,6 +51,6 @@ for pvplants_url in pvplants_urls:
         _=subprocess.Popen(ci.split(),stdout=subprocess.PIPE).communicate()
     else:
         print("Already Existing:",pvplants[i])
-        # _=subprocess.Popen(up.split(),stdout=subprocess.PIPE).communicate()
+        _=subprocess.Popen(up.split(),stdout=subprocess.PIPE).communicate()
     i+=1
     os.chdir(path)

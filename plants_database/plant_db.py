@@ -20,7 +20,6 @@ CBOLD = '\33[1m'
 CURL = '\33[4m'
 CEND = '\33[0m'
 
-Controls=['P Control','P-Rate Control','P(f) Control','Q Control','Q(V) Control','Q-Rate Control','PF Control','AVR Control']
 
 conn = sqlite3.connect('plants.sqlite')
 cur = conn.cursor()
@@ -28,25 +27,49 @@ cur = conn.cursor()
 cur.executescript('''
 CREATE TABLE IF NOT EXISTS PLANTS (
     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-    name TEXT UNIQUE,
-    ppc_ip INTEGER,
-    n_controllers INTEGER,
-    ppc_c TEXT,
+    plant TEXT UNIQUE,
+    portal_name TEXT UNIQUE,
     country_id INTEGER
-);
-CREATE TABLE IF NOT EXISTS CONTROLS (
-    id INTEGER NOT NULL PRIMARY KEY UNIQUE,
-    control TEXT UNIQUE
+    meter_id INTEGER,
+    inverter_id INTEGER,
+    grid_code_id INTEGER,
+    ppc_ip_id INTEGER,
+    n_controllers INTEGER,
+    ppc_nominal_power INTEGER,
+    ppc_controller TEXT
 );
 CREATE TABLE IF NOT EXISTS COUNTRIES (
     id INTEGER NOT NULL PRIMARY KEY  UNIQUE,
-    name TEXT UNIQUE
+    country TEXT UNIQUE
 );
 CREATE TABLE IF NOT EXISTS IPS (
     id INTEGER NOT NULL PRIMARY KEY UNIQUE,
-    field TEXT UNIQUE,
+    ip TEXT UNIQUE,
     plant_id INTEGER
+);
+CREATE TABLE IF NOT EXISTS METER_MODELS(
+    id INTEGER NOT NULL PRIMARY KEY UNIQUE,
+    model TEXT UNIQUE,
+    man_id INTEGER
+);
+CREATE TABLE IF NOT EXISTS METER_MANUFACTURERS(
+    id INTEGER NOT NULL PRIMARY KEY UNIQUE,
+    manufacturer TEXT UNIQUE
+);
+CREATE TABLE IF NOT EXISTS INVERTER_MODELS(
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+    models TEXT UNIQUE,
+    man_id INTEGER
+);
+CREATE TABLE IF NOT EXISTS MANUFACTURERS(
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+    manufacturer TEXT UNIQUE
+);
+CREATE TABLE IF NOT EXISTS GRID_CODES(
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+    grid_code TEXT UNIQUE
 )
+
 ''')
 
 cur.execute('''SELECT name from PLANTS''')
@@ -70,11 +93,6 @@ ppc_ips=[]
 for ip in ppc_ip:
     ppc_ips.append(ip[0])
 
-path_to_files = input('Please insert the path to the pvplants folders:')
-controller_ips = find_controller_ips.main(path_to_files,plants,ppc_ips)
-with open("data.pickle", 'wb') as f:
-    pickle.dump(controller_ips, f)
-# print(controller_ips)
 for entry in controller_ips:
 
     ip_id="-"
