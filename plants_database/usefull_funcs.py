@@ -15,6 +15,8 @@ CEND = '\33[0m'
 def list_dir(path):
     import os
     import subprocess
+
+    print(CRED + CBOLD + "Listing directories" + CEND+"\n")
     current_path = os.getcwd()
     os.chdir(path)
     cmd=subprocess.Popen('ls',stdout=subprocess.PIPE)
@@ -121,7 +123,7 @@ def find_inv(data):
                 man[ind]='None'
         if not man:
             man = ['None']
-            
+
     except (IndexError,KeyError,TypeError,AttributeError):
         man= ['None']
     return(man,inv)
