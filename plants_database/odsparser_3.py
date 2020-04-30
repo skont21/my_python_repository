@@ -456,7 +456,7 @@ class Spreadsheet:
 def print_data(data):
 
 	def print_value(n, v):
-		if type(v) == unicode:
+		if isinstance(v,bytes):
 			print(n, '=', v.encode('utf-8'))
 		else:
 			print(n, '=', v)
@@ -513,7 +513,7 @@ if __name__=='__main__':
 	data = s.parse()
 	if argv[1] == '-fv':
 		fv = s.get_version()
-		print("{:f}".format(fv))
+		print(str(fv[0])+"."+str(fv[1]))
 		# print('%d.%d' % fv)
 	elif argv[1] == '-p':
 		print_data(data)

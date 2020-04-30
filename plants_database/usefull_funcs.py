@@ -103,6 +103,28 @@ def find_PPC_meter(data):
         meter_man = "Check ODS"
     return (meter_man,meter_model)
 
+
+def find_pcc_meter(data):
+    try:
+        meter_model = data['PCC']['PCC multimeter']['Model']
+    except TypeError:
+        meter_model = '-'
+    try:
+        meter_man = data['PCC']['PCC multimeter']['Manufacturer']
+    except TypeError:
+        meter_man = "-"
+    except KeyError:
+        meter_man = "-"
+    if (meter_model == 'PPC_METER_GENERIC') | (meter_model == 'PPC_METER_GENERIC_EXT') | (meter_model == 'SUM_OR_METER_GENERIC'):
+        meter_model = data['Electrical panel']['Multimeter']['Model'][0]
+        meter_man = data['Electrical panel']['Multimeter']['Manufacturer'][0]
+
+    if not meter_model:
+        meter_model = '-'
+    if not meter_man:
+        meter_man = '-'
+    return(meter_man,meter_model)
+
 def find_inv(data):
     man = ['None']
     inv = ['None']
@@ -110,22 +132,22 @@ def find_inv(data):
         inv =  list(set(data['PV array']['Inverter']['Model']))
         for ind,el in enumerate(inv):
             if not el:
-                inv[ind]='None'
+                inv[ind]='-'
         if not inv :
-            inv = ['None']
+            inv = ['-']
 
     except (IndexError,KeyError,TypeError,AttributeError):
-        inv= ['None']
+        inv= ['-']
     try:
         man = list(set(data['PV array']['Inverter']['Manufacturer']))
         for ind,el in enumerate(man):
             if not el:
-                man[ind]='None'
+                man[ind]='-'
         if not man:
-            man = ['None']
+            man = ['-']
 
     except (IndexError,KeyError,TypeError,AttributeError):
-        man= ['None']
+        man= ['-']
     return(man,inv)
 
 def find_slave(data):
@@ -165,9 +187,11 @@ def find_country(data):
         elif country == "NL":
             country = "Netherlands"
         elif not country:
-            country='Undefined'
+            country='-'
     except (AttributeError,IndexError,KeyError,TypeError):
-        country='Undefined'
+        country='-'
+        if not country:
+            country='-'
     return country
 
 
@@ -197,19 +221,29 @@ def find_ppc_services(data):
 def find_grid_code(data):
     try:
         gr_code = data['PPC']['Settings']['Grid code']
-        if gr_code == 'None':
-            gr_code = data['Plant']['Grid code']
-            if (gr_code ==' ') | (gr_code == 'No'):
-                gr_code = 'None'
     except (KeyError,TypeError):
-        gr_code='None'
+        try:
+            gr_code = data['Plant']['Grid code']
+        except (KeyError,TypeError):
+            gr_code='-'
+
+    if gr_code == 'None':
+        try:
+            gr_code = data['Plant']['Grid code']
+            if (gr_code ==' ') | (gr_code == 'No') | (not gr_code):
+                gr_code = '-'
+        except (KeyError,TypeError):
+            gr_code='-'
+
+    if gr_code == 'None':
+        gr_code = "-"
     return gr_code
 
 def find_portal_name(data):
     try:
         portal_name = data['Plant']['Name']
     except (KeyError,TypeError):
-        portal_name = 'None'
+        portal_name = '-'
     return portal_name
 
 def find_ppc_controller(data):
@@ -219,12 +253,19 @@ def find_ppc_controller(data):
         ppc_c = 'None'
     return ppc_c
 
-def find_ppc_nom_power(data):
+def find_nom_power(data):
     try:
-        nom = data['PPC']['Settings']['Nominal power']
+        panel_nom=[float(e) for e in data['PV panel group']['Settings']['PV panel nominal output power']]
+        panel_num=[int(e) for e in data['PV panel group']['PV panel group']['Number of PV panels']]
+        nom_power = round(sum([a*b for a,b in zip(panel_num,panel_nom)]),0)
     except (KeyError,TypeError):
-        nom = 'Undefined'
-    return nom
+        try:
+            nom_power=data['PPC']['Settings']['Nominal power']
+        except (KeyError,TypeError):
+            nom_power="-"
+    if not nom_power:
+        nom_power="-"
+    return nom_power
 
 def find_plant_ips(path,data,plant):
 
@@ -266,6 +307,7 @@ def find_plant_ips(path,data,plant):
                 found=True
             except KeyError:
                 pass
+
     if not found:
         it=[]
         for f in files:
@@ -287,11 +329,8 @@ def find_plant_ips(path,data,plant):
                                 break
                             except (IndexError,KeyError):
                                 pass
-    else:
-            error=True
-            plants_err.append(entry['name'])
 
-    ncontrollers = len(controllers)
+    ncontrollers=len(controllers)
     entry['ncontrollers'] = ncontrollers
 
     # print(plant)

@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import os
 import subprocess
 from getpass import getpass
+from usefull_funcs import *
 
 path=input("Enter the pvplants path: ")
 
@@ -27,8 +28,9 @@ for tag in tags:
     pvplants.append(plant)
     pvplants_urls.append(url+plant+'/trunk/Provisioning/')
 
-print("Checking for new directories\n")
-directories = list(os.walk(path))[0][1]
+print("Checking for new directories"+"\n")
+# directories = list(os.walk(path))[0][1]
+directories = list_dir(path)
 for plant in pvplants:
     if plant in directories:
         continue
@@ -51,6 +53,6 @@ for pvplants_url in pvplants_urls:
         _=subprocess.Popen(ci.split(),stdout=subprocess.PIPE).communicate()
     else:
         print("Already Existing:",pvplants[i])
-        _=subprocess.Popen(up.split(),stdout=subprocess.PIPE).communicate()
+        # _=subprocess.Popen(up.split(),stdout=subprocess.PIPE).communicate()
     i+=1
     os.chdir(path)

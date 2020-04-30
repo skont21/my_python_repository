@@ -4,6 +4,7 @@ from usefull_funcs import *
 import tkinter as tk
 from tkinter import filedialog,messagebox
 import sys
+import re
 
 answer=None
 
@@ -102,7 +103,7 @@ for plant in all_data:
     ppc = find_if_ppc(plant[pl])
     inv = find_inv(plant[pl])
     country = find_country(plant[pl])
-    grid = find_grid_code(plant[pl]) or 'None'
+    grid = find_grid_code(plant[pl]) or '-'
     ips = find_plant_ips(path_to_files,plant[pl],pl)
     try:
         ppc_c = 'c_'+str(int(find_ppc_controller(plant[pl]))-1)
@@ -116,17 +117,13 @@ for plant in all_data:
         rest_ips = [ el['address'] for el in ips['controllers'] if el['ppc_ip']=="NO"]
     except:
         rest_ips = []
+    pcc_meter = find_pcc_meter(plant[pl])
+    nom_power = find_nom_power(plant[pl])
+
     if ppc:
         ppc_meter = find_PPC_meter(plant[pl])
-        ppc_nom_power = find_ppc_nom_power(plant[pl])
-        try:
-            ppc_nom_power=float(ppc_nom_power)
-        except:
-            ppc_nom_power=float(ppc_nom_power.replace(",","."))
-        ppc_nom_power = '{:.2f}'.format(ppc_nom_power)
-
     else:
-        ppc_meter = ['None','None']
+        ppc_meter = ['-','-']
         ppc_nom_power = '-'
     if ppc:
         ppc_plants_data.append({'Name':pl,
@@ -136,21 +133,21 @@ for plant in all_data:
                                'Grid_Code':grid,
                                'PPC Controller':ppc_c,
                                'Portal Name':find_portal_name(plant[pl]),
-                               'PPC Nominal Power': ppc_nom_power,
-                               '#_Controllers': ips['ncontrollers'],
+                               'Nominal Power': nom_power,
                                'PPC ip': ppc_ip,
                                'Rest ips':rest_ips})
     plants_data.append({'Name':pl,
                        'Inverter':inv,
+                       'PCC Meter':pcc_meter,
                        'PPC Meter':ppc_meter,
                        'Country':country,
                        'Grid_Code':grid,
                        'PPC Controller':ppc_c,
                        'Portal Name':find_portal_name(plant[pl]),
-                       'PPC Nominal Power': ppc_nom_power,
-                       '#_Controllers': ips['ncontrollers'],
+                       'Nominal Power': nom_power,
                        'PPC ip': ppc_ip,
-                       'Rest ips':rest_ips})
+                       'Rest ips':rest_ips,
+                       'ncontrollers' : ips['ncontrollers']})
 
     print(CBOLD+pl+CEND+"\n")
 
@@ -167,11 +164,11 @@ CREATE TABLE IF NOT EXISTS PLANTS (
     portal_name TEXT,
     country_id INTEGER,
     ppc_meter_id INTEGER,
+    pcc_meter_id INTEGER,
     inverter_id INTEGER,
     grid_code_id INTEGER,
     ppc_ip_id INTEGER,
-    n_controllers INTEGER,
-    ppc_nominal_power INTEGER,
+    nominal_power INTEGER,
     ppc_controller TEXT
 );
 CREATE TABLE IF NOT EXISTS COUNTRIES (
@@ -210,6 +207,19 @@ CREATE TABLE IF NOT EXISTS GRID_CODES(
 
 for entry in plants_data:
 
+    if entry['ncontrollers']=='-':
+        continue
+    if re.search("test",entry['Name'],re.IGNORECASE):
+        continue
+    if re.search("pilot",entry['Name'],re.IGNORECASE):
+        continue
+    if re.search("demo",entry['Name'],re.IGNORECASE):
+        continue
+    if re.search("simultation",entry['Name'],re.IGNORECASE):
+        continue
+    if re.search("simulation",entry['Name'],re.IGNORECASE):
+        continue
+
     cur.execute('''INSERT OR IGNORE INTO PLANTS(plant)
     VALUES (?)''',(entry['Name'],))
     cur.execute('''SELECT id FROM PLANTS where plant = ?''',(entry['Name'],))
@@ -224,12 +234,24 @@ for entry in plants_data:
     cur.execute('''INSERT OR IGNORE INTO METER_MANUFACTURERS(manufacturer)
     VALUES (?)''',(entry['PPC Meter'][0],))
     cur.execute('''SELECT id FROM METER_MANUFACTURERS where manufacturer = ?''',(entry['PPC Meter'][0],))
-    meter_man_id = cur.fetchone()[0]
+    ppc_meter_man_id = cur.fetchone()[0]
+
+    cur.execute('''INSERT OR IGNORE INTO METER_MANUFACTURERS(manufacturer)
+    VALUES (?)''',(entry['PCC Meter'][0],))
+    cur.execute('''SELECT id FROM METER_MANUFACTURERS where manufacturer = ?''',(entry['PCC Meter'][0],))
+    pcc_meter_man_id = cur.fetchone()[0]
+
 
     cur.execute('''INSERT OR IGNORE INTO METER_MODELS(model,man_id)
-    VALUES (?,?)''',(entry['PPC Meter'][1],meter_man_id,))
+    VALUES (?,?)''',(entry['PPC Meter'][1],ppc_meter_man_id,))
     cur.execute('''SELECT id FROM METER_MODELS where model = ?''',(entry['PPC Meter'][1],))
-    meter_id = cur.fetchone()[0]
+    ppc_meter_id = cur.fetchone()[0]
+
+    cur.execute('''INSERT OR IGNORE INTO METER_MODELS(model,man_id)
+    VALUES (?,?)''',(entry['PCC Meter'][1],pcc_meter_man_id,))
+    cur.execute('''SELECT id FROM METER_MODELS where model = ?''',(entry['PCC Meter'][1],))
+    pcc_meter_id = cur.fetchone()[0]
+
 
     cur.execute('''INSERT OR IGNORE INTO INVERTER_MANUFACTURERS(manufacturer)
     VALUES (?)''',(entry['Inverter'][0][0],))
@@ -252,10 +274,10 @@ for entry in plants_data:
     ppc_ip_id = cur.fetchone()[0]
 
     cur.execute('''UPDATE PLANTS SET  portal_name = ?, country_id = ?, ppc_meter_id = ?,
-    inverter_id = ?, grid_code_id = ?, ppc_ip_id = ?, n_controllers = ?,
-    ppc_nominal_power = ?, ppc_controller = ? where id = ?''',
-               (entry['Portal Name'],country_id,meter_id,inv_id,grid_id,
-               ppc_ip_id,entry['#_Controllers'],entry['PPC Nominal Power'],entry['PPC Controller'],plant_id,))
+    pcc_meter_id = ?,inverter_id = ?, grid_code_id = ?, ppc_ip_id = ?,
+    nominal_power = ?, ppc_controller = ? where id = ?''',
+               (entry['Portal Name'],country_id,ppc_meter_id,pcc_meter_id,inv_id,grid_id,
+               ppc_ip_id,entry['Nominal Power'],entry['PPC Controller'],plant_id,))
 conn.commit()
 
 # print(CRED+CBOLD+"ALL DONE"+CEND)
