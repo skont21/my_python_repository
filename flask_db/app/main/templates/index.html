@@ -1,0 +1,107 @@
+{% extends "layout.html" %}
+
+{% block pagestyles %}
+  <link href="{{ url_for('static', filename='dist/css/main.css') }}" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='DataTables/datatables.css') }}">
+{% endblock %}
+
+
+{% block content %}
+{% include "nav.html" %}
+
+      <div class="head">
+        <h1>Hi, {{ user.username }}!</h1>
+        <h3>Inaccess SCADA is installed in <span style="color:lightgreen;font-weight:bold">{{plants_count}}</span>
+          plants accross <span style="color:red;font-weight:bold">{{countries}}</span> different
+          <a href= {{ url_for('main_bp.countries') }} >countries</a>
+        </h3>
+
+        <h3>Inaccess has <span style="color:lightgreen;font-weight:bold">{{ ppc_count }}</span>
+          PPC plants accross <span style="color:red;font-weight:bold">{{ppc_countries_count}}</span> different
+          <a href= {{ url_for('main_bp.countries') }} >countries</a>
+        </h3>
+      </div>
+
+        <table id="example" >
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Plant</th>
+              <th>Portal Name</th>
+              <th>Country</th>
+              <th>Inverter</th>
+              <th>PCC Meter</th>
+              <th>PPC Meter</th>
+              <th>PPC IP</th>
+              <th>Grid Code</th>
+              <th>Nominal Power(kW)</th>
+            </tr>
+          </thead>
+          <tbody id="example_body">
+            {% for plant in plants %}
+              <tr>
+                <td> {{ plants.index(plant) }}</td>
+                <td> <a class="tlink" href= {{ url_for('main_bp.details',slug = plant[0].plant) }}>{{ plant[0].plant }}</a></td>
+                <td> {{plant[0].portal_name}} </td>
+                <td> {{ plant[1].country }}</td>
+                <td> {{ plant[2].model }}</td>
+                <td> {{ plant[6].model }}</td>
+                <td> {{ plant[3].model }}</td>
+                <td> {{ plant[4].ip }}</td>
+                <td> {{ plant[5].grid_code }}</td>
+                <td> {{ plant[0].nominal_power }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+{% endblock %}
+
+{% block additionalscripts %}
+
+<script>
+  $(document).ready(function(){
+
+    $('#example thead tr').clone(true).appendTo( '#example thead' );
+    $('#example thead tr:eq(1) th').each( function (i) {
+        var title = $(this).text();
+        // $(this).css({"position":"sticky","top":"70px","z-index":"999"});
+        $(this).html( '<input type="text" placeholder="Search.." />' );
+
+        $( 'input', this ).on( 'keyup change', function () {
+            if ( table.column(i).search() !== this.value ) {
+                table
+                    .column(i)
+                    .search( this.value )
+                    .draw();
+            }
+        } );
+    } );
+
+    var table = $('#example').DataTable( {
+        orderCellsTop: true,
+        "lengthMenu": [[100, 200, 500,1000,-1], [100, 200, 500,1000, "All"]]
+    } );
+
+    $( window ).resize(function(){
+      var table_width = $("#example").width();
+      $("div.head").width(table_width);
+      $("div.dataTables_wrapper").width(table_width);
+    });
+
+    $( window ).scroll(function(){
+      var table_width = $("#example").width();
+      $("div.head").width(table_width);
+      $("div.dataTables_wrapper").width(table_width);
+    });
+
+    $("#example").next().css("color","white");
+
+    var firstRowHeight = $("#example thead tr:first-child th").outerHeight();
+    var totalHeight = Number(firstRowHeight) + 48 +"px";
+    $("#example thead tr:nth-child(2) th").css({"position":"sticky","top":totalHeight});
+
+  })
+ </script>
+
+ {% endblock %}

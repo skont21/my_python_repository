@@ -1,0 +1,86 @@
+{% extends "layout.html" %}
+
+
+{% block pagestyles %}
+  <link href="{{ url_for('static', filename='dist/css/main.css') }}" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='DataTables/datatables.css') }}">
+{% endblock %}
+
+{% block content %}
+{% include "nav.html" %}
+
+
+  <div class="head">
+    <h1>Inaccess supports <span style="color:lightgreen;font-weight:bold">{{inv_count}}</span> inverter models from <span style="color:red;font-weight:bold">{{man_count}}</span>
+      different <a href= {{ url_for('main_bp.inv_mans') }}>manufacturers</a>
+    </h1>
+
+  </div>
+  <table id="inverters">
+    <thead class="sticky">
+      <tr>
+        <th>#</th>
+        <th>Inverter Manufacturer</th>
+        <th>Inverter Asset Model</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for inverter in inverters %}
+        <tr>
+          <td>{{inverters.index(inverter)}}</td>
+          <td>{{inverter[1].manufacturer}}</td>
+          <td>{{inverter[0].model}}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+{% endblock %}
+
+
+{% block additionalscripts %}
+
+<script>
+  $(document).ready(function(){
+
+    $('#inverters thead tr').clone(true).appendTo( '#inverters thead' );
+    $('#inverters thead tr:eq(1) th').each( function (i) {
+        var title = $(this).text();
+        $(this).html( '<input type="text" placeholder="Search.." />' );
+        $( 'input', this ).on( 'keyup change', function () {
+            if ( table_inv.column(i).search() !== this.value ) {
+                table_inv
+                    .column(i)
+                    .search( this.value )
+                    .draw();
+            }
+        } );
+    } );
+
+    var table_inv = $('#inverters').DataTable( {
+        orderCellsTop: true,
+        "lengthMenu": [[25, 50, 100,200,-1], [25, 50, 100,200, "All"]]
+    } );
+
+
+
+    $( window ).resize(function(){
+      var table_width = $("#inverters").width();
+      $("div.head").width(table_width);
+      $("div.dataTables_wrapper").width(table_width);
+    });
+
+    $( window ).scroll(function(){
+      var table_width = $("#inverters").width();
+      $("div.head").width(table_width);
+      $("div.dataTables_wrapper").width(table_width);
+    });
+
+    var firstRowHeight = $("#inverters thead tr:first-child th").outerHeight();
+    var totalHeight = Number(firstRowHeight) + 48 +"px";
+    $("#inverters thead tr:nth-child(2) th").css({"position":"sticky","top":totalHeight});
+
+  })
+ </script>
+
+{% endblock %}

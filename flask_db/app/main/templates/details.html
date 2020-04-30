@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+
+{% block pagestyles %}
+  <link href="{{ url_for('static', filename='dist/css/main.css') }}" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='DataTables/datatables.css') }}">
+{% endblock %}
+
+{% block content %}
+{% include "nav.html" %}
+
+<div class="head", style="height:100%">
+  <h1>{{ plant[0].plant }}</h1>
+  <p>Country: {{plant[1].country}}</p>
+  <p>Portal Name: {{plant[0].portal_name}}</p>
+  <p>Inverter Model: {{ plant[2].model }}</p>
+  <p>PCC Meter Model: {{ plant[6].model }}</p>
+  <p>PPC Meter Model: {{ plant[3].model }}</p>
+  <p>Grid Code: {{ plant[5].grid_code }}</p>
+  <p>Nominal Power: {{plant[0].nominal_power}} kWp</p>
+  <span>Controller IPs: </span>
+  <ol start="0">
+    {% for ip in ips %}
+    <li>{{ip.ip}}</li>
+    {% endfor %}
+  </ol>
+
+</div>
+
+
+{% endblock %}

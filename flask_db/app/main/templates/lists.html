@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+
+
+{% block pagestyles %}
+  <link href="{{ url_for('static', filename='dist/css/main.css') }}" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='DataTables/datatables.css') }}">
+{% endblock %}
+
+{% block content %}
+{% include "nav.html" %}
+
+<div class="head" style="height:100%">
+  <ul>
+    {% for e in _list %}
+    <li>{{e}}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}
