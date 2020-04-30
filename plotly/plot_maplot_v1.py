@@ -89,9 +89,12 @@ def get_traces(data):
             pass
         time_new = time.copy()
         if new_days_ind:
-            for i in range(len(new_days_ind)-1):
-                time_new[(time_new.index>=new_days_ind[i])&(time_new.index<new_days_ind[i+1])]=time[(time.index>=new_days_ind[i])&(time.index<new_days_ind[i+1])]+datetime.timedelta(days=i+1)
-            time_new[(time_new.index>=new_days_ind[i+1])]=time[(time.index>=new_days_ind[i+1])]+datetime.timedelta(days=i+2)
+            if len(new_days_ind)==1:
+                time_new[time_new.index>=new_days_ind[0]]=time[time.index>=new_days_ind[0]]+datetime.timedelta(days=1)
+            else:
+                for i in range(len(new_days_ind)-1):
+                    time_new[(time_new.index>=new_days_ind[i])&(time_new.index<new_days_ind[i+1])]=time[(time.index>=new_days_ind[i])&(time.index<new_days_ind[i+1])]+datetime.timedelta(days=i+1)
+                    time_new[(time_new.index>=new_days_ind[i+1])]=time[(time.index>=new_days_ind[i+1])]+datetime.timedelta(days=i+2)
         time=time_new
     except:
         time = pd.Series()
