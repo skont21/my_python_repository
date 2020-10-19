@@ -51,6 +51,7 @@ def Add_Dash(server):
     xlabel_text = 'Xlabel'
     y1label_text = 'Y1_label'
     y2label_text = 'Y2_label'
+    y3label_text = 'Y3_label'
     label_size = 20
     label_family = 'Arial'
     label_color = dict(r=0,g=0,b=0,a=1)
@@ -75,7 +76,7 @@ def Add_Dash(server):
 
     traces_children = []
     y_axes=[]
-    for i in range(1,3):
+    for i in range(1,4):
         axis = "Y"+str(i)
         y_axes.append(axis)
 
@@ -336,6 +337,31 @@ def Add_Dash(server):
                                                             value=dict(rgb=label_color)
                                                         ),
                                                         html.Div(id='y2label-color-picker-output')
+                                                        ]),
+                                                    html.Hr()
+                                        ]),
+                                            html.Div(id='y3label',style ={'border':'1px solid black','borderRadius':'10px','padding':'10px','marginTop':'10px','display':'none'},
+                                                children=[
+                                                    html.Label('Y3 Label'),
+                                                    html.Div(id='y3label-input',
+                                                        children=[html.Span('Text'),html.Span(' (Prefix <b>(bold),<i>(italic))',style={'fontSize':'12px'}),
+                                                            dcc.Input(id='y3label-input-text',value=y3label_text,type='text',style={'marginTop':'0.75rem','width':'100%'}),
+                                                            html.Hr()]),
+                                                    html.Div(id='y3label-fonsize',
+                                                        children=[html.P('FontSize'),
+                                                        dcc.Input(id='y3label-input-size',type='number',value=label_size,min=2,step=1,style={'width':'30%'}),
+                                                        html.Hr()]),
+                                                    html.Div(id='y3label-fontfamily',
+                                                        children=[html.P('FontFamily'),
+                                                        dcc.Dropdown(id='y3label-input-family',value=label_family,style={'width':'80%'},placeholder="Select a Font Family",
+                                                                    options=[{'label':tf,'value':tf} for tf in typefaces]
+                                                                    ),html.Hr()]),
+                                                    html.Div(id='y3label-fontcolor',style={'display':'flex','flexWrap':'wrap'},
+                                                        children=[html.Label('FontColor',style={'flexGrow':'9'}),html.Button('﹀',id='y3label-color-appear',n_clicks=0,style={'flexGrow':'1','height':'auto','lineHeight':'100%','padding':'0px'}),
+                                                        daq.ColorPicker(id='y3label-color-picker',style={'width':'100%','border':'none','backgroundColor':'#ebf0f8','display':'none','flexGrow':'10'},
+                                                            value=dict(rgb=label_color)
+                                                        ),
+                                                        html.Div(id='y3label-color-picker-output')
                                                         ]),
                                                     html.Hr()
                                         ])
@@ -681,6 +707,7 @@ def init_callbacks(dash_app,traces_children):
                         Output('xlabel-color-picker','style'),
                         Output('y1label-color-picker','style'),
                         Output('y2label-color-picker','style'),
+                        Output('y3label-color-picker','style'),
                         Output('bg-color-picker','style'),
                         Output('grid-color-picker','style'),
                         Output('legendfont-color-picker','style'),
@@ -691,6 +718,7 @@ def init_callbacks(dash_app,traces_children):
                         Input('xlabel-color-appear','n_clicks'),
                         Input('y1label-color-appear','n_clicks'),
                         Input('y2label-color-appear','n_clicks'),
+                        Input('y3label-color-appear','n_clicks'),
                         Input('bg-color-appear','n_clicks'),
                         Input('grid-color-appear','n_clicks'),
                         Input('legendfont-color-appear','n_clicks'),
@@ -698,7 +726,7 @@ def init_callbacks(dash_app,traces_children):
                         Input('legendborder-color-appear','n_clicks')]+
                         [Input('trace-color-appear'+str(i),'n_clicks') for i in range(0,len(traces_children))])
 
-    def show_color(title_clr_btn,x_clr_btn,y1_clr_btn,y2_clr_btn,bg_clr_btn,grid_clr_btn,lgdfont_clr_btn,lgdbg_clr_btn,lgdborder_clr_btn,*args):
+    def show_color(title_clr_btn,x_clr_btn,y1_clr_btn,y2_clr_btn,y3_clr_btn,bg_clr_btn,grid_clr_btn,lgdfont_clr_btn,lgdbg_clr_btn,lgdborder_clr_btn,*args):
 
         block = {'width':'100%','border':'none','backgroundColor':'#ebf0f8','display':'block'}
         nonblock = {'width':'100%','border':'none','backgroundColor':'#ebf0f8','display':'none'}
@@ -734,6 +762,14 @@ def init_callbacks(dash_app,traces_children):
                 y2 = nonblock
         else:
             y2 = nonblock
+
+        if (y3_clr_btn) & (y3_clr_btn > 0):
+            if (y3_clr_btn%2 == 1):
+                y3 =  block
+            else:
+                y3 = nonblock
+        else:
+            y3 = nonblock
 
         if (bg_clr_btn) & (bg_clr_btn > 0):
             if (bg_clr_btn%2 == 1):
@@ -789,7 +825,7 @@ def init_callbacks(dash_app,traces_children):
                 tr_colors.append(tr)
 
         # print(tr_colors)
-        return [title]+[x]+[y1]+[y2]+[bg]+[grid]+[lfont]+[lbg]+[lbord]+[tr for tr in tr_colors]
+        return [title]+[x]+[y1]+[y2]+[y3]+[bg]+[grid]+[lfont]+[lbg]+[lbord]+[tr for tr in tr_colors]
 
 
 
@@ -876,17 +912,27 @@ def init_callbacks(dash_app,traces_children):
 
 # ----------------------------------------------------------------------------------------
 
-    @dash_app.callback(Output('y2label','style'),
+    @dash_app.callback([Output('y2label','style')]+
+                        [Output('y3label','style')],
                         [Input('yaxis-select-'+str(i),'value') for i in range(0,len(traces_children))])
 
-    def add_y2(*args):
-        try:
-            for arg in args:
-                if ("2" in arg):
-                    return {'border':'1px solid black','borderRadius':'10px','padding':'10px','marginTop':'10px','display':'block'}
-            return {'border':'1px solid black','borderRadius':'10px','padding':'10px','marginTop':'10px','display':'none'}
-        except:
-            return {'border':'1px solid black','borderRadius':'10px','padding':'10px','marginTop':'10px','display':'none'}
+    def add_y(*args):
+        block = {'border':'1px solid black','borderRadius':'10px','padding':'10px','marginTop':'10px','display':'block'}
+        nonblock = {'border':'1px solid black','borderRadius':'10px','padding':'10px','marginTop':'10px','display':'none'}
+
+        print(args)
+
+        if ('Y2') in args:
+            style_y2 = block
+        else:
+            style_y2 = nonblock
+
+        if ('Y3') in args:
+            style_y3 = block
+        else:
+            style_y3 = nonblock
+
+        return (style_y2,style_y3)
 
 # ----------------------------------------------------------------------------------------
 
@@ -907,7 +953,7 @@ def init_callbacks(dash_app,traces_children):
             return [None]*len(traces_children)*2
 
 # # ----------------------------------------------------------------------------------------
-    axes =["x","y1","y2"]
+    axes =["x","y1","y2","y3"]
     atrs =["input-text","input-size","input-family","color-picker"]
 
     @dash_app.callback(Output('example-graph','figure'),
@@ -933,6 +979,7 @@ def init_callbacks(dash_app,traces_children):
                         Input('legend-input-orientation', 'value')]+
                         [Input(ax+'label-'+atr,'value') for ax in axes for atr in atrs]+
                         [Input('y2label','style')]+
+                        [Input('y3label','style')]+
                         [Input('data-table','data')]+
                         [Input('xtrace-input-select-'+str(i),'value') for i in range(0,len(traces_children))]+
                         [Input('ytrace-input-select-'+str(i),'value') for i in range(0,len(traces_children))]+
@@ -941,24 +988,29 @@ def init_callbacks(dash_app,traces_children):
                         [Input('trace-input-width'+str(i),'value') for i in range(0,len(traces_children))]+
                         [Input('trace-input-type'+str(i),'value') for i in range(0,len(traces_children))]+
                         [Input('trace-input-deadband'+str(i),'value') for i in range(0,len(traces_children))]+
-                        [Input('trace-input-text'+str(i),'value') for i in range(0,len(traces_children))])
+                        [Input('trace-input-text'+str(i),'value') for i in range(0,len(traces_children))],
+                        [State('example-graph','figure')])
 
     def update_graph(title_text,title_size,title_position,title_family,title_color,bg_color,
             grid_color,grid_width,grid_show,grid_axes,legend_size,legend_family,legendfont_color,legendbg_color,legendborder_color,legend_show,legend_bordersize,legend_vposition,legend_hposition,legend_or,
             xlabel_text,xlabel_size,xlabel_family,xlabel_color,
             y1label_text,y1label_size,y1label_family,y1label_color,
-            y2label_text,y2label_size,y2label_family,y2label_color,y2label_style,
+            y2label_text,y2label_size,y2label_family,y2label_color,
+            y3label_text,y3label_size,y3label_family,y3label_color,
+            y2label_style,
+            y3label_style,
             data,*args):
 
 
-        # print(y2label_style)
         ysels=args[30:45]
         line_colors=args[45:60]
         line_widths=args[60:75]
-        # line_ops=args[75:90]
         line_types=args[75:90]
         line_deads=args[90:105]
-        names = args[105:]
+        names = args[105:120]
+
+        figure = args[120]
+        # print(figure['layout'])
 
         yaxes=[]
         for yaxis in ysels:
@@ -967,6 +1019,8 @@ def init_callbacks(dash_app,traces_children):
                 yaxes.append(y)
             except:
                 yaxes.append(yaxis)
+
+        print(yaxes)
 
         xytraces = list(zip(args[0:15],args[15:30],yaxes,line_colors,line_widths,line_types,line_deads,args[105:]))
 
@@ -1001,8 +1055,11 @@ def init_callbacks(dash_app,traces_children):
         layout = {
                     "title":{"text":title_text,"x":title_position,"font":{"size":title_size,"family":title_family,"color":title_color['rgb']}},
                     "xaxis":{"title":{"text":xlabel_text,"font":{"size":xlabel_size,"family":xlabel_family,"color":xlabel_color['rgb']}},'gridcolor':grid_color['rgb'],'gridwidth':float(grid_width),'zeroline':False,'showgrid':visible_x,
-                        'tickangle':45,'tickformat':""},
-                    "yaxis":{"title":{"text":y1label_text,"font":{"size":y1label_size,"family":y1label_family,"color":y1label_color['rgb']}},'gridcolor':grid_color['rgb'],'gridwidth':float(grid_width),'zeroline':False,'showgrid':visible_y},
+                        'tickangle':90,'tickformat':"","domain": [0,1],'tickprefix':'<b>'
+                        },
+                    "yaxis":{"title":{"text":y1label_text,"font":{"size":y1label_size,"family":y1label_family,"color":y1label_color['rgb']}},
+                            'gridcolor':grid_color['rgb'],'gridwidth':float(grid_width),'zeroline':False,'showgrid':visible_y,
+                            'tickprefix':'<b>'},
                     "showlegend":lgd_show,
                     "legend":{"orientation":orientation,"xanchor":'auto',"yanchor":'auto',"x":legend_hposition,"y":legend_vposition,"autosize":True,"bgcolor":legendbg_color['rgb'],"borderwidth":legend_bordersize,"bordercolor":legendborder_color['rgb'],
                         "font":{"family":legend_family,"size":legend_size,"color":legendfont_color['rgb']}},
@@ -1015,7 +1072,6 @@ def init_callbacks(dash_app,traces_children):
             if x and y and yaxis and color and width:
 
                 try:
-                    print(data[x][0].split('T')[1])
                     data[x] = [el.split('T')[1] for el in data[x]]
                 except:
                     pass
@@ -1023,7 +1079,7 @@ def init_callbacks(dash_app,traces_children):
                 g = color['rgb']['g']
                 b = color['rgb']['b']
                 a = color['rgb']['a']
-                # print(color['rgb'])
+
                 dead_color = color['rgb']
                 dead_color['a']= color['rgb']['a']/3
                 if dead == 0:
@@ -1035,17 +1091,21 @@ def init_callbacks(dash_app,traces_children):
 
                 traces.append(dict(x=data[x],y=data[y],mode="lines",type="scatter",xaxis="x",yaxis="y"+yaxis,name=name,error_y=error_y,opacity=1,line={'color':'rgba({},{},{},{})'.format(r,g,b,a),'width':width,'simplify':False,'dash':type}))
 
-                if yaxis=="1":
-                    side ='left'
-                    layout['yaxis'+yaxis] ={'side':side,'anchor':"x"}
-                else:
+                if yaxis == "3":
+                    side = 'left'
+                    layout['yaxis'+yaxis] ={'side':side,'overlaying':'y1','anchor':"free","title":{"text":y3label_text,"font":{"size":y3label_size,"family":y3label_family,"color":y3label_color['rgb']}},
+                                            'gridcolor':grid_color['rgb'],'gridwidth':0,'zeroline':False,'showgrid':False,'position':0,'tickprefix':'<b>'}
+                    layout['xaxis']['domain'] = [0.06,1]
+                elif yaxis == "2":
                     side = 'right'
                     layout['yaxis'+yaxis] ={'side':side,'anchor':"x",'overlaying':'y1',"title":{"text":y2label_text,"font":{"size":y2label_size,"family":y2label_family,"color":y2label_color['rgb']}},
-                                            'gridcolor':grid_color['rgb'],'gridwidth':0,'zeroline':False,'showgrid':False}
+                                            'gridcolor':grid_color['rgb'],'gridwidth':0,'zeroline':False,'showgrid':False,'tickprefix':'<b>'}
+
+
+        print(figure['layout'])
 
         if not traces:
             traces.append(dict(x=[],y=[],mode="lines"))
 
         return {"data": traces,
-                "layout":layout
-                }
+                "layout":layout}

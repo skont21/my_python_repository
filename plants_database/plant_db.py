@@ -83,7 +83,7 @@ elif answer=="no":
         data = parse_ods(plant,path_to_files)
         all_data.append({plant:data})
 
-    print(CBOLD + "Parsing completed succesfullt" + CEND + "\n")
+    print(CBOLD + "Parsing completed succesfully" + CEND + "\n")
 
 
     print(CBOLD + "Saving data to all_data.pickle for later use...." + CEND)

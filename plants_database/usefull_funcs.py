@@ -32,7 +32,7 @@ def parse_ods(plant,path):
     import re
     import os
 
-    print(CRED + plant + CEND + '\n')
+    # print(CRED + plant + CEND + '\n')
 
     plant_ods = plant+'_InstallationData.ods'
     path = path+'/'+plant+'/'
@@ -93,8 +93,13 @@ def find_PPC_meter(data):
             ID = int(data['PPC']['Settings']['Meter ID'])-1
         except (KeyError,TypeError) as e:
             ID = 0
-        meter_model = data['PCC']['Protection device']['Model'][ID]
-        meter_man =  data['PCC']['Protection device']['Manufacturer'][ID]
+        try:
+            meter_model = data['PCC']['Protection device']['Model'][ID]
+            meter_man =  data['PCC']['Protection device']['Manufacturer'][ID]
+        except IndexError:
+            meter_man = '-'
+            meter_model = '-'
+            return (meter_man,meter_model)
         if (meter_model == 'PPC_METER_GENERIC') | (meter_model == 'PPC_METER_GENERIC_EXT') | (meter_model == 'SUM_OR_METER_GENERIC'):
             meter_model = data['Protection device']['Multimeter']['Model'][0]
             meter_man = data['Protection device']['Multimeter']['Manufacturer'][0]
@@ -278,7 +283,7 @@ def find_plant_ips(path,data,plant):
     plants_err=[]
     services=['insolar-2','insolar-octopus','insolar-sc','management','insolar']
     it_json = 'controller_[0-9]*_it.json$'
-    lans = ['enp1s0','enp3s0','lan','eth0']
+    lans = ['bond0','enp1s0','enp3s0','lan','eth0']
     controller_json = 'controller_[0-9]*\.json$'
     site_it_json = 'site_it.json$'
 

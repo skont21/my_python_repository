@@ -11,10 +11,10 @@ from matplotlib.ticker import AutoMinorLocator, FormatStrFormatter,LinearLocator
 import matplotlib as mpl
 mpl.use('TkAgg')
 
-Active =['ppc:P[^F]','.*pccm.*:ACTP_TOT',".*epm.*:ACTP_TOT",".*pccs.*:ACTP_TOT"]
-Reactive =['ppc:Q.*','.*pccm.*:REACTP_TOT',".*epm.*:REACTP_TOT",".*pccs.*:REACTP_TOT"]
-Voltage =['ppc:V','.*pccm.*:VABC_AVG',".*epm.*:VABC_AVG",".*pccs.*:VABC_AVG"]
-Frequency=['ppc:F','.*pccm.*:FREQ',".*epm.*:FREQ",".*pccs.*:FREQ"]
+Active =['.*pccm.*:ACTP_TOT','ppc:P[^F]',".*epm.*:ACTP_TOT",".*pccs.*:ACTP_TOT"]
+Reactive =['.*pccm.*:REACTP_TOT','ppc:Q0',".*epm.*:REACTP_TOT",".*pccs.*:REACTP_TOT"]
+Voltage =['.*pccm.*:VABC_AVG','ppc:V0',".*epm.*:VABC_AVG",".*pccs.*:VABC_AVG"]
+Frequency=['ppc:F0','.*pccm.*:FREQ',".*epm.*:FREQ",".*pccs.*:FREQ"]
 PowerFactor=['ppc:PF','.*pccm.*:PF',"epm.*:PF",".*pccs.*:PF"]
 Expected=['.*Pexp']
 Active_Setpoint = ['apc:PSP']
@@ -63,8 +63,12 @@ def get_data_from_csv(data_csv):
         #     data=pd.read_csv(data_csv,delimiter=";")
         if data.columns[0]=='TIME':
             if "." in data['TIME'][0]:
-                data['TIME']= data['TIME'].str.split(".",n=1,expand=True)[0]
-            data['TIME']=data['TIME'].apply(lambda x : datetime.datetime.strptime(x, '%H:%M:%S'))
+                # data['TIME']= data['TIME'].str.split(".",n=1,expand=True)[0]
+                data['TIME']=data['TIME'].apply(lambda x : datetime.datetime.strptime(x, '%H:%M:%S.%f'))
+            else:
+                data['TIME']=data['TIME'].apply(lambda x : datetime.datetime.strptime(x, '%H:%M:%S'))
+
+
         data.replace("---",np.NaN,inplace=True)
         for col in data.select_dtypes('object').columns:
             try:
@@ -84,13 +88,14 @@ def get_traces(data):
         time=data['TIME']
         new_days_ind = None
         try:
-            new_days_ind = data_cp.index.get_loc("1900-01-01 00:00:00")
+            # new_days_ind = data_cp.index.get_loc("1900-01-01 00:00:00")
+            new_days_ind =np.array([data_cp.index.get_loc("1900-01-01 00:00:00")[0::10]])
         except:
             pass
         time_new = time.copy()
         if new_days_ind:
             if len(new_days_ind)==1:
-                time_new[time_new.index>=new_days_ind[0]]=time[time.index>=new_days_ind[0]]+datetime.timedelta(days=1)
+                time_new[time_new.index>=new_days_ind[0][0]]=time[time.index>=new_days_ind[0][0]]+datetime.timedelta(days=1)
             else:
                 for i in range(len(new_days_ind)-1):
                     time_new[(time_new.index>=new_days_ind[i])&(time_new.index<new_days_ind[i+1])]=time[(time.index>=new_days_ind[i])&(time.index<new_days_ind[i+1])]+datetime.timedelta(days=i+1)
@@ -271,7 +276,7 @@ def plot_existing(figure,texts,verticals,horizontals,arrows):
     ax.xaxis.set_minor_locator(AutoMinorLocator())
     if isinstance(x[0],pd._libs.tslibs.timestamps.Timestamp):
         ax.xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
-        ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
+        ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S.%f'))
     else:
         ax.xaxis.set_major_locator(MaxNLocator(nbins=20,integer=True))
         ax.xaxis.set_minor_locator(AutoMinorLocator())
@@ -338,7 +343,7 @@ def plot_P(TIME,P,PSP,PEN):
     ax.spines["right"].set_visible(False)
     ax.set_facecolor('#000000')
     ax.grid(which='major',ls='--',lw=0.5,c='#b0b0b0',alpha=0.5)
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S.%f'))
     ax.xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
     ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.yaxis.set_major_locator(MaxNLocator(nbins=20,integer=True))
@@ -387,7 +392,7 @@ def plot_Pexp(TIME,P,PSP,PEN,PEXP):
     ax.spines["right"].set_visible(False)
     ax.set_facecolor('#000000')
     ax.grid(which='major',ls='--',lw=0.5,c='#b0b0b0',alpha=0.5)
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S.%f'))
     ax.xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
     ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.yaxis.set_major_locator(MaxNLocator(nbins=20,integer=True))
@@ -436,7 +441,7 @@ def plot_Q(TIME,Q,QSP,QEN):
     ax.spines["right"].set_visible(False)
     ax.set_facecolor('#000000')
     ax.grid(which='major',ls='--',lw=0.5,c='#b0b0b0',alpha=0.5)
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S.%f'))
     ax.xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
     ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.yaxis.set_major_locator(MaxNLocator(nbins=20,integer=True))
@@ -481,7 +486,7 @@ def plot_PF(TIME,PF,PFSP,PFEN):
     ax.spines["right"].set_visible(False)
     ax.set_facecolor('#000000')
     ax.grid(which='major',ls='--',lw=0.5,c='#b0b0b0',alpha=0.5)
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S.%f'))
     ax.xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
     ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.yaxis.set_major_locator(MaxNLocator(nbins=20))
@@ -528,7 +533,7 @@ def plot_F_P(TIME,P,PSP,F,FSP,FEN):
     ax.set_facecolor('#000000')
     ax.grid(which='major',ls='--',lw=0.5,c='#b0b0b0',alpha=0.5)
     # ax.xaxis.set_major_locator(MaxNLocator(min_n_ticks=10,nbins=30))
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S.%f'))
     ax.xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
     ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.yaxis.set_major_locator(MaxNLocator(nbins=20,integer=True))
@@ -650,7 +655,7 @@ def plot_QV(TIME,V,QVSP,Q,QSP,QVEN):
 
     ax.set_facecolor('#000000')
     ax.grid(which='major',ls='--',lw=0.5,c='#b0b0b0',alpha=0.5)
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S.%f'))
     ax.xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
     ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.yaxis.set_major_locator(MaxNLocator(nbins=20,integer=True))
@@ -836,6 +841,7 @@ def custom_plot(x,ys):
     j=1
     for arg in ys:
         if arg["ax2"]==False:
+            # print(x)
             l,=ax.plot(x,arg["tr"],label="Y1,"+str(i),color=randstring(6),linewidth=1)
             lines.append(l)
             i+=1
@@ -851,7 +857,9 @@ def custom_plot(x,ys):
     ax.xaxis.set_minor_locator(AutoMinorLocator())
     if isinstance(x[0],pd._libs.tslibs.timestamps.Timestamp):
         ax.xaxis.set_major_locator(mdates.AutoDateLocator(interval_multiples=True))
-        ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
+        # ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
+        ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S.%f'))
+        print(ax.xaxis.get_major_formatter())
     else:
         ax.xaxis.set_major_locator(MaxNLocator(nbins=20,integer=True))
         ax.xaxis.set_minor_locator(AutoMinorLocator())

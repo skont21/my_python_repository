@@ -916,7 +916,7 @@ def plot(fig,axes,lines,leg,from_):
                 x_tick_val = tk.StringVar(change_xticks)
                 x_tick_val.set(x_tick_current_int)
                 x_tick = tk.Label(change_xticks, text="Put ticks every:").grid(row=0,column=0)
-                e_x_tick = tk.Spinbox(change_xticks,from_=0, to=x_tick_current_int*100,bd=5,width=10,textvariable=x_tick_val,increment=x_tick_current_int/10)
+                e_x_tick = tk.Spinbox(change_xticks,from_=0.1, to=x_tick_current_int*100,bd=5,width=10,textvariable=x_tick_val,increment=x_tick_current_int/10)
                 e_x_tick.grid(row=0,column=1,sticky=tk.W)
 
                 x_tick_rot = tk.StringVar(change_xticks)
@@ -961,6 +961,8 @@ def plot(fig,axes,lines,leg,from_):
                 fig.axes[0].xaxis.set_major_locator(loc)
             elif x_int == 'h':
                 fig.axes[0].xaxis.set_major_locator(mdates.HourLocator(interval = int(x_val)))
+            else:
+                fig.axes[0].xaxis.set_major_locator(mdates.MicrosecondLocator(interval = 1000*int(x_val)))
             try:
                 rot = e_x_tick_rot.get()
                 s = e_x_tick_size.get()
@@ -1002,25 +1004,40 @@ def plot(fig,axes,lines,leg,from_):
 
             hd=int(axes[0].get_xticklabels()[1].get_text().split(':')[0])-int(axes[0].get_xticklabels()[0].get_text().split(':')[0])
             md=int(axes[0].get_xticklabels()[1].get_text().split(':')[1])-int(axes[0].get_xticklabels()[0].get_text().split(':')[1])
-            sd=int(axes[0].get_xticklabels()[1].get_text().split(':')[2])-int(axes[0].get_xticklabels()[0].get_text().split(':')[2])
 
-            td = hd*3600+md*60+sd
+            print(axes[0].get_xticklabels()[1].get_text())
+            try:
+                sd=int(axes[0].get_xticklabels()[1].get_text().split(':')[2].split('.')[0])-int(axes[0].get_xticklabels()[0].get_text().split(':')[2].split('.')[0])
+                print(sd)
+                msd=int(axes[0].get_xticklabels()[1].get_text().split('.')[1])-int(axes[0].get_xticklabels()[0].get_text().split('.')[1])
+                print(msd)
+            except:
+                sd=int(axes[0].get_xticklabels()[1].get_text().split(':')[2])-int(axes[0].get_xticklabels()[0].get_text().split(':')[2])
+                msd=0
 
-            if td/60>=1:
-                td = td/60
+            td = hd*3600000000+md*60000000+sd*1000000+msd
+
+            print(td)
+
+            if td/60000000>=1:
+                td = td/60000000
                 tv = "min"
-            elif td/3600>=1:
-                td = td/3600
+            elif td/3600000000>=1:
+                td = td/3600000000
                 tv = "h"
-            else:
+            elif td/1000000>=1:
+                td = td/1000000
                 tv = "sec"
+            else:
+                td = td/1000
+                tv = "msec"
 
             x_tick_val = tk.StringVar(change_xticks)
             x_tick_val.set(td)
-            e_x_tick = tk.Spinbox(change_xticks,from_=1, to=60,bd=5,width=10,textvariable=x_tick_val,increment=1)
+            e_x_tick = tk.Spinbox(change_xticks,from_=1, to=1000,bd=5,width=10,textvariable=x_tick_val,increment=1)
             e_x_tick.grid(row=0,column=1)
 
-            xtick_int = ['sec','min','h']
+            xtick_int = ['msec','sec','min','h']
             var_xtick = tk.StringVar(change_xticks)
             var_xtick.set(tv)
             w_xtick = tk.OptionMenu(change_xticks, var_xtick, *xtick_int)
@@ -1491,8 +1508,8 @@ if 'csv' in csv:
                 input_trace.destroy()
 
             input_trace=tk.Toplevel(choose_plot)
-            input_trace.geometry("+{}+{}".format(choose_plot.winfo_x(),choose_plot.winfo_y()))
-            input_trace.resizable(width=False, height=False)
+            # input_trace.geometry("+{}+{}".format(choose_plot.winfo_x(),choose_plot.winfo_y()))
+            # input_trace.resizable(width=False, height=False)
             input_trace.withdraw()
             input_trace.protocol("WM_DELETE_WINDOW")
             input_trace.title(title)
@@ -1523,7 +1540,7 @@ if 'csv' in csv:
                 custom_trace.destroy()
 
             custom_trace=tk.Toplevel(choose_plot)
-            custom_trace.resizable(width=False, height=False)
+            # custom_trace.resizable(width=False, height=False)
             # custom_trace.geometry("200x70")
             custom_trace.grid_columnconfigure(0, weight=1)
             custom_trace.grid_rowconfigure(0, weight=1)
@@ -1598,7 +1615,7 @@ if 'csv' in csv:
             custom_trace=tk.Toplevel(choose_plot)
             custom_trace.grid_columnconfigure(0, weight=1)
             custom_trace.grid_rowconfigure(0, weight=1)
-            custom_trace.resizable(width=False, height=False)
+            # custom_trace.resizable(width=False, height=False)
             custom_trace.withdraw()
             custom_trace.protocol("WM_DELETE_WINDOW")
             custom_trace.title(title)
